@@ -1,0 +1,117 @@
+Super Admin
+		-Plans.
+		-Users.
+		-Subscriptions.
+		-Twilio Settings.
+		-Payments.
+		-Transactions History.
+		-Role.
+		
+
+User End Modules-
+		1.Pricing.
+		2.Login/ Registration .
+		3.Subscriptions(By stripe).
+		4.Manage
+				-Account Settings.
+				   =>Options(
+								Record calls
+								Create Contacts
+								View call History Permissions
+								Add Phone number permissions
+								OutBound recording
+							).
+				   =>Settings(
+								Hold Music.
+								Name
+								Time Zone.
+				   ).
+				   
+		5.Buy Number  (Search By)
+				-assign number.
+				-Country.
+				-Area code /Prefix
+				-SMSable
+				-Local/Tollfree(Type)
+		
+
+		6.Departments(Groups).
+				-name
+				-send voicemail mail to
+				-Greetings Type.
+				-Ring audio
+				-voicemail type
+				-No answer action(queue/group/agents)
+				-Groups extension.
+				         Ring type
+						 second ring
+						 Press 1 to accept
+						 Device to ring
+								Press to  
+								Agent
+								Device
+				
+				
+		7.Team
+				Create team
+				add agents into team
+		8.Queue
+			General settings as a same Kixies.
+		
+		9.IVR
+				Dynamic flow.
+		10.Conference call
+		
+		11.Call Dispositions.
+		
+		12.Billing 
+			-Invoices
+			-Recharge Details(Balance ).
+			-Update Subscriptions Card details.
+			
+		13.Power Dialer.
+		
+		14.Live call Board.
+		
+		15.Profile Module
+				Reports.
+				Call History.
+				SMS History.
+				Device & routings .
+				Numbers
+				details edit.
+				Voice Mail message settings.
+				OPtions settings.
+				Voicemail drop
+				SMS template
+				
+				
+		
+				
+			
+		
+						 
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				   
+				   
+				   
+		
+		
+		
+
+		
+		
+		

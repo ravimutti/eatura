@@ -41,22 +41,17 @@ class Store extends BaseController
 		// delete_cookie('delivery_type');
 		// delete_cookie('pincode');
 		if (isset($_POST['pincode']) || isset($_POST['delivery'])) {
-
-			if($_POST['delivery'] == "self") {
-				delete_cookie('pincode');
-			}else{
-				$pinCode = $_POST['pincode'];
-				$cookie = array(
-					'name' => 'pincode',
-					'value' => $pinCode,
-					'expire' => 3600,
-				);
-				$this->input->set_cookie($cookie);
-			}
+			$pinCode = $_POST['pincode'];
+			$cookie = array(
+				'name' => 'pincode',
+				'value' => $pinCode,
+				'expire' => '3600',
+			);
+			$this->input->set_cookie($cookie);
 			$cookie = array(
 				'name' => 'delivery_type',
 				'value' => $_POST['delivery'],
-				'expire' => 3600,
+				'expire' => '3600',
 			);
 			$this->input->set_cookie($cookie);
 			return redirect('/' . SLUG);
@@ -128,7 +123,7 @@ class Store extends BaseController
 	{
 		$url = SITEURL . "getDetails";
 		$pinCode = $this->input->cookie('pincode', true);
-		
+
 		$isByPassPinCodeCheck = ($this->input->cookie('delivery_type', true) == "self" || trim($this->input->cookie('delivery_type', true)) === "") ? true : false;
 		$queryString = "purchaseKey=value1&slugname=$slug&pincode=$pinCode";
 		$ch = curl_init();
@@ -137,8 +132,8 @@ class Store extends BaseController
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $queryString);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		$response = json_decode(curl_exec($ch));
-		// curl_close($ch);
-		// echo "<pre>";print_r($response);die;
+		curl_close($ch);
+//		echo "<pre>";print_r($response);die;
 		if (!empty($response)) {
 			if ($response->error == '202') {
 				// here we need to match pin code first

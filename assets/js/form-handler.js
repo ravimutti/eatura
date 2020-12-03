@@ -276,7 +276,7 @@ function formSubmit(form) {
 				}
 				
 				// Success Response show alert
-				toaster('Success', response.message, delayTime);
+				swalAlert('Success', response.message, delayTime);
 				setInterval(function () {
 					$("input[type=submit]").prop("disabled", false);
 					$("button[type=submit]").prop("disabled", false);
@@ -325,7 +325,7 @@ function formSubmit(form) {
 
 				} else {
 					// show error
-					toaster('Error', response.message, delayTime);
+					swalAlert('Error', response.message, delayTime);
 				}
 			}
 
@@ -370,17 +370,17 @@ function formSubmit(form) {
 			$("button[type=submit]").prop("disabled", false);
 			//INSUFFICIENT_PERMISSIONS
 			if (response.status == 401) {
-				toaster('Info', jsonResponse.error.description, delayTime);
+				swalAlert('Info', jsonResponse.error.description, delayTime);
 				return;
 			}
 			//checking response code
 			if (response.status == 400) {
-				toaster('Error', jsonResponse.message, delayTime);
+				swalAlert('Error', jsonResponse.message, delayTime);
 			}
 
 			if (size > 0) {
 				$.each(jsonErrors, function (index, value) {
-					toaster('Error', value, delayTime);
+					swalAlert('Error', value, delayTime);
 				})
 			}
 		}

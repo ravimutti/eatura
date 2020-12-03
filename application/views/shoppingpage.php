@@ -171,8 +171,16 @@ foreach ($deliverydetails as $charge) {
 												date-ref="productContainer<?= $prodcutrow->id ?>">
 														<?php echo $prodcutrow->name; ?>
 													</span>
+
+										<?php 
+										$openDescriptionModal = "d-none";
+										if (isset($prodcutrow->more_info) && trim($prodcutrow->more_info) !="" ) { 
+											$openDescriptionModal = "d-inline-block openDescriptionModal";
+										}
+
+										?> 
 										<a href="javascript:void(0)"
-										   class="green-text d-inline-block openDescriptionModal" title="Product Information"
+										   class="green-text  <?=$openDescriptionModal?>" title="Product Information"
 										   data-ref="<?= $prodcutrow->id ?>"> <i class="fa fa-info-circle"></i></i></a>
 									</p>
 
@@ -181,11 +189,17 @@ foreach ($deliverydetails as $charge) {
 
 											$description = json_decode($prodcutrow->description);
 											if (is_array($description) && sizeof($description)) {
-												$descriptionString = '<ul class="product-discription">';
-												foreach ($description as $key => $value) {
-													$descriptionString .= '<li>' . $value . '</li>';
+
+												if(sizeof($description) == 1) {
+													$descriptionString = "<p class='product_description'>$description[0]</p>";
+												}else{
+													$descriptionString = '<ul class="product-discription">';
+													foreach ($description as $key => $value) {
+														$descriptionString .= '<li>' . $value . '</li>';
+													}
+													$descriptionString .= '</ul>';
 												}
-												$descriptionString .= '</ul>';
+												
 												?>
 
 												<div class="product_description hasJson"
@@ -302,7 +316,7 @@ foreach ($deliverydetails as $charge) {
 																				if (!empty($rowsubtoppings->price) && $rowsubtoppings->price != '0.00' && $rowsubtoppings->price != '0') {
 																					$subToppings .= ' (+ €' . formatPrice($rowsubtoppings->price) . ')';
 																				}
-																				$subToppings .= '</label><a href="javascript:void(0)" class="pull-right openDescriptionModal"
+																				$subToppings .= '</label><a href="javascript:void(0)" class="pull-right '.$openDescriptionModal.' "
 																			   data-ref="' . $prodcutrow->id . '">Produktinfo</a></div>';
 																				$countsubcheck++;
 
@@ -351,7 +365,7 @@ foreach ($deliverydetails as $charge) {
 																					echo ' (+ €' . formatPrice($protoppingsMap->price) . ')';
 																				} ?> </label>
 																			<a href="javascript:void(0)"
-																			   class="pull-right openDescriptionModal"
+																			   class="pull-right <?=$openDescriptionModal?>"
 																			   data-ref="<?= $prodcutrow->id ?>">Produktinfo</a>
 																		</div>
 

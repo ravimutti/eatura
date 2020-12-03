@@ -276,7 +276,12 @@ function formSubmit(form) {
 				}
 				
 				// Success Response show alert
-				swalAlert('Success', response.message, delayTime);
+				if(response.success_message) {
+					swalAlert('Success', response.success_message, delayTime);
+				}else{
+					swalAlert('Success', response.message, delayTime);
+				}
+				
 				setInterval(function () {
 					$("input[type=submit]").prop("disabled", false);
 					$("button[type=submit]").prop("disabled", false);
@@ -325,7 +330,11 @@ function formSubmit(form) {
 
 				} else {
 					// show error
-					swalAlert('Error', response.message, delayTime);
+					if(errore.success_message) {
+						swalAlert('Error', response.error_message, delayTime);
+					}else{
+						swalAlert('Error', response.message, delayTime);
+					}
 				}
 			}
 

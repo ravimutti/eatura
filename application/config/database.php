@@ -76,7 +76,7 @@ $query_builder = TRUE;
 $db['default'] = array(
 	'dsn'	=> '',
 	'hostname' => 'localhost',
-	'username' => 'optiifyuser',
+	'username' => 'root',
 	'password' => 'QrV=VN4}7Ufy',
 	'database' => 'eautra_backend',
 	'dbdriver' => 'mysqli',

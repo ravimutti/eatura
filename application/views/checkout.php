@@ -61,6 +61,7 @@ $this->load->view('includes/header', array('user_data' => $user_data));
 						<div class="payment-head mt-3">
 							<h2>Auf geht's!</h2>
 							<h4><?= @$profile->name ?></h4>
+							<?php if($this->input->cookie('delivery_type', true) !="self") { ?>
 							<p>Wohin soll Deine Bestellung geliefert werden?</p>
 							<hr>
 							<div class="row">
@@ -96,6 +97,7 @@ $this->load->view('includes/header', array('user_data' => $user_data));
 									</div>
 								</div>
 							</div>
+						<?php }?>
 						</div>
 						<div class="mt-3 payment-head">
 							<p>Wie können wir Dich erreichen?</p>

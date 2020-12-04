@@ -169,7 +169,12 @@ foreach ($deliverydetails as $charge) {
 												class="product_name"
 												data-parent="<?php echo $resultrow->catslug; ?>"
 												date-ref="productContainer<?= $prodcutrow->id ?>">
-														<?php echo $prodcutrow->name; ?>
+													<?php
+														if(!empty($prodcutrow->sku)) {
+															echo $prodcutrow->sku.' - ';
+														}
+														echo $prodcutrow->name;
+													?>
 													</span>
 
 										<?php 
@@ -312,7 +317,7 @@ foreach ($deliverydetails as $charge) {
 																						   data-price="' . $rowsubtoppings->price . '"
 																						   data-name="' . $rowsubtoppings->name . '"
 																						   >
-                                          <label class="custom-control-label" for="subtoppings' . $rowsubtoppings->id . $prodcutrow->id . '">with ' . $rowsubtoppings->name;
+                                          <label class="custom-control-label" for="subtoppings' . $rowsubtoppings->id . $prodcutrow->id . '">mit ' . $rowsubtoppings->name;
 																				if (!empty($rowsubtoppings->price) && $rowsubtoppings->price != '0.00' && $rowsubtoppings->price != '0') {
 																					$subToppings .= ' (+ €' . formatPrice($rowsubtoppings->price) . ')';
 																				}
@@ -456,7 +461,7 @@ foreach ($deliverydetails as $charge) {
 							<div class="content-foot">
 								<h2 class="menucard-imprint__heading">Impressum</h2>
 								<div class="info-tab-section menucard-imprint__section">
-									<?php echo $profile->address; ?>
+									<?php echo $profile->name; ?> - <?php echo $profile->address; ?>
 									<div>
 										<br>
 										E-Mail: <?php echo $profile->email; ?>
@@ -465,6 +470,12 @@ foreach ($deliverydetails as $charge) {
 										Fax: <?php echo $profile->fax; ?>
 									</div>
 									<br>
+									<?php if(!empty($profile->vat_no)) { ?>
+										<div>
+											VAT Number <?php echo $profile->vat_no; ?>
+										</div>
+									<?php } ?>
+
 									<div class="menucard-resolution-url">
 										<a href="javascript:void(0);" class="menucard-imprint" target="_blank">Plattform
 											der

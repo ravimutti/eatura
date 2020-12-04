@@ -408,7 +408,7 @@
 		<div class="modal-dialog modal-md  modal-dialog-centered">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h2 class="modal-title">Lieferadresse eingeben</h2>
+					<h2 class="modal-title">Bitte wählen Sie aus</h2>
 				</div>
 				<div class="modal-body">
 					<form id="pincodeFORM" action="<?php echo base_url('/'); ?>" method="post" autocomplete="off">
@@ -441,7 +441,7 @@
 								<input
 										class="form-control form-cstm" id="myInput" type="text" name="pincode"
 										autocomplete="off"
-										placeholder="Enter Your Pincode"
+										placeholder="PLZ eingeben"
 										required
 										<?= $this->input->cookie('delivery_type', true) === "self" ? "disabled" : '' ?>
 										value="<?= $this->input->cookie('pincode', true) ?>">

@@ -61,12 +61,12 @@ $this->load->view('includes/header', array('user_data' => $user_data));
 						<div class="payment-head mt-3">
 							<h2>Auf geht's!</h2>
 							<h4><?= @$profile->name ?></h4>
-							<p>Wohin soll Deine Bestllung geliefert werden?</p>
+							<p>Wohin soll Deine Bestellung geliefert werden?</p>
 							<hr>
 							<div class="row">
 								<div class="col-md-12 col-xl-6">
 									<div class="form-group mendatory">
-										<label>Address</label>
+										<label>Adresse</label>
 										<input type="text" name="order_user_details[address]" placeholder=""
 											   class="form-control" value="<?=$address?>">
 									</div>
@@ -98,7 +98,7 @@ $this->load->view('includes/header', array('user_data' => $user_data));
 							</div>
 						</div>
 						<div class="mt-3 payment-head">
-							<p>Wie konnen wir Dich erreichen?</p>
+							<p>Wie können wir Dich erreichen?</p>
 							<hr>
 							<div class="row">
 								<div class="col-md-12 col-xl-6">
@@ -128,7 +128,7 @@ $this->load->view('includes/header', array('user_data' => $user_data));
 							</div>
 						</div>
 						<div class="mt-3 payment-head">
-							<p>Wann möchten Du Deine Bestellung erhalten?</p>
+							<p>Wann möchtest Du Deine Bestellung erhalten?</p>
 							<hr>
 							<div class="row">
 								<div class="col-md-12 col-xl-6">
@@ -158,7 +158,8 @@ $this->load->view('includes/header', array('user_data' => $user_data));
 												<input type="checkbox" name="order[order_note_is_for_next_order]"
 													   class="custom-control-input" id="remember">
 												<label class="custom-control-label" for="remember">
-													Diese Bemerkung für die nächste Be
+													<!--Diese Bemerkung für die nächste Be-->
+													Diese Bestellung für die nächste Bestellung speichern
 												</label>
 											</div>
 										</div>
@@ -175,7 +176,7 @@ $this->load->view('includes/header', array('user_data' => $user_data));
 										<img src="http://harjassinfotech.com/html/eatura-1.3/images/payment_0.png"
 											 class="embedleft" alt="Barzahlung"
 											 title="Barzahlung">
-										<span>cash payment</span>
+										<span>Barzahlung</span>
 									</div>
 
 									
@@ -270,11 +271,13 @@ $this->load->view('includes/header', array('user_data' => $user_data));
 											Zahlungspflichtig bestellen
 										</button>
 									</div>
-									<p class="conditions">Durch Klicken auf Jetzt bestellen bestätigen Sie den Warenkorb und die
+									<p class="conditions"><!--Durch Klicken auf Jetzt bestellen bestätigen Sie den Warenkorb und die
 Daten, die Sie eingegeben haben und mit unseren einverstanden sind
 										<a href="javascript:void();">Datenschutzbestimmungen</a> und
 										<a href="javascript:void();">Begriffe </a> und
-										<a href="javascript:void();">Bedingungen</a>
+										<a href="javascript:void();">Bedingungen</a>-->
+										Durch Anklicken von Zahlungspflichtig bestellen bestätigst Du den Warenkorb und Deine eingegebenen Daten und stimmst unseren 
+										<a href="javascript:void();">Datenschutzbestimmungen</a> sowie <a href="javascript:void();">AGB</a> zu.
 									</p>
 								</div>
 							</div>

@@ -83,6 +83,18 @@ jQuery(document).ready(function () {
 			// },
 		},
 		messages: {
+			"order_user_details[full_name]": {
+				required: "Bitte geben Sie Ihren Namen an"
+			},
+			"order_user_details[email]": {
+				required: "Bitte geben Sie Ihre E-Mail an"
+			},
+			"order_user_details[phone]": {
+				required: "Bitte geben Sie Ihre Telefonnummer an"
+			},
+			"order[desired_delivery_time]": {
+				required: "Bitte geben Sie an, wann Ihre Bestellungen geliefert werden soll"
+			},
 			"order_user_details[address]": {
 				noSpace: "Please enter delivery address is required.",
 				alphanumeric: "Please fill in your house number."

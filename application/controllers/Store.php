@@ -419,4 +419,84 @@ class Store extends BaseController
 			curl_close($ch);
         }
     }
+	
+	/**/
+	public function review($orderId)
+	{
+		if(!isset($this->session->userdata('userdata')['user']->userId)) {
+			return redirect('/' . SLUG);
+		}
+		$url = SITEURL . "getReviewByOrderId";
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_POST, 1);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, array('order_id' => $orderId));
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		$response = json_decode(curl_exec($ch));
+		curl_close($ch);
+		
+		//echo '<pre>'; print_r($response);
+		
+		if (!empty($response)) {
+			if ($response->error == '202') {
+				$this->load->view('review', $response);
+			} elseif ($response->error == '404') {
+				return redirect('/' . SLUG);
+			} elseif ($response->error == '505') {
+				return redirect('/' . SLUG);
+			}
+		} else {
+			return redirect('/' . SLUG);
+		}
+	}
+	
+	public function orderreview() {
+		$post = $this->input->post();
+		
+		if (!in_array($post['rating'], array(1,2,3,4,5)))
+		{
+		  return redirect('/' . SLUG);
+		}
+		/* $order_id = $post['order_id'];
+		$rating = $post['rating'];
+		$review = $post['review']; */
+		
+		if(isset($this->session->userdata('userdata')['user']->userId)) {
+			$_POST['user_id'] = $this->session->userdata('userdata')['user']->userId;
+		}
+		else
+		{
+			return redirect('/' . SLUG);
+		}
+		
+		
+		$url = SITEURL . "updatereview";
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_POST, 1);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $_POST);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		$response = json_decode(curl_exec($ch));
+		curl_close($ch);
+		/* echo $_POST['order_id'];
+		echo '<pre>'; print_r($response); die; */
+		
+		if (!empty($response)) {
+			if ($response->error == '202') {
+				$this->session->set_flashdata('success', "Successfully review submit.");
+				return redirect('/review/' . $_POST['order_id']);
+			} elseif ($response->error == '404') {
+				$this->session->set_flashdata('error', $response->data);
+				return redirect('/review/' . $_POST['order_id']);
+			} elseif ($response->error == '505') {
+				$this->session->set_flashdata('error', $response->data);
+				return redirect('/review/' . $_POST['order_id']);
+			}
+		} else {
+			return redirect('/' . SLUG);
+		}
+		
+	}
+	
+	
 }

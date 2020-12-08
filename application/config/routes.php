@@ -61,6 +61,10 @@ $route['paypal/success'] = 'Store/paypalPaymentSuccessAction';
 $route['paypal/fail'] = 'Store/paypalPaymentpaymentFailAction';
 $route['paypal/ipn'] = 'Store/paypalIpnAction';
 
+/**/
+$route['review/(:any)'] = 'Store/review/$1';
+/**/
+
 $route['updateprofile'] = 'Auth/updateprofile';
 $route['forgotsendlink'] = 'Auth/forgotsendlink';
 $route['changepassword'] = 'Auth/changepassword';

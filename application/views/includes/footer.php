@@ -203,59 +203,34 @@
 												<i class="fa fa-truck"></i>
 												Lieferzeiten
 											</h2>
+											<?php if (isset($ordertimes)) { ?>
 											<div class="info-tab-section">
 												<table class="table">
 													<tbody>
+													<?php 
+														if(!empty($ordertimes)) {
+														foreach($ordertimes as $ordertime) { ?>
 													<tr>
 														<td valign="top">
-															Montag
+															<?=$ordertime->day?>
 														</td>
-														<td valign="center" align="right">10:00 - 14:00<br>17:00 - 23:00
-														</td>
-													</tr>
-													<tr>
-														<td valign="top">
-															Dienstag
-														</td>
-														<td valign="center" align="right">10:00 - 14:00<br>17:00 - 23:00
+														<td valign="center" align="right">
+															<?php if($ordertime->mark == 0) { echo 'Closed'; } else {  ?>
+															<?=$ordertime->before_lunch.' - '.$ordertime->start_time?><br><?=$ordertime->after_lunch.' - '.$ordertime->end_time?>
+															<?php } ?>
 														</td>
 													</tr>
-													<tr>
-														<td valign="top">
-															Mittwoch
-														</td>
-														<td valign="center" align="right">10:00 - 14:00<br>17:00 - 23:00
-														</td>
-													</tr>
-													<tr>
-														<td valign="top">
-															Donnerstag
-														</td>
-														<td valign="center" align="right">10:00 - 14:00<br>17:00 - 23:00
-														</td>
-													</tr>
-													<tr>
-														<td valign="top">
-															Freitag
-														</td>
-														<td valign="center" align="right">10:00 - 14:00<br>17:00 - 23:00
-														</td>
-													</tr>
-													<tr>
-														<td valign="top">
-															Samstag
-														</td>
-														<td valign="center" align="right">14:30 - 23:00</td>
-													</tr>
-													<tr>
+														<?php } } ?>
+													<!--<tr>
 														<td valign="top">
 															Sonntag
 														</td>
 														<td valign="center" align="right">11:00 - 23:00</td>
-													</tr>
+													</tr>-->
 													</tbody>
 												</table>
 											</div>
+											<?php } ?>
 										</div>
 										<div class="info-card restaurant-info__opening-times">
 											<h2 class="restaurantInfoTitle">
@@ -305,6 +280,7 @@
 											</h2>
 											<div class="info-tab-section">
 												<div class="info-pay-card-list">
+													<?php /* ?>
 													<div class="info-pay-card">
 														<img src="<?php echo base_url(); ?>assets/images/payment_0.png"
 															 class="embedleft" alt="Barzahlung" title="Barzahlung">
@@ -330,10 +306,12 @@
 															 class="embedleft" alt="American Express"
 															 title="American Express">
 													</div>
+													<?php */ ?>
 													<div class="info-pay-card">
 														<img src="<?php echo base_url(); ?>assets/images/payment_18.png"
 															 class="embedleft" alt="PayPal" title="PayPal">
 													</div>
+													<?php /* ?>
 													<div class="info-pay-card">
 														<img src="<?php echo base_url(); ?>assets/images/payment_13.png"
 															 class="embedleft" alt="Gutschein" title="Gutschein">
@@ -342,30 +320,35 @@
 														<img src="<?php echo base_url(); ?>assets/images/payment_24.png"
 															 class="embedleft" alt="Bitcoin" title="Bitcoin">
 													</div>
+													<?php */ ?>
 												</div>
 											</div>
 										</div>
+										<?php if (isset($profile)) { ?>
 										<div class="info-card restaurant-info__opening-times">
 											<h2 class="restaurantInfoTitle">
 												<i class="fa fa-building"></i>
 												Impressum
 											</h2>
 											<div class="info-tab-section menucard-imprint__section">
-												Jagdeep Kaur handelt im Namen von Uno Pizza Frankfurt am Main <br>
-												Friesengasse 29 <br>
-												60487 Frankfurt am Main <br>
+												<?php echo $profile->name; ?> - <?php echo $profile->address; ?> <br>
 												<div>
 													<br>
-													E-Mail: info@Eatura
+													E-Mail: <?php echo $profile->email; ?>
 												</div>
 												<div>
-													Fax: 496977075848
+													Fax: <?php echo $profile->fax; ?>
 												</div>
 												<br>
 												<div class="info-resolution-url">
-													Plattform der EU-Kommission zur Online-Streitbeilegung: <a href="#"
+													<!--Plattform der EU-Kommission zur Online-Streitbeilegung: <a href="#"
 																											   class="menucard-imprint__link"
-																											   target="_blank">https://ec.europa.eu/consumers/odr</a>.
+																											   target="_blank">https://ec.europa.eu/consumers/odr</a>.-->
+													<?php if(!empty($profile->vat_no)) { ?>
+														<div>
+															VAT Number <?php echo $profile->vat_no; ?>
+														</div>
+													<?php } ?>
 												</div>
 												<div class="menucard-resolution-url">
 													<a href="#" class="menucard-imprint__link" target="_blank">Plattform
@@ -373,6 +356,7 @@
 												</div>
 											</div>
 										</div>
+										<?php } ?>
 									</div>
 								</div>
 							</div>

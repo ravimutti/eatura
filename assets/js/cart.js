@@ -3,6 +3,10 @@ restaurantPinCodes = JSON.parse(restaurantPinCodes);
 currentPinCodeRow = JSON.parse(currentPinCodeRow);
 const _ = jQuery(document);
 
+function checkIfInfoIconClicked(e){
+	if(e.target)
+	return false;
+}
 jQuery(document).ready(function () {
 
 	setCheckoutButton();
@@ -12,7 +16,8 @@ jQuery(document).ready(function () {
 
 	_.on('click', '.variantProduct', function (e) {
 	    $('.variantProduct').removeClass('selected_current');
-	    $(this).addClass('selected_current');
+		$(this).addClass('selected_current');
+		// console.log({event:e});
 		prepareCartPrice($(this));
 	});
 
@@ -28,7 +33,6 @@ jQuery(document).ready(function () {
 		}, 500)
 	});
 
-
 	_.on('click', '.cartButtonSubmit', function (e) {
 		let cartURL = $(this).attr('data-target-url');
 		location.href = cartURL;
@@ -40,6 +44,9 @@ jQuery(document).ready(function () {
 		const $container = $('.productRow' + productRef);
 		const closestContainer = $(this).closest(".sidedishes");
 		closestContainer.find('.manageCartQtyInput').val(1);
+		const currentSelectedVariant = $(this).find("option:selected").attr("data-variant-name");
+
+		$(this).parent(".cstm-select").find(".currentVariant").html(currentSelectedVariant);
 		prepareCartPrice($container);
 	})
 
@@ -294,7 +301,11 @@ jQuery(document).ready(function () {
 
 	_.on('click', '.unavailable', function (e) {
 		const restaurantName = $(document).find('.food-name').find('h3').text().trim();
-		swalAlert('Success', `${restaurantName} is closed at the moment. Please try again after sometime.`, 2000);
+		let message = `${restaurantName} is closed at the moment. Please try again after sometime.`;
+		if(errorMessageInCaseOfPinCode && errorMessageInCaseOfPinCode.length > 0) {
+			message = errorMessageInCaseOfPinCode;
+		}
+		swalAlert('Error', message, 3000);
 	});
 
 	_.on('click', '.see-more-options', function (e) {
@@ -343,7 +354,7 @@ jQuery(document).ready(function () {
 			});
 		} else {
 			let product_description = productDescriptionContainer.find('.product_description').attr('data-description');
-			if(product_description.length) {
+			if(product_description) {
 				$("#productOverviewModal").find(".product_description").html(product_description.trim());
 				$("#productOverviewModal").modal("show");
 				return false;
@@ -416,6 +427,7 @@ jQuery(document).ready(function () {
 			$(document).find('.form-cstm').prop('disabled', true);
 		}
 	});
+	
 	_.on('click', '.link-open ', function (e) {
 		setTimeout(() => {
 			$(this).removeClass('active');
@@ -746,7 +758,7 @@ function prepareItemPriceByClosestElement(closestContainer) {
 			variants: variantWithToppings,
 			product: {
 				note: '',
-				addOnsString: addOnsString,
+				addOnsString: addOnsString.replace(/,\s*$/, ""),
 				productSKU: closestContainer.attr("data-product-slugname"),
 				id: closestContainer.attr("data-product-ref"),
 			}

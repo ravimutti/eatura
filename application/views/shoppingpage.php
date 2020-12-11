@@ -25,6 +25,7 @@ foreach ($deliverydetails as $charge) {
 	let restaurantPinCodes = '<?= (count($deliverydetails)) ? json_encode(array_values($deliverydetails)) : json_encode(array())?>';
 	let currentPinCodeRow = '<?= json_encode($matchedPinCodeRow)?>';
 	let restaurantStatus = 1;
+	let errorMessageInCaseOfPinCode = '<?=$errorMessageInCaseOfPinCode?>'
 </script>
 
 <div class="main-container">
@@ -171,7 +172,7 @@ foreach ($deliverydetails as $charge) {
 												date-ref="productContainer<?= $prodcutrow->id ?>">
 													<?php
 														if(!empty($prodcutrow->sku)) {
-															echo $prodcutrow->sku.' - ';
+															echo $prodcutrow->sku.'. ';
 														}
 														echo $prodcutrow->name;
 													?>
@@ -222,7 +223,7 @@ foreach ($deliverydetails as $charge) {
 										} ?>
 										<p class="product_chosen_of"
 										   id="chosen_of_product__<?= $prodcutrow->id ?>">
-											<?= trim($prodcutrow->choice) != "" ? 'Wahl aus: ' . $prodcutrow->choice : ''; ?>
+											<?= trim($prodcutrow->choice) != "" ? $prodcutrow->choice : ''; ?>
 
 										</p>
 										<span class="meal-price green-text product_price_<?php echo $prodcutrow->id ?>"
@@ -267,10 +268,11 @@ foreach ($deliverydetails as $charge) {
 																<?php if (!empty($provariants->product_variant_maps)) {
 																	$countmaps = 1;
 
-																	foreach ($provariants->product_variant_maps as $provariantMap) {
+																	foreach ($provariants->product_variant_maps as $kyyyy => $provariantMap) {
 
 																		$chosenOf .= strip_tags($provariantMap->name . ', ');
-
+																		if($kyyyy == 0)
+																			$firstVariant = $provariantMap->name;
 																		if (strlen($chosenOf) > 100) {
 																			// truncate string
 																			$chosenOfCut = substr($chosenOf, 0, 100);
@@ -291,7 +293,7 @@ foreach ($deliverydetails as $charge) {
 																				data-variant-name="<?php echo $provariantMap->name; ?>">
 																			<?php echo $provariantMap->name;
 																			if (!empty($provariantMap->price) && $provariantMap->price != '0.00' && $provariantMap->price != '0') {
-																				echo ',' . formatPrice($provariantMap->price) . ' €';
+																				echo ' (+' . formatPrice($provariantMap->price) . ' €)';
 																			} ?></option>
 																		<?php
 																		if (!empty($provariantMap->variantMap)) {
@@ -336,7 +338,9 @@ foreach ($deliverydetails as $charge) {
 																	}
 																} ?>
 															</select>
-															<p class="mb-0">colozen<a href="javascript:void(0);">productinfo</a>
+															<p class="mb-0 ml-0">
+															<span class="currentVariant"><?=$firstVariant?></span>	
+																<a href="javascript:void(0);" class="<?=$openDescriptionModal?>">productinfo</a>
 															</p>
 
 														</div>
@@ -365,7 +369,7 @@ foreach ($deliverydetails as $charge) {
 																				   data-name="<?php echo $protoppingsMap->name; ?>"
 																				   id="variants_<?php echo $protoppingsMap->id . $prodcutrow->id ?>">
 																			<label class="custom-control-label"
-																				   for="variants_<?php echo $protoppingsMap->id . $prodcutrow->id ?>">with <?php echo $protoppingsMap->name;
+																				   for="variants_<?php echo $protoppingsMap->id . $prodcutrow->id ?>"><?php echo $protoppingsMap->name;
 																				if (!empty($protoppingsMap->price) && $protoppingsMap->price != '0.00' && $protoppingsMap->price != '0') {
 																					echo ' (+ €' . formatPrice($protoppingsMap->price) . ')';
 																				} ?> </label>

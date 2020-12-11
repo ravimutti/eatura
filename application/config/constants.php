@@ -1,11 +1,11 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 define('SLUG', 'uno-pizza');
-//define('SITEURL', 'http://harjassinfotech.com/eatura-backend/Api/');
-//define('BASEURL', 'http://harjassinfotech.com/eatura-backend/');
+// define('SITEURL', 'http://harjassinfotech.com/eatura-backend/Api/');
+// define('BASEURL', 'http://harjassinfotech.com/eatura-backend/');
 
-define('SITEURL', 'localhost/al/eatura-backend/Api/');
-define('BASEURL', 'localhost/al/eatura-backend/');
+define('SITEURL', 'localhost/eatura-backend/index.php/Api/');
+define('BASEURL', 'localhost/eatura-backend/');
 
 define('LOGOPATH', BASEURL.'assets/uploads/restaurant/');
 define('PRODUCTPATH', BASEURL.'assets/uploads/product/');

@@ -1,10 +1,10 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
-require APPPATH . '/libraries/BaseController.php';
+require APPPATH . '/controllers/MyController.php';
 /**
  * Class Store
  */
-class Store extends BaseController
+class Store extends MyController
 {
 	const PaymentMethodPayPal = "Paypal";
 	const PaymentMethodCash = "Cash";
@@ -17,6 +17,7 @@ class Store extends BaseController
 	 */
 	public $productVariantMap = "variantMap";
 
+	public $currentSlug = "";
 	/**
 	 * Store constructor.
 	 */
@@ -26,11 +27,13 @@ class Store extends BaseController
 		$this->load->library('cart');
 		$this->load->database();
 		$this->load->model('Api_model');
-		$this->load->helper('cookie');
+		// $this->load->helper('cookie');
 		$this->load->library('user_agent');
 		$this->load->library('paypal_lib');
 		date_default_timezone_set('Europe/Berlin');
 		$this->checkIsAuth();
+
+		$this->currentSlug = $this->input->cookie('uriRestaurant', true);
 	}
 
 	/**
@@ -54,15 +57,18 @@ class Store extends BaseController
 				'expire' => '3600',
 			);
 			$this->input->set_cookie($cookie);
-			return redirect('/' . SLUG);
+
+
+			return redirect('/' . $this->currentSlug);
 		}
 
-		return redirect('/' . SLUG);
+
+		return redirect('/' . $this->currentSlug);
 		$url = SITEURL . "pincodes";
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_POST, 1);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, "purchaseKey=value1&slugname=" . SLUG);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, "purchaseKey=value1&slugname=" . $this->currentSlug);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		$response = json_decode(curl_exec($ch));
 		curl_close($ch);
@@ -124,6 +130,9 @@ class Store extends BaseController
 		$url = SITEURL . "getDetails";
 		$pinCode = $this->input->cookie('pincode', true);
 
+		$cookie = array('name' => 'uriRestaurant','value' =>$slug,'expire' => '3600');
+		$this->input->set_cookie($cookie);
+		
 		$isByPassPinCodeCheck = ($this->input->cookie('delivery_type', true) == "self" || trim($this->input->cookie('delivery_type', true)) === "") ? true : false;
 		$queryString = "purchaseKey=value1&slugname=$slug&pincode=$pinCode";
 		$ch = curl_init();
@@ -135,28 +144,27 @@ class Store extends BaseController
 		curl_close($ch);
 		// echo "<pre>";print_r($response);die;
 		if (!empty($response)) {
+			$response->errorMessageInCaseOfPinCode = null;
 			if ($response->error == '202') {
 				// here we need to match pin code first
 				if (!in_array($pinCode, array_column($response->deliverydetails, 'pincode')) && !$isByPassPinCodeCheck) {
 					// pin code not matched return to home page
 					$this->session->set_flashdata('pin_code_not_found', "We are not available on entered pin code.");
+					$response->restaurant_status = 0;
+					$response->errorMessageInCaseOfPinCode =  $response->profile->name." is not delivering orders on the entered pin code.";
+					$this->cart->destroy();
+					// echo "<pre>";print_r($response);die;
 //					return redirect($_SERVER['HTTP_REFERER']);
 				}
 				
-				if ($this->input->cookie('currentRestaurant', TRUE) && trim($this->input->cookie('currentRestaurant', TRUE)) != "") {
-					// here we need to check current url or other url to destroy cart
-					if ($this->input->cookie('currentRestaurant', TRUE) !== $response->profile->slugname) {
-						$this->cart->destroy();
-					}
-				} else {
-					$cookie = array(
-						'name' => 'currentRestaurant',
-						'value' => $response->profile->slugname,
-						'expire' => '3600',
-					);
-					$this->input->set_cookie($cookie);
+
+				if ($this->input->cookie('currentRestaurant', TRUE) !== $slug) {
+					$this->cart->destroy();
 				}
-				
+				 				
+				$cookie = array('name' => 'currentRestaurant','value' => $response->profile->slugname,'expire' => '3600');
+				$this->input->set_cookie($cookie);
+
 				$response->pinCode = $this->input->cookie('pincode', true);
 				$url = SITEURL . "pincodes";
 				$ch = curl_init();
@@ -169,14 +177,12 @@ class Store extends BaseController
 				$response->pincodes = $pincodes->pincodes;
 				$this->load->view('shoppingpage', $response);
 			} elseif ($response->error == '404') {
-				$this->session->set_flashdata('pin_code_not_found', "Restaurant not found, please enter your area pin code and try again.");
-				return redirect($_SERVER['HTTP_REFERER']);
-//				$this->load->view('errors/html/error_404');
+				// $this->session->set_flashdata('pin_code_not_found', "Restaurant not found, please enter your area pin code and try again.");
+				// return redirect($_SERVER['HTTP_REFERER']);
+				$this->load->view('errors/html/error_404');
 			}
 		} else {
-			$this->session->set_flashdata('pin_code_not_found', "Restaurant not found, please enter your area pin code and try again.");
-			return redirect($_SERVER['HTTP_REFERER']);
-//			$this->load->view('errors/html/error_404');
+			$this->load->view('errors/html/error_404');
 		}
 	}
 
@@ -310,7 +316,7 @@ class Store extends BaseController
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		$response = json_decode(curl_exec($ch));
 		curl_close($ch);
-
+		// print_r($response);die;
 		if (!empty($response)) {
 			if ($response->error == '202') {
 				$response->delayTime = 2000;
@@ -424,7 +430,7 @@ class Store extends BaseController
 	public function review($orderId)
 	{
 		if(!isset($this->session->userdata('userdata')['user']->userId)) {
-			return redirect('/' . SLUG);
+			return redirect('/' . $this->currentSlug);
 		}
 		$url = SITEURL . "getReviewByOrderId";
 		$ch = curl_init();
@@ -441,12 +447,12 @@ class Store extends BaseController
 			if ($response->error == '202') {
 				$this->load->view('review', $response);
 			} elseif ($response->error == '404') {
-				return redirect('/' . SLUG);
+				return redirect('/' . $this->currentSlug);
 			} elseif ($response->error == '505') {
-				return redirect('/' . SLUG);
+				return redirect('/' . $this->currentSlug);
 			}
 		} else {
-			return redirect('/' . SLUG);
+			return redirect('/' . $this->currentSlug);
 		}
 	}
 	
@@ -455,7 +461,7 @@ class Store extends BaseController
 		
 		if (!in_array($post['rating'], array(1,2,3,4,5)))
 		{
-		  return redirect('/' . SLUG);
+		  return redirect('/' . $this->currentSlug);
 		}
 		/* $order_id = $post['order_id'];
 		$rating = $post['rating'];
@@ -466,7 +472,7 @@ class Store extends BaseController
 		}
 		else
 		{
-			return redirect('/' . SLUG);
+			return redirect('/' . $this->currentSlug);
 		}
 		
 		
@@ -493,7 +499,7 @@ class Store extends BaseController
 				return redirect('/review/' . $_POST['order_id']);
 			}
 		} else {
-			return redirect('/' . SLUG);
+			return redirect('/' . $this->currentSlug);
 		}
 		
 	}

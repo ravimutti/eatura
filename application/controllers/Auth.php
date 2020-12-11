@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
-require APPPATH . '/libraries/BaseController.php';
-class Auth extends BaseController
+require APPPATH . '/controllers/MyController.php';
+class Auth extends MyController
 {
 	/**
 	 * Store constructor.
@@ -12,7 +12,7 @@ class Auth extends BaseController
 		$this->load->library('cart');
 		$this->load->database();
 		$this->load->model('Api_model');
-		$this->load->helper('cookie');
+		// $this->load->helper('cookie');
 		$this->load->library('user_agent');
 		
 		$this->checkIsAuth();

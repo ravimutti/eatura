@@ -3856,7 +3856,7 @@ form#checkout-form {
 /*    max-height: calc(100vh - 462px);*/
 /*}*/
 
-.meal-des.selected_current {
+.meal-des[aria-expanded="true"] {
     background: #eef7fa;
     box-shadow: 0 1px 1px #cfcac4;
 }

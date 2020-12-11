@@ -342,7 +342,7 @@ function formSubmit(form) {
 
 				} else {
 					// show error
-					if(errore.success_message) {
+					if(response.error_message) {
 						swalAlert('Error', response.error_message, delayTime);
 					}else{
 						swalAlert('Error', response.message, delayTime);

@@ -181,13 +181,13 @@ foreach ($deliverydetails as $charge) {
 										<?php 
 										$openDescriptionModal = "d-none";
 										if (isset($prodcutrow->more_info) && trim($prodcutrow->more_info) !="" ) { 
-											$openDescriptionModal = "d-inline-block openDescriptionModal";
+											$openDescriptionModal = "d-inline-block";
 										}
 
 										?> 
 										<a href="javascript:void(0)"
 										   class="green-text  <?=$openDescriptionModal?>" title="Product Information"
-										   data-ref="<?= $prodcutrow->id ?>"> <i class="fa fa-info-circle"></i></i></a>
+										   data-ref="<?= $prodcutrow->id ?>" onclick="showProductDescription(<?= $prodcutrow->id ?>)"> <i class="fa fa-info-circle"></i></i></a>
 									</p>
 
 									<div class="meal-description" id="product_description_<?= $prodcutrow->id ?>">
@@ -323,8 +323,9 @@ foreach ($deliverydetails as $charge) {
 																				if (!empty($rowsubtoppings->price) && $rowsubtoppings->price != '0.00' && $rowsubtoppings->price != '0') {
 																					$subToppings .= ' (+ €' . formatPrice($rowsubtoppings->price) . ')';
 																				}
-																				$subToppings .= '</label><a href="javascript:void(0)" class="pull-right '.$openDescriptionModal.' "
-																			   data-ref="' . $prodcutrow->id . '">Produktinfo</a></div>';
+																				$subToppings .= '</label>
+																				<a href="javascript:void(0)" class="pull-right '.$openDescriptionModal.' "
+																			   data-ref="' . $prodcutrow->id . '" onclick="showProductDescription($prodcutrow->id)">Produktinfo</a></div>';
 																				$countsubcheck++;
 
 																				if ($kkkkey == sizeof($provariantMap->variantMap) - 1 && trim($checkCount) != '') {
@@ -340,7 +341,7 @@ foreach ($deliverydetails as $charge) {
 															</select>
 															<p class="mb-0 ml-0">
 															<span class="currentVariant"><?=$firstVariant?></span>	
-																<a href="javascript:void(0);" class="<?=$openDescriptionModal?>">productinfo</a>
+																<a href="javascript:void(0);" class="<?=$openDescriptionModal?>" onclick="showProductDescription(<?= $prodcutrow->id ?>)">productinfo</a>
 															</p>
 
 														</div>
@@ -375,6 +376,7 @@ foreach ($deliverydetails as $charge) {
 																				} ?> </label>
 																			<a href="javascript:void(0)"
 																			   class="pull-right <?=$openDescriptionModal?>"
+																			   onclick="showProductDescription(<?= $prodcutrow->id ?>)"
 																			   data-ref="<?= $prodcutrow->id ?>">Produktinfo</a>
 																		</div>
 
@@ -550,7 +552,7 @@ foreach ($deliverydetails as $charge) {
 													<div class="textarea<?= $item['id'] ?> d-none">
 														<div class="form-group mb-0">
 														<textarea class="form-control"
-																  placeholder="Write item notes..."><?= $item['options']->product->note; ?></textarea>
+																  placeholder="Write item notes..."><?= $item['options']['product']->note; ?></textarea>
 														</div>
 														<div class="SaveCancelNote">
 															<a href="javascript:void(0)"
@@ -563,8 +565,8 @@ foreach ($deliverydetails as $charge) {
 															   class="saveCartNote">Save</a>
 														</div>
 													</div>
-													<small class="subAddOns"><?= $item['options']->product->addOnsString ?></small>
-													<span class="note_box font-italic d-flex cart-meal-name notranslate item_note<?= $item['id'] ?>"><?= substrwords($item['options']->product->note, 50); ?></span>
+													<small class="subAddOns"><?= $item['options']['product']->addOnsString ?></small>
+													<span class="note_box font-italic d-flex cart-meal-name notranslate item_note<?= $item['id'] ?>"><?= substrwords($item['options']['product']->note, 50); ?></span>
 												</div>
 											<?php endforeach; ?>
 										</div>

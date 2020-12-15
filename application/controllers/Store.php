@@ -41,6 +41,9 @@ class Store extends MyController
 	 */
 	public function index()
 	{
+		if(trim($this->currentSlug) == "") {
+			$this->currentSlug = $this->uri_slug;
+		}
 		// delete_cookie('delivery_type');
 		// delete_cookie('pincode');
 		if (isset($_POST['pincode']) || isset($_POST['delivery'])) {
@@ -62,7 +65,7 @@ class Store extends MyController
 			return redirect('/' . $this->currentSlug);
 		}
 
-
+		// die($this->currentSlug);
 		return redirect('/' . $this->currentSlug);
 		$url = SITEURL . "pincodes";
 		$ch = curl_init();
@@ -232,19 +235,21 @@ class Store extends MyController
 					$addOnPrice = $postData[$k]->price;
 				}
 
+				$post = $postData[$k];
+				// echo "<pre>";print_r($post);
 				$itemPrice = $addOnPrice;
 				$cartItems[$k] = array(
 					'id' => $post->id,
 					'qty' => $post->qty,
 					'price' => $itemPrice,
 					'name' => $post->name,
-					'options' => $post->options
+					'options' => (array) $post->options
 				);
 			}
 		}
 		$this->cart->destroy();
 		$this->cart->insert($cartItems);
-		echo json_encode(array('success' => true, "message" => 'cart has been updated.'));
+		echo json_encode(array('success' => true, "message" => 'cart has been updated.'));die;
 	}
 
 
@@ -271,7 +276,7 @@ class Store extends MyController
 					// here we need to pass delivery charge
 					$cartItem = $this->cart->contents();
 					$cartItem = array_values($cartItem);
-					$response->matchedPinCodeRow = $cartItem[0]['options']->deliveryCharge;
+					$response->matchedPinCodeRow = $cartItem[0]['options']['deliveryCharge'];
 					$url = SITEURL . "pincodes";
 					$ch = curl_init();
 					curl_setopt($ch, CURLOPT_URL, $url);

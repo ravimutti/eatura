@@ -13,12 +13,18 @@ $this->load->view('includes/header', array('user_data' => $user_data)); ?>
                <div class="o-detail-lft">
                   <div class="order-names">
                   <h2>Thank you for your order.</h2>
+						<div class="forget-order">
+							<h5 class=m-0>Forgot Something?</h5>
+							<p > <a style="color:#56d042" class="font-weight-bold" href="<?=site_url().$this->input->cookie('uriRestaurant', true)?>">Create new order</a>  </p>
+						</div>
+						<p>Your order reference: <span  class="font-weight-bold"><?=$this->uri->segment(3)?></span> </p>
                <div class="comp-logo">
                   <div class="comp-left">
                       <div class="restro-logo">
                          <img src="<?php echo LOGOPATH . $order->restaurant->logo; ?>"> 
                       </div>
                       <h3><?php echo $order->restaurant->name; ?></h3>
+							 
                   </div>
                   <div class="comp-right"> <img src="<?php echo  base_url();?>assets/images/delivery-boy.gif" alt=""> </div>
                </div>
@@ -40,8 +46,7 @@ $this->load->view('includes/header', array('user_data' => $user_data)); ?>
                               <td><?= formatPrice($item->item_price * $item->item_qty) ?> €</td>
                             </tr>
                         <?php endforeach ?>
-                       
-                                              
+                                     
                       </tbody>
                   </table>
                </div>

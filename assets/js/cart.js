@@ -361,8 +361,6 @@ jQuery(document).ready(function () {
 			}
 			swalAlert("Error","No Product Description to show.");
 		}
-
-
 	});
 
 
@@ -442,6 +440,12 @@ jQuery(document).ready(function () {
 		_.find('.info-pay-card').removeClass("active");
 		$(this).addClass("active");
 		_.find(".payment_mode").val($(this).attr("data-ref"))
+	});
+
+	$("[data-toggle='collapse']").click(function(event) {
+		if($(event.target).hasClass('fa-info-circle')) {
+			event.stopPropagation();
+		}
 	});
 })
 
@@ -907,6 +911,46 @@ if (parseInt(restaurantStatus) === 0) {
 		backdrop: 'static',
 		keyboard: false
 	});
+}
+
+function showProductDescription(productRef) {
+	// we need to open modal with product information
+		const productDescriptionContainer = _.find('#product_description_' + productRef);
+		let hasJson = productDescriptionContainer.find('.product_description').hasClass('hasJson');
+
+		if (hasJson) {
+			let prepareJSON = JSON.parse(productDescriptionContainer.find('.product_description').attr('data-description'));
+			let hasMoreInfoJson = "";
+			if (productDescriptionContainer.find('.product_description').attr('data-more_info').trim() != "")
+				hasMoreInfoJson = JSON.parse(productDescriptionContainer.find('.product_description').attr('data-more_info'));
+
+			const getData = async () => {
+				let product_description = '<ul class="product-discription">';
+				// $.each(prepareJSON, function (index, value) {
+				// 	product_description += '<li>' + value + '</li>';
+				// });
+				$.each(hasMoreInfoJson, function (index, value) {
+					product_description += '<li>' + value + '</li>';
+				});
+
+				if (hasMoreInfoJson.length === 0)
+					product_description += '<li>No description for this product.</li>';
+
+				return product_description += '</ul>';
+			}
+			getData().then(data => {
+				$("#productOverviewModal").find(".product_description").html(data);
+				$("#productOverviewModal").modal("show");
+			});
+		} else {
+			let product_description = productDescriptionContainer.find('.product_description').attr('data-description');
+			if(product_description) {
+				$("#productOverviewModal").find(".product_description").html(product_description.trim());
+				$("#productOverviewModal").modal("show");
+				return false;
+			}
+			swalAlert("Error","No Product Description to show.");
+		}
 }
 /*
 Changes have been made

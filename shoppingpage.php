@@ -523,7 +523,7 @@ foreach ($deliverydetails as $charge) {
 													<div class="textarea<?= $item['id'] ?> d-none">
 														<div class="form-group mb-0">
 														<textarea class="form-control"
-																  placeholder="Write item notes..."><?= $item['options']->product->note; ?></textarea>
+																  placeholder="Write item notes..."><?= $item['options']['product']->note; ?></textarea>
 														</div>
 														<div class="SaveCancelNote">
 															<a href="javascript:void(0)"
@@ -536,8 +536,8 @@ foreach ($deliverydetails as $charge) {
 															   class="saveCartNote">Save</a>
 														</div>
 													</div>
-													<small class="subAddOns"><?= $item['options']->product->addOnsString ?></small>
-													<span class="note_box font-italic d-flex cart-meal-name notranslate item_note<?= $item['id'] ?>"><?= substrwords($item['options']->product->note, 50); ?></span>
+													<small class="subAddOns"><?= $item['options']['product']->addOnsString ?></small>
+													<span class="note_box font-italic d-flex cart-meal-name notranslate item_note<?= $item['id'] ?>"><?= substrwords($item['options']['product']->note, 50); ?></span>
 												</div>
 											<?php endforeach; ?>
 										</div>

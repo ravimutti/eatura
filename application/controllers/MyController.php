@@ -9,5 +9,8 @@ class MyController extends BaseController {
 	{
 		parent::__construct();
 		$this->uri_slug = $this->uri->segment(1);
+		if(trim($this->uri_slug) == "") {
+			$this->uri_slug = SLUG;
+		}
 	}
 }

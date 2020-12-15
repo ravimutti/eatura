@@ -255,8 +255,6 @@ jQuery(document).ready(function () {
 			findElement.addClass('d-none');
 			var shortText = truncateString(prepareCartItemArr[findItemIndex].options.product.note);
 			$(document).find('.item_note' + itemSKU).html(shortText);
-		} else {
-			alert('invalid product you can not update the value.');
 		}
 	});
 	
@@ -404,6 +402,13 @@ jQuery(document).ready(function () {
 		$('.open_cartModal').removeClass("d-none");
 		$(this).addClass("d-none");
 	});
+
+	_.on('click', '.cartHeaderContainer', function (e) {
+		if(!$(this).find(".cart_mobile_icon").hasClass("d-none")) {
+			$(".cart_mobile_icon").trigger("click");
+		}
+	});
+
 
 	_.on('click', '.resetSearch', function (e) {
 		$(document).find('.search-cstm').val('');
@@ -847,12 +852,21 @@ function showMinimumOrderAmountByPinCode(replacePrice) {
 			return sum + (parseFloat(amount.price) * amount.qty);
 		}, 0);
 	}
+	
 	// we need to check minimum cart price according to pin code
 	const minimumCartAmountContainer = _.find('.minimum_cart_amount_container');
 	const valid_cart_minimum_order = _.find('.valid_cart_minimum_order');
 	const no_items_in_cart = _.find('.no_items_in_cart');
 	const add_more_item_mobile = _.find('.add_more_item_mobile');
 	// if minimum order value is greater than current order value
+
+	if($(window).width() > 1000) {
+		$(".pizza-column").removeClass("d-none");
+		$(".cart_mobile_icon").addClass('d-none');
+	}else if ($(window).width() < 1000) {
+		$(".cart_mobile_icon").removeClass('d-none');
+	}
+
 	if (currentPinCodeRow && parseFloat(currentPinCodeRow.minimum_amount) > parseFloat(replacePrice) && prepareCartItemArr.length) {
 		$("#ibasket").addClass("custom_class_basket");
 		minimumCartAmountContainer.removeClass('d-none').addClass('d-flex').find('.minimum_cart_amount').html('€' + parseFloat(currentPinCodeRow.minimum_amount).toFixed(2));
@@ -860,14 +874,14 @@ function showMinimumOrderAmountByPinCode(replacePrice) {
 		valid_cart_minimum_order.addClass('d-none');
 		no_items_in_cart.removeClass('d-none');
 
-		if ($(window).width() < 770)
+		
+		if ($(window).width() < 770){
 			add_more_item_mobile.removeClass('d-none');
+		}
 		else {
 			add_more_item_mobile.addClass('d-none');
 			$('.cartButtonSubmit').removeClass('d-none');
 		}
-
-
 		if ($('.add_more_item_mobile').is(':visible') || $(window).width() < 770) {
 			$('.cartButtonSubmit').addClass('d-none')
 		}

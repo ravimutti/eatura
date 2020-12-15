@@ -248,6 +248,7 @@ class Store extends MyController
 			}
 		}
 		$this->cart->destroy();
+		$this->cart->product_name_rules = '[:print:]';
 		$this->cart->insert($cartItems);
 		echo json_encode(array('success' => true, "message" => 'cart has been updated.'));die;
 	}

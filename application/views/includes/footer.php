@@ -280,6 +280,10 @@
 											</h2>
 											<div class="info-tab-section">
 												<div class="info-pay-card-list">
+												<div class="info-pay-card">
+														<img src="<?php echo base_url(); ?>assets/images/payment_0.png"
+															 class="embedleft" alt="Barzahlung" title="Barzahlung">
+													</div>
 													<?php /* ?>
 													<div class="info-pay-card">
 														<img src="<?php echo base_url(); ?>assets/images/payment_0.png"

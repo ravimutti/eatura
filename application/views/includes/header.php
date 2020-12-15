@@ -65,7 +65,7 @@
 		<div class="row">
 			<div class="col-md-4">
 				<div class="topbar__logo">
-					<a href="javascript:window.history.go(-1)" class="back"><i class="fa fa-chevron-left"></i></a>
+					<!-- <a href="javascript:window.history.go(-1)" class="back"><i class="fa fa-chevron-left"></i></a> -->
 					<!--
 					<a href="javascript:window.history.go(-1)" class="logo-sec">
 						<img src="<?php echo base_url(); ?>assets/images/logo.png" class="img-fluid large-logo">

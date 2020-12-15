@@ -138,8 +138,7 @@ $this->load->view('includes/header', array('user_data' => $user_data));
 										<label>Gewünschte Lieferzeit</label>
 										<div class="cstm-select">
 											<select class="form-control" name="order[desired_delivery_time]">
-												<option value="" selected>So schnell wie möglich</option>
-
+												<option value="So schnell wie möglich" selected>So schnell wie möglich</option>
 												<?php
 												foreach ($profile->time_slots as $slot) { ?>
 													<option value="<?= $slot ?>"><?= $slot ?></option>

@@ -7,7 +7,7 @@ $this->load->view('includes/header', array('user_data' => $user_data));
 	let restaurantPinCodes = '<?= json_encode(array())?>';
 	let currentPinCodeRow = '<?= json_encode($matchedPinCodeRow)?>';
 	let restaurantStatus = 1;
-
+	let errorMessageInCaseOfPinCode = '';
 </script>
 <style>
 	.has-error .form-control {

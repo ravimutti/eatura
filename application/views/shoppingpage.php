@@ -25,7 +25,7 @@ foreach ($deliverydetails as $charge) {
 	let restaurantPinCodes = '<?= (count($deliverydetails)) ? json_encode(array_values($deliverydetails)) : json_encode(array())?>';
 	let currentPinCodeRow = '<?= json_encode($matchedPinCodeRow)?>';
 	let restaurantStatus = 1;
-	let errorMessageInCaseOfPinCode = '<?=$errorMessageInCaseOfPinCode?>'
+	let errorMessageInCaseOfPinCode = '<?=$errorMessageInCaseOfPinCode?>';
 </script>
 
 <div class="main-container">

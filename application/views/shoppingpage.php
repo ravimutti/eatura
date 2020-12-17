@@ -465,7 +465,7 @@ foreach ($deliverydetails as $charge) {
 							<div class="content-foot">
 								<h2 class="menucard-imprint__heading">Impressum</h2>
 								<div class="info-tab-section menucard-imprint__section">
-									<?php echo $profile->cname." ". $profile->name; ?> - <?php echo $profile->address; ?>
+									<?php echo $profile->cname; ?> - <?php echo $profile->address; ?>
 									<div>
 										<br>
 										E-Mail: <?php echo $profile->email; ?>

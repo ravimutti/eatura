@@ -47,21 +47,26 @@ class Store extends MyController
 		// delete_cookie('delivery_type');
 		// delete_cookie('pincode');
 		if (isset($_POST['pincode']) || isset($_POST['delivery'])) {
+			
+			if($_POST['delivery'] == "self"){
+				delete_cookie('pincode');
+			}
+
 			$pinCode = $_POST['pincode'];
 			$cookie = array(
 				'name' => 'pincode',
 				'value' => $pinCode,
-				'expire' => '3600',
+				'expire' => time()+86400,
 			);
 			$this->input->set_cookie($cookie);
 			$cookie = array(
 				'name' => 'delivery_type',
 				'value' => $_POST['delivery'],
-				'expire' => '3600',
+				'expire' => time()+86400,
 			);
 			$this->input->set_cookie($cookie);
-
-
+			
+		
 			return redirect('/' . $this->currentSlug);
 		}
 
@@ -137,7 +142,7 @@ class Store extends MyController
 		$url = SITEURL . "getDetails";
 		$pinCode = $this->input->cookie('pincode', true);
 
-		$cookie = array('name' => 'uriRestaurant','value' =>$slug,'expire' => '3600');
+		$cookie = array('name' => 'uriRestaurant','value' =>$slug,'expire' => time()+86400);
 		$this->input->set_cookie($cookie);
 		
 		$isByPassPinCodeCheck = ($this->input->cookie('delivery_type', true) == "self" || trim($this->input->cookie('delivery_type', true)) === "") ? true : false;
@@ -169,7 +174,7 @@ class Store extends MyController
 					$this->cart->destroy();
 				}
 				 				
-				$cookie = array('name' => 'currentRestaurant','value' => $response->profile->slugname,'expire' => '3600');
+				$cookie = array('name' => 'currentRestaurant','value' => $response->profile->slugname,'expire' => time()+86400);
 				$this->input->set_cookie($cookie);
 
 				$response->pinCode = $this->input->cookie('pincode', true);

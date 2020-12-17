@@ -350,7 +350,7 @@
 												Impressum
 											</h2>
 											<div class="info-tab-section menucard-imprint__section">
-												<?php echo $profile->cname." ". $profile->name; ?> - <?php echo $profile->address; ?> <br>
+												<?php echo $profile->cname; ?> - <?php echo $profile->address; ?> <br>
 												<div>
 													<br>
 													E-Mail: <?php echo $profile->email; ?>
@@ -797,6 +797,7 @@
 				600: {items: 3},
 				1000: {items: 5}
 			},
+			URLhashListener:true,
 			startPosition: 'URLHash'
 		});
 	</script>
@@ -821,22 +822,42 @@
 				});
 			// Bind click handler to menu items
 			// so we can get a fancy scroll animation
-			menuItems.click(function(e){
-				var href = $(this).attr("href"),
-					offsetTop = href === "#" ? 0 : $(href).offset().top-topMenuHeight+1;
-				$('html, body').stop().animate({scrollTop: offsetTop}, 300);
-				window.location.hash    = `${href}`;
-				e.preventDefault();
-			});
+			let userHasScrolled = false;
 
+			$('.slide-sec a').on('click', function (e) {
+				e.preventDefault(); // prevent hard jump, the default behavior
+				var target = $(this).attr("href"); // Set the target as variable
+				// perform animated scrolling by getting top-position of target-element and set it as scroll target
+				smoothScrollToElement($(target));
+				location.hash = target;
+				$(document).find(".owl-item .item").removeClass("active");
+				$(this).parent(".item").addClass("active");
+
+				userHasScrolled = true;
+				return false;
+			});
+			/** Catch the value from URL */
 			if(window.location.hash) {
 				var chref = window.location.hash,
 					offsetTop = chref === "#" ? 0 : $(chref).offset().top-topMenuHeight+1;
 				$('html, body').stop().animate({scrollTop: offsetTop}, 300);
+				$(document).find(".owl-item .item").removeClass("active");
+				$('a[href="'+chref+'"]').parent(".item").addClass("active");
+				let cEle = $('a[href="'+chref+'"]').parents(".owl-item");
+				let current = $('.owl-item').index(cEle);
+				owl.trigger('to.owl.carousel',[current, 100]);
+				userHasScrolled = true;
+				// return false;
 			}
+
 			var lastScrollTop = 0;
 			// Bind to scroll
-			$(window).scroll(function(){
+			$(window).scroll(function(e){
+			clearTimeout( $.data( this, "scrollCheck" ) );
+			$.data( this, "scrollCheck", setTimeout(function() { userHasScrolled = false;}, 250) );
+
+			if(userHasScrolled === true) return;
+
 			// Get container scroll position
 			var fromTop = $(this).scrollTop() + topMenuHeight;
 			
@@ -852,8 +873,8 @@
 			var id = cur && cur.length ? cur[0].id : "";
 
 			if (lastId !== id) {
-
-				var st = window.pageYOffset || document.documentElement.scrollTop; // Credits: "https://github.com/qeremy/so/blob/master/so.dom.js#L426"
+				/*
+				var st = window.pageYOffset || document.documentElement.scrollTop;
 				if (st > lastScrollTop){
 					// downscroll code
 					let nextItem = $(document)
@@ -861,7 +882,7 @@
 					.parents(".owl-item")
 					.next(".owl-item")
 					.length;
-
+					
 					if(nextItem == 1){
 						owl.trigger('next.owl.carousel');
 					}
@@ -877,9 +898,15 @@
 					}
 				}
 				lastScrollTop = st <= 0 ? 0 : st; // For Mobile or negative scrolling
-				if(id)
+				*/
+				if(id) {
+					let cEle = $('a[href="#'+id+'"]').parents(".owl-item");
+					if(!cEle.find(".owl-item").hasClass("active")) {
+						let current = $('.owl-item').index(cEle);
+						owl.trigger('to.owl.carousel',[current, 100]);
+					}
 					window.location.hash    = `${id}`;
-
+				}
 				lastId = id;
 				// Set/remove active class
 				menuItems

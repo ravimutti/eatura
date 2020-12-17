@@ -84,10 +84,8 @@ foreach ($deliverydetails as $charge) {
 								$catcount = 1;
 								foreach ($categories as $catrow) {
 									?>
-									<div class="item">
-										<a href="#<?php echo $catrow->catslug; ?>" <?php if ($catcount == 1) {
-											echo 'class="current"';
-										} ?>><?php echo $catrow->category; ?></a>
+									<div class="item <?php if ($catcount == 1) echo 'active'; ?>">
+										<a href="#<?php echo $catrow->catslug; ?>"><?php echo $catrow->category; ?></a>
 									</div>
 									<?php $catcount++;
 								}
@@ -145,11 +143,14 @@ foreach ($deliverydetails as $charge) {
 						}
 
 						?>
-						<?php if ($profile->status == 1 && $restaurant_status == 1) { ?>
+						<?php if ($profile->status == 1 && $restaurant_status == 1) { 
+								$productNameWithSku  = ($prodcutrow->sku !="") ? $prodcutrow->sku.". " : "";
+								$productNameWithSku .= $prodcutrow->name;
+							?>
 						<div
 								class="<?= $prodcutrow->type_id && $canOrder ? '  ' : ' addToCartSimpleProduct '; ?> <?= ($canOrder) ? 'can_order' : ' bg-light can_not_order' ?> meal-des fadeInDown wow d-flex my-2 p-3 border rounded  <?= ($profile->status == 1 && $restaurant_status == 1) ? 'available' : 'unavailable' ?> <?php echo "productContainer" . $prodcutrow->id;
 								if (!$prodcutrow->type_id) echo " addToCartSimpleProduct "; else echo " showProductOnTop variantProduct productRow" . $prodcutrow->id; ?>" <?php if ($prodcutrow->type_id && $canOrder) { ?> data-toggle="collapse" data-target="#collapseMeal<?php echo $collepcount; ?>" aria-expanded="false" aria-controls="collapseMeal<?php echo $collepcount; ?>"<?php } else { ?> data-product-ref="<?= $prodcutrow->id ?>"
-							data-product-name="<?=$prodcutrow->sku.'. ' .$prodcutrow->name ?>"
+							data-product-name="<?=$productNameWithSku ?>"
 							data-product-slugname="<?= $prodcutrow->slugname ?>"
 							data-product-price="<?= $prodcutrow->price ?>" <?php } ?>
 								data-ref="<?= $prodcutrow->id ?>">
@@ -157,7 +158,7 @@ foreach ($deliverydetails as $charge) {
 
 							<div
 									class=" <?= ($canOrder) ? 'can_order' : 'can_not_order' ?> meal-des fadeInDown wow d-flex my-2 p-3 border rounded  <?= ($profile->status == 1 && $restaurant_status == 1) ? 'available' : 'unavailable' ?>"
-									data-product-name="<?=$prodcutrow->sku.'. ' .$prodcutrow->name ?>"
+									data-product-name="<?=$productNameWithSku ?>"
 									data-product-slugname="<?= $prodcutrow->slugname ?>"
 									data-product-price="<?= $prodcutrow->price ?>"
 									data-ref="<?= $prodcutrow->id ?>">
@@ -191,13 +192,11 @@ foreach ($deliverydetails as $charge) {
 									</p>
 
 									<div class="meal-description" id="product_description_<?= $prodcutrow->id ?>">
-										<?php if (!empty($prodcutrow->description)) {
-
+										<?php 
 											$description = json_decode($prodcutrow->description);
 											if (is_array($description) && sizeof($description)) {
-
 												if(sizeof($description) == 1) {
-													$descriptionString = "<p class='product_description'>$description[0]</p>";
+													$descriptionString = "<p class='product_description'>$description[0]</pre>";
 												}else{
 													$descriptionString = '<ul class="product-discription">';
 													foreach ($description as $key => $value) {
@@ -205,7 +204,6 @@ foreach ($deliverydetails as $charge) {
 													}
 													$descriptionString .= '</ul>';
 												}
-												
 												?>
 
 												<div class="product_description hasJson"
@@ -216,11 +214,11 @@ foreach ($deliverydetails as $charge) {
 												</div>
 
 											<?php } else { ?>
-												<p data-description="<?= $prodcutrow->description ?>"
+												<p data-description=""
 														<?php if (isset($prodcutrow->more_info)) { ?> data-more_info="<?php echo htmlspecialchars(($prodcutrow->more_info), ENT_QUOTES, 'UTF-8'); ?>" <?php } else { ?> data-more_info="" <?php } ?>
-												   class="product_description"><?= $prodcutrow->description ?>.</p>
+												   class="product_description hasJson"><?= $prodcutrow->description ?>.</p>
 											<?php }
-										} ?>
+										 ?>
 										<p class="product_chosen_of"
 										   id="chosen_of_product__<?= $prodcutrow->id ?>">
 											<?= trim($prodcutrow->choice) != "" ? $prodcutrow->choice : ''; ?>
@@ -234,7 +232,7 @@ foreach ($deliverydetails as $charge) {
 									<a href="javascript:void(0)" <?php if (!$prodcutrow->type_id) { ?>
 
 										data-product-ref="<?= $prodcutrow->id ?>"
-										data-product-name="<?=$prodcutrow->sku.'. ' .$prodcutrow->name ?>"
+										data-product-name="<?=$productNameWithSku ?>"
 										data-product-price="<?= $prodcutrow->price ?>"
 										<?php $productPrice += $prodcutrow->price;
 									} ?> ><i
@@ -248,7 +246,7 @@ foreach ($deliverydetails as $charge) {
 									<div class="sidedishes" id="productVariantContainer<?php echo $prodcutrow->id ?>"
 										 data-target="<?php echo $prodcutrow->id ?>"
 										 data-product-ref="<?php echo $prodcutrow->id ?>"
-										 data-product-name="<?=$prodcutrow->sku.'. ' .$prodcutrow->name ?>"
+										 data-product-name="<?=$productNameWithSku ?>"
 										 data-product-slugname="<?php echo $prodcutrow->slugname; ?>"
 										 data-product-price="<?php echo $prodcutrow->price ?>">
 										<?php if (!empty($prodcutrow->product_variants)) {
@@ -467,7 +465,7 @@ foreach ($deliverydetails as $charge) {
 							<div class="content-foot">
 								<h2 class="menucard-imprint__heading">Impressum</h2>
 								<div class="info-tab-section menucard-imprint__section">
-									<?php echo $profile->name; ?> - <?php echo $profile->address; ?>
+									<?php echo $profile->cname." ". $profile->name; ?> - <?php echo $profile->address; ?>
 									<div>
 										<br>
 										E-Mail: <?php echo $profile->email; ?>
@@ -476,11 +474,11 @@ foreach ($deliverydetails as $charge) {
 										Fax: <?php echo $profile->fax; ?>
 									</div>
 									<br>
-									<?php if(!empty($profile->vat_no)) { ?>
+									
 										<div>
-											VAT Number <?php echo $profile->vat_no; ?>
+											VAT Number <?php echo ($profile->vat_no !="") ? $profile->vat_no : "NA"; ?>
 										</div>
-									<?php } ?>
+									
 
 									<div class="menucard-resolution-url">
 										<a href="javascript:void(0);" class="menucard-imprint" target="_blank">Plattform
@@ -625,10 +623,9 @@ foreach ($deliverydetails as $charge) {
 									<div
 											class="orderamount <?= (isset($matchedPinCodeRow->minimum_amount) && $matchedPinCodeRow->minimum_amount < $subtotal) ? '' : 'd-none' ?>  valid_cart_minimum_order"
 											style="color: #380">
-										You have reached the minimum
-										order value of <span
-												class="amount minimum_cart_amount"> <?= formatPrice(isset($matchedPinCodeRow->minimum_amount) ? $matchedPinCodeRow->minimum_amount : 0) ?> €</span>
-										and can now continue.
+										Du hast den Mindestbestellwert von <span
+											class="amount minimum_cart_amount"> <?= formatPrice(isset($matchedPinCodeRow->minimum_amount) ? $matchedPinCodeRow->minimum_amount : 0) ?> €</span>
+									erreicht und kannst jetzt fortfahren
 									</div>
 									<?php
 									}
@@ -660,7 +657,7 @@ foreach ($deliverydetails as $charge) {
 			<!-- Modal content-->
 			<div class="modal-content">
 				<div class="modal-header">
-					<h4 class="modal-title">More product information</h4>
+					<h4 class="modal-title">Weitere Produktinformationen</h4>
 					<button type="button" class="close" data-dismiss="modal">&times;</button>
 				</div>
 				<div class="modal-body">
@@ -668,12 +665,7 @@ foreach ($deliverydetails as $charge) {
 					<div class="product_description my-4">
 
 					</div>
-					<p style="margin-top: 24px;font-size: 12px;color: #666;">We always provide you with relevant food
-						information provided to us by restaurants relating to
-						items on their menus. However, in some cases, the information displayed may be incomplete,
-						automatically generated and / or not validated as accurate by the restaurant as yet. Please
-						contact Customer service if you have allergies or intolerances and have questions about any
-						specific menu items.</p>
+					<p style="margin-top: 24px;font-size: 12px;color: #666;">Wir halten Dich stets zu relevanten Informationen über Essen auf dem Laufenden, die wir von Restaurant bezüglich ihrer Speisekarten erhalten. Es kann jedoch vorkommen, dass die angezeigten Informationen unvollständig sind bzw. automatisch generiert und/oder von den Restaurants noch nicht auf Korrektheit überprüft wurden. Bitte wende Dich an unsere Kundenservice, wenn Allergien oder Intoleranzen vorliegen oder Du Fragen zu bestimmten Speisen auf der Karte hast.</p>
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -683,7 +675,7 @@ foreach ($deliverydetails as $charge) {
 		</div>
 	</div>
 
-	<?php $this->load->view('includes/footer', array('subtotal' => $subtotal, 'cartCount' => $cartCount, "pinCode" => $pinCode, 'pincodes' => $pincodes, 'user_data' => $user_data)); ?>
+	<?php $this->load->view('includes/footer', array('subtotal' => $subtotal, 'cartCount' => $cartCount, "pinCode" => $pinCode, 'pincodes' => $pincodes, 'user_data' => $user_data, 'profile' => $profile)); ?>
 	<script>
 		$(window).scroll(function() {
 			if($(window).scrollTop() + $(window).height() > $(document).height() - 100) {

@@ -208,6 +208,15 @@
 												<table class="table">
 													<tbody>
 													<?php 
+
+														function setStartEndTime($ordertime) {
+
+															if($ordertime->start_time == $ordertime->after_lunch) {
+																echo $ordertime->before_lunch.' - '.$ordertime->end_time;
+															}else{
+																echo $ordertime->before_lunch.' - '.$ordertime->start_time .'<br>'.$ordertime->after_lunch.' - '.$ordertime->end_time;
+															}
+														}
 														if(!empty($ordertimes)) {
 														foreach($ordertimes as $ordertime) { ?>
 													<tr>
@@ -216,7 +225,7 @@
 														</td>
 														<td valign="center" align="right">
 															<?php if($ordertime->mark == 0) { echo 'Closed'; } else {  ?>
-															<?=$ordertime->before_lunch.' - '.$ordertime->start_time?><br><?=$ordertime->after_lunch.' - '.$ordertime->end_time?>
+															<?=setStartEndTime($ordertime)?>
 															<?php } ?>
 														</td>
 													</tr>
@@ -266,7 +275,13 @@
 													<tbody>
 													<tr>
 														<td valign="top">
-															<a href="#">Dummy.website</a>
+															<?php
+															if(isset($profile->website) && trim($profile->website) !="" ) {
+																echo "<a target='_blank' href=".$profile->website.">$profile->website</a>";
+															}else{
+																echo "Not provided";
+															}?>
+															
 														</td>
 													</tr>
 													</tbody>
@@ -335,7 +350,7 @@
 												Impressum
 											</h2>
 											<div class="info-tab-section menucard-imprint__section">
-												<?php echo $profile->name; ?> - <?php echo $profile->address; ?> <br>
+												<?php echo $profile->cname." ". $profile->name; ?> - <?php echo $profile->address; ?> <br>
 												<div>
 													<br>
 													E-Mail: <?php echo $profile->email; ?>
@@ -767,62 +782,120 @@
 		});
 
 	</script>
-	<script>
-		$(document).ready(function () {
-			$('.slide-sec a').on('click', function (e) {
-				e.preventDefault(); // prevent hard jump, the default behavior
-				var target = $(this).attr("href"); // Set the target as variable
-				// perform animated scrolling by getting top-position of target-element and set it as scroll target
-				smoothScrollToElement($(target));
-				location.hash = target
-				return false;
-			});
-			
-		});
 
-		$(window).scroll(function () {
-			var scrollDistance = $(window).scrollTop();
-
-			// Show/hide menu on scroll
-			//if (scrollDistance >= 850) {
-			//		$('nav').fadeIn("fast");
-			//} else {
-			//		$('nav').fadeOut("fast");
-			//}
-
-			// Assign active class to nav links while scolling
-			$('.meal-des').each(function (i) {
-				// console.log($(this).position().top , scrollDistance);
-				if ($(this).position().top <= scrollDistance) {
-					$('.slide-sec .owl-item .item a.current').removeClass('current');
-					$('.slide-sec .owl-item .item a').eq(i).addClass('current');
-				}
-			});
-		}).scroll();
-	</script>
-	<script>
-		$('#slide-carousel').owlCarousel({
-		    center: true,
-			loop: true,
-			margin: 10,
+		<script>
+		var owl = $('#slide-carousel');
+		owl.owlCarousel({
+		    center: false,
+			// loop: true,
+			// margin: 5,
 			nav: true,
 			dots: false,
 			autoWidth: true,
 			responsive: {
-				0: {
-					items: 1
-				},
-				600: {
-					items: 3
-				},
-				1000: {
-					items: 5
-				}
+				0: {items: 1},
+				600: {items: 3},
+				1000: {items: 5}
 			},
 			startPosition: 'URLHash'
 		});
-
 	</script>
+
+	<script>
+		$(document).ready(function () {
+			
+			let refIds = [];
+			// Cache selectors
+			var lastId,
+				topMenu = $("#slide-carousel"),
+				topMenuHeight = topMenu.outerHeight()+15,
+				// All list items
+				menuItems = topMenu.find(".owl-item a"),
+				// Anchors corresponding to menu items
+				scrollItems = menuItems.map(function(){
+					var item = $($(this).attr("href"));
+					if (item.length) { if(!refIds.includes($(this).attr("href"))){
+						refIds.push($(this).attr("href"));
+						return item;
+					}}
+				});
+			// Bind click handler to menu items
+			// so we can get a fancy scroll animation
+			menuItems.click(function(e){
+				var href = $(this).attr("href"),
+					offsetTop = href === "#" ? 0 : $(href).offset().top-topMenuHeight+1;
+				$('html, body').stop().animate({scrollTop: offsetTop}, 300);
+				window.location.hash    = `${href}`;
+				e.preventDefault();
+			});
+
+			if(window.location.hash) {
+				var chref = window.location.hash,
+					offsetTop = chref === "#" ? 0 : $(chref).offset().top-topMenuHeight+1;
+				$('html, body').stop().animate({scrollTop: offsetTop}, 300);
+			}
+			var lastScrollTop = 0;
+			// Bind to scroll
+			$(window).scroll(function(){
+			// Get container scroll position
+			var fromTop = $(this).scrollTop() + topMenuHeight;
+			
+			// Get id of current scroll item
+			var cur = scrollItems.map(function(){
+				if ($(this).offset().top < fromTop){
+					return this;
+				}
+			});
+			// console.log(cur);
+			// Get the id of the current element
+			cur = cur[cur.length-1];
+			var id = cur && cur.length ? cur[0].id : "";
+
+			if (lastId !== id) {
+
+				var st = window.pageYOffset || document.documentElement.scrollTop; // Credits: "https://github.com/qeremy/so/blob/master/so.dom.js#L426"
+				if (st > lastScrollTop){
+					// downscroll code
+					let nextItem = $(document)
+					.find("a[href='#"+lastId+"']")
+					.parents(".owl-item")
+					.next(".owl-item")
+					.length;
+
+					if(nextItem == 1){
+						owl.trigger('next.owl.carousel');
+					}
+				} else {
+					// upscroll code
+					let prevtItem = $(document)
+					.find("a[href='#"+lastId+"']")
+					.parents(".owl-item")
+					.prev(".owl-item")
+					.length;
+					if(prevtItem == 1){
+						owl.trigger('prev.owl.carousel');
+					}
+				}
+				lastScrollTop = st <= 0 ? 0 : st; // For Mobile or negative scrolling
+				if(id)
+					window.location.hash    = `${id}`;
+
+				lastId = id;
+				// Set/remove active class
+				menuItems
+					.parent()
+					.removeClass("active")
+					.end()
+					.filter("[href='#"+id+"']")
+					.parent()
+					.addClass("active");
+			}                   
+			});
+		});
+
+		
+	</script>
+
 	<script>
 		new WOW().init();
 	</script>

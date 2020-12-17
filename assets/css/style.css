@@ -3857,7 +3857,7 @@ form#checkout-form {
 /*    max-height: calc(100vh - 462px);*/
 /*}*/
 
-.meal-des[aria-expanded="true"] {
+.meal-des.selected_current {
     background: #eef7fa;
     box-shadow: 0 1px 1px #cfcac4;
 }
@@ -4013,4 +4013,9 @@ button.btn.btn-search { display: block; max-width: inherit; width: 100%;margin-t
     color: #fff;
 }
 .basket-container.js-basket-container.customclassbasket #items {
-    max-height: calc(100vh - 380px);}
+	max-height: calc(100vh - 380px);
+}
+
+#slide-carousel .owl-stage {
+	min-width: 1500px !important;
+}

@@ -65,17 +65,21 @@ class Store extends MyController
 			return redirect('/' . $this->currentSlug);
 		}
 
+
 		// die($this->currentSlug);
-		return redirect('/' . $this->currentSlug);
-		$url = SITEURL . "pincodes";
+		// return redirect('/' . $this->currentSlug);
+		$url = SITEURL . "getAllRestruent";
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_POST, 1);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, "purchaseKey=value1&slugname=" . $this->currentSlug);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, "purchaseKey=value");
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		$response = json_decode(curl_exec($ch));
+		// echo "<pre>";
+		// print_r($response);
+		// die;
 		curl_close($ch);
-		$this->load->view('home', $response);
+		$this->load->view('all-restruents', $response);
 	}
 	
 	public function updateresetpassword()
@@ -145,7 +149,7 @@ class Store extends MyController
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		$response = json_decode(curl_exec($ch));
 		curl_close($ch);
-		// echo "<pre>";print_r($response);die;
+		// echo "<pre>";print_r($response->categories);die;
 		if (!empty($response)) {
 			$response->errorMessageInCaseOfPinCode = null;
 			if ($response->error == '202') {
@@ -264,12 +268,15 @@ class Store extends MyController
 			// we need to pass user details as well
 			$slug = $this->uri->segment(1);
 			$url = SITEURL . "getRestaurant";
+			$pin_code = $this->input->cookie('pincode', true);
+			$delivery_type = $this->input->cookie('delivery_type', true);
 			$ch = curl_init();
 			curl_setopt($ch, CURLOPT_URL, $url);
 			curl_setopt($ch, CURLOPT_POST, 1);
-			curl_setopt($ch, CURLOPT_POSTFIELDS, "slugname=" . $slug);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, "slugname=$slug&pincode=$pin_code&delivery_type=$delivery_type" );
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 			$response = json_decode(curl_exec($ch));
+			
 			curl_close($ch);
 
 			if (!empty($response) && sizeof($this->cart->contents())) {
@@ -350,10 +357,18 @@ class Store extends MyController
 	{
 		$id = $this->uri->segment(3);
 		$url = SITEURL . "getorder";
+
+		$pin_code = $this->input->cookie('pincode', true);
+		$delivery_type = $this->input->cookie('delivery_type', true);
+
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_POST, 1);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, array("order_id" => $id));
+		curl_setopt($ch, CURLOPT_POSTFIELDS, array(
+			"order_id" => $id,
+			"pin_code" => $id,
+			"delivery_type" => $delivery_type,
+		));
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		$response = json_decode(curl_exec($ch));
 		curl_close($ch);

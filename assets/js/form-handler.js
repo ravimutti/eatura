@@ -95,8 +95,11 @@ jQuery(document).ready(function () {
 			"order[desired_delivery_time]": {
 				required: "Bitte geben Sie an, wann Ihre Bestellungen geliefert werden soll"
 			},
+			"order_user_details[city]": {
+				required: "Bitte geben Sie die Stadt an"
+			},
 			"order_user_details[address]": {
-				noSpace: "Please enter delivery address is required.",
+				noSpace: "Bitte geben Sie Ihre Lieferadresse an",
 				alphanumeric: "Please fill in your house number."
 			},
 		},

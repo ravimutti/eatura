@@ -15,8 +15,7 @@ jQuery(document).ready(function () {
 	// event to add items to cart
 
 	_.on('click', '.variantProduct', function (e) {
-	    $('.variantProduct').removeClass('selected_current');
-		$(this).addClass('selected_current');
+	   setCurrentProductActive($(this));
 		// console.log({event:e});
 		prepareCartPrice($(this));
 	});
@@ -118,7 +117,9 @@ jQuery(document).ready(function () {
 
 	});
 
+	
 	_.on('click', '.addToCartSimpleProduct', function (event) {
+		setCurrentProductActive($(this));
 		// here we need to add simple product to cart
 		var acpanels = $(".container-fluid").find(".collapse.show");
 		acpanels.collapse("hide");
@@ -327,7 +328,7 @@ jQuery(document).ready(function () {
 		let hasJson = productDescriptionContainer.find('.product_description').hasClass('hasJson');
 
 		if (hasJson) {
-			let prepareJSON = JSON.parse(productDescriptionContainer.find('.product_description').attr('data-description'));
+			// let prepareJSON = JSON.parse(productDescriptionContainer.find('.product_description').attr('data-description'));
 			let hasMoreInfoJson = "";
 			if (productDescriptionContainer.find('.product_description').attr('data-more_info').trim() != "")
 				hasMoreInfoJson = JSON.parse(productDescriptionContainer.find('.product_description').attr('data-more_info'));
@@ -360,29 +361,6 @@ jQuery(document).ready(function () {
 			swalAlert("Error","No Product Description to show.");
 		}
 	});
-
-
-	var sections = $('.menu-post')
-		, nav = $('#slide-carousel')
-		, nav_height = nav.outerHeight();
-
-	$(window).on('scroll', function () {
-		var cur_pos = $(this).scrollTop();
-
-		sections.each(function (e) {
-			var top = $(this).offset().top - nav_height,
-				bottom = top + $(this).outerHeight() + 400;
-
-			if (cur_pos >= top && cur_pos <= bottom) {
-				nav.find('div').removeClass('active');
-				sections.removeClass('active');
-
-				$(this).addClass('active');
-				nav.find('a[href="#' + $(this).attr('id') + '"]').parent("div").addClass('active');
-			}
-		});
-	});
-
 
 	_.on('click', '.open_cartModal', function (e) {
 		const itemsContainer = $(".pizza-column");
@@ -912,7 +890,7 @@ function showMinimumOrderAmountByPinCode(replacePrice) {
 	}
 }
 
-if (deliveryType.length == 0) {
+if (deliveryType.length == 0 && typeof byPassPickupCookie === 'undefined') {
 	// we need to open model
 	$('#search-pop-header').modal({
 		backdrop: 'static',
@@ -931,12 +909,16 @@ function showProductDescription(productRef) {
 	// we need to open modal with product information
 		const productDescriptionContainer = _.find('#product_description_' + productRef);
 		let hasJson = productDescriptionContainer.find('.product_description').hasClass('hasJson');
-
+		
 		if (hasJson) {
-			let prepareJSON = JSON.parse(productDescriptionContainer.find('.product_description').attr('data-description'));
+			// let prepareJSON = JSON.parse(productDescriptionContainer.find('.product_description').attr('data-description'));
 			let hasMoreInfoJson = "";
-			if (productDescriptionContainer.find('.product_description').attr('data-more_info').trim() != "")
-				hasMoreInfoJson = JSON.parse(productDescriptionContainer.find('.product_description').attr('data-more_info'));
+			const _product = productDescriptionContainer.find('.product_description');
+			// console.log(_product.attr('data-more_info').trim());
+
+			if (_product.attr('data-more_info').trim() != "") {
+				hasMoreInfoJson = JSON.parse(_product.attr('data-more_info'));
+			}
 
 			const getData = async () => {
 				let product_description = '<ul class="product-discription">';
@@ -965,6 +947,12 @@ function showProductDescription(productRef) {
 			}
 			swalAlert("Error","No Product Description to show.");
 		}
+}
+
+function setCurrentProductActive(current) {
+		$('.variantProduct').removeClass('selected_current');
+		$('.addToCartSimpleProduct').removeClass('selected_current');
+		current.addClass('selected_current');
 }
 /*
 Changes have been made

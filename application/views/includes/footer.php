@@ -832,7 +832,9 @@
 				location.hash = target;
 				$(document).find(".owl-item .item").removeClass("active");
 				$(this).parent(".item").addClass("active");
-
+				let cEle = $('a[href="'+target+'"]').parents(".owl-item");
+				let current = $('.owl-item').index(cEle);
+				owl.trigger('to.owl.carousel',[current, 100]);
 				userHasScrolled = true;
 				return false;
 			});
@@ -873,7 +875,7 @@
 			var id = cur && cur.length ? cur[0].id : "";
 
 			if (lastId !== id) {
-				/*
+				/************************************************************************
 				var st = window.pageYOffset || document.documentElement.scrollTop;
 				if (st > lastScrollTop){
 					// downscroll code
@@ -898,7 +900,7 @@
 					}
 				}
 				lastScrollTop = st <= 0 ? 0 : st; // For Mobile or negative scrolling
-				*/
+				*************************************************************************/
 				if(id) {
 					let cEle = $('a[href="#'+id+'"]').parents(".owl-item");
 					if(!cEle.find(".owl-item").hasClass("active")) {

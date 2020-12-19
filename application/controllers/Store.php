@@ -44,29 +44,28 @@ class Store extends MyController
 		if(trim($this->currentSlug) == "") {
 			$this->currentSlug = $this->uri_slug;
 		}
-		// delete_cookie('delivery_type');
-		// delete_cookie('pincode');
+
+		delete_cookie('pincode');
+		delete_cookie('delivery_type');
 		if (isset($_POST['pincode']) || isset($_POST['delivery'])) {
-			
-			if($_POST['delivery'] == "self"){
-				delete_cookie('pincode');
+			$pinCode = $_POST['pincode'];
+			if($_POST['delivery'] == "delivery" && trim($pinCode) !="") {
+				$cookie = array('name' => 'pincode','value' => $pinCode,'expire' => time()+86400,"path"=>'/');
+				$this->input->set_cookie($cookie);
 			}
 
-			$pinCode = $_POST['pincode'];
-			$cookie = array(
-				'name' => 'pincode',
-				'value' => $pinCode,
-				'expire' => time()+86400,
-			);
+			$cookie = array('name' => 'delivery_type','value' => $_POST['delivery'],'expire' => time()+86400,"path"=>'/');
 			$this->input->set_cookie($cookie);
-			$cookie = array(
-				'name' => 'delivery_type',
-				'value' => $_POST['delivery'],
-				'expire' => time()+86400,
-			);
-			$this->input->set_cookie($cookie);
-			
-		
+
+			if(isset($_SERVER['HTTP_REFERER'])) {
+				$link_array = explode('/',$_SERVER['HTTP_REFERER']);
+    		$page = end($link_array);
+				if($page == "place-order") {
+					return redirect($_SERVER['HTTP_REFERER']);
+				}
+			}
+
+
 			return redirect('/' . $this->currentSlug);
 		}
 
@@ -86,7 +85,7 @@ class Store extends MyController
 		curl_close($ch);
 		$this->load->view('all-restruents', $response);
 	}
-	
+
 	public function updateresetpassword()
 	{
 		$url = SITEURL . "updateresetpassword";
@@ -97,7 +96,7 @@ class Store extends MyController
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		$response = json_decode(curl_exec($ch));
 		curl_close($ch);
-		
+
 		if (!empty($response)) {
 			if ($response->error == '202')
 			{
@@ -107,11 +106,11 @@ class Store extends MyController
 			{
 				return redirect('resetpassword/'.$_POST['token']);
 			}
-		} 
+		}
 		return redirect('/');
  	}
-	
-	public function resetpassword($token) 
+
+	public function resetpassword($token)
 	{
 		$url = SITEURL . "gettoken";
 		$ch = curl_init();
@@ -124,9 +123,7 @@ class Store extends MyController
 		if (!empty($response)) {
 			if ($response->error == '202') {
 				$this->load->view('resetpassword', $response);
-			}
-			else
-			{
+			} else {
 				return redirect($_SERVER['HTTP_REFERER']);
 			}
 		} else {
@@ -139,14 +136,15 @@ class Store extends MyController
 	 */
 	public function shop($slug)
 	{
-		$url = SITEURL . "getDetails";
 		$pinCode = $this->input->cookie('pincode', true);
-
 		$cookie = array('name' => 'uriRestaurant','value' =>$slug,'expire' => time()+86400);
 		$this->input->set_cookie($cookie);
-		
+
 		$isByPassPinCodeCheck = ($this->input->cookie('delivery_type', true) == "self" || trim($this->input->cookie('delivery_type', true)) === "") ? true : false;
 		$queryString = "purchaseKey=value1&slugname=$slug&pincode=$pinCode";
+
+		// echo $queryString;die;
+		$url = SITEURL . "getDetails";
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_POST, 1);
@@ -154,7 +152,7 @@ class Store extends MyController
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		$response = json_decode(curl_exec($ch));
 		curl_close($ch);
-		// echo "<pre>";print_r($response->categories);die;
+		// echo "<pre>";print_r($response);die;
 		if (!empty($response)) {
 			$response->errorMessageInCaseOfPinCode = null;
 			if ($response->error == '202') {
@@ -168,12 +166,12 @@ class Store extends MyController
 					// echo "<pre>";print_r($response);die;
 //					return redirect($_SERVER['HTTP_REFERER']);
 				}
-				
+
 
 				if ($this->input->cookie('currentRestaurant', TRUE) !== $slug) {
 					$this->cart->destroy();
 				}
-				 				
+
 				$cookie = array('name' => 'currentRestaurant','value' => $response->profile->slugname,'expire' => time()+86400);
 				$this->input->set_cookie($cookie);
 
@@ -281,15 +279,14 @@ class Store extends MyController
 			curl_setopt($ch, CURLOPT_POSTFIELDS, "slugname=$slug&pincode=$pin_code&delivery_type=$delivery_type" );
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 			$response = json_decode(curl_exec($ch));
-			
 			curl_close($ch);
 
-			if (!empty($response) && sizeof($this->cart->contents())) {
+			if (!empty($response) ) {
 				if ($response->error == '202') {
 					// here we need to pass delivery charge
 					$cartItem = $this->cart->contents();
 					$cartItem = array_values($cartItem);
-					$response->matchedPinCodeRow = $cartItem[0]['options']['deliveryCharge'];
+					$response->matchedPinCodeRow = $response->pincode;
 					$url = SITEURL . "pincodes";
 					$ch = curl_init();
 					curl_setopt($ch, CURLOPT_URL, $url);
@@ -299,16 +296,15 @@ class Store extends MyController
 					$pincodes = json_decode(curl_exec($ch));
 					curl_close($ch);
 					$response->pincodes = $pincodes->pincodes;
+					$response->no_cart_item = sizeof($this->cart->contents()) > 0 ? false : true;
 					$this->load->view('checkout', $response);
 				} elseif ($response->error == '404') {
 					$this->session->set_flashdata('pin_code_not_found', "Restaurant not found, please enter your area pin code and try again.");
 					return redirect('/', 'refresh');
-//					$this->load->view('errors/html/error_404');
 				}
 			} else {
 				$this->session->set_flashdata('pin_code_not_found', "Restaurant not found, please enter your area pin code and try again.");
 				return redirect('/', 'refresh');
-//				$this->load->view('errors/html/error_404');
 			}
 		}
 	}
@@ -391,12 +387,12 @@ class Store extends MyController
 		}
 	}
 
-	public function buyWithPaypalProduct($post){ 
+	public function buyWithPaypalProduct($post){
         //Set variables for paypal form
         $returnURL 	= base_url().'paypal/success'; //payment success url
         $failURL 	= base_url().'paypal/fail'; //payment fail url
         $notifyURL 	= base_url().'paypal/ipn'; //ipn url
-		$userID 	= 0; //current user id	
+		$userID 	= 0; //current user id
 		if(isset($this->session->userdata('userdata')['user']->userId)) {
 			$userID  = $this->session->userdata('userdata')['user']->userId;
 		}
@@ -406,23 +402,23 @@ class Store extends MyController
         $this->paypal_lib->add_field('notify_url', $notifyURL);
         $this->paypal_lib->add_field('item_name', $post->order);
         $this->paypal_lib->add_field('custom', $userID);
-        $this->paypal_lib->add_field('amount',  $post->amount);        
+        $this->paypal_lib->add_field('amount',  $post->amount);
         $this->paypal_lib->image($logo);
-        $this->paypal_lib->paypal_auto_form(); 
+        $this->paypal_lib->paypal_auto_form();
 	}
-	
+
 	public function paypalPaymentSuccessAction(){
-		log_message('error', 'Some variable did not contain a value.'); 
+		log_message('error', 'Some variable did not contain a value.');
 		$rawData = $_POST;
 		return redirect(site_url('/order/tracking/'.$rawData['item_name']));
     }
-      
+
     public function paypalPaymentpaymentFailAction(){
         //if transaction cancelled
         echo "Your order has been cancelled.";
     }
-      
-	
+
+
 	public function paypalIpnAction(){
         //paypal return transaction details array
 		$paypalInfo    			        = $this->input->post();
@@ -435,8 +431,8 @@ class Store extends MyController
         $data['payment_status']         = $paypalInfo["payment_status"];
         $data['created_at']             = date("Y-m-d h:i:s");
         $data['updated_at']             = date("Y-m-d h:i:s");
-			
-        $paypalURL = $this->paypal_lib->paypal_url;        
+
+        $paypalURL = $this->paypal_lib->paypal_url;
         $result    = $this->paypal_lib->curlPost($paypalURL,$paypalInfo);
         //check whether the payment is verified
         if(preg_match("/VERIFIED/i",$result)){
@@ -451,7 +447,7 @@ class Store extends MyController
 			curl_close($ch);
         }
     }
-	
+
 	/**/
 	public function review($orderId)
 	{
@@ -466,9 +462,9 @@ class Store extends MyController
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		$response = json_decode(curl_exec($ch));
 		curl_close($ch);
-		
+
 		//echo '<pre>'; print_r($response);
-		
+
 		if (!empty($response)) {
 			if ($response->error == '202') {
 				$this->load->view('review', $response);
@@ -481,10 +477,10 @@ class Store extends MyController
 			return redirect('/' . $this->currentSlug);
 		}
 	}
-	
+
 	public function orderreview() {
 		$post = $this->input->post();
-		
+
 		if (!in_array($post['rating'], array(1,2,3,4,5)))
 		{
 		  return redirect('/' . $this->currentSlug);
@@ -492,7 +488,7 @@ class Store extends MyController
 		/* $order_id = $post['order_id'];
 		$rating = $post['rating'];
 		$review = $post['review']; */
-		
+
 		if(isset($this->session->userdata('userdata')['user']->userId)) {
 			$_POST['user_id'] = $this->session->userdata('userdata')['user']->userId;
 		}
@@ -500,8 +496,8 @@ class Store extends MyController
 		{
 			return redirect('/' . $this->currentSlug);
 		}
-		
-		
+
+
 		$url = SITEURL . "updatereview";
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
@@ -512,7 +508,7 @@ class Store extends MyController
 		curl_close($ch);
 		/* echo $_POST['order_id'];
 		echo '<pre>'; print_r($response); die; */
-		
+
 		if (!empty($response)) {
 			if ($response->error == '202') {
 				$this->session->set_flashdata('success', "Successfully review submit.");
@@ -527,8 +523,8 @@ class Store extends MyController
 		} else {
 			return redirect('/' . $this->currentSlug);
 		}
-		
+
 	}
-	
-	
+
+
 }

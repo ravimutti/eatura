@@ -5,9 +5,10 @@ $this->load->view('includes/header', array('user_data' => $user_data));
 <script>
 	let prepareCartItemArr = '<?= (count($this->cart->contents())) ? json_encode(array_values($this->cart->contents())) : json_encode(array())?>';
 	let restaurantPinCodes = '<?= json_encode(array())?>';
-	let currentPinCodeRow = '<?= json_encode($matchedPinCodeRow)?>';
+	let currentPinCodeRow = '<?= $this->input->cookie('delivery_type', true) == "delivery" ? json_encode($matchedPinCodeRow) : json_encode([]) ?>';
 	let restaurantStatus = 1;
 	let errorMessageInCaseOfPinCode = '';
+	let updateCart = true;
 </script>
 <style>
 	.has-error .form-control {
@@ -37,11 +38,11 @@ $this->load->view('includes/header', array('user_data' => $user_data));
 							Shopping cart (<span id="mobileCartPrice"> 0,0</span> €)
 						</button>
 					</div>
-                    
-                    <?php 
+
+                    <?php
 						$name = $telefonnummer = $email = $firmename = $address = $pincode = $floor = $city = '';
 						$pincode = $this->input->cookie('pincode', true);
-						if(isset($this->session->userdata('userdata')['user']->userId)) { 
+						if(isset($this->session->userdata('userdata')['user']->userId)) {
 							$name = $this->session->userdata('userdata')['user']->name;
 							$email = $this->session->userdata('userdata')['user']->email;
 							if(isset($this->session->userdata('userdata')['user']->mobile)) {
@@ -63,6 +64,7 @@ $this->load->view('includes/header', array('user_data' => $user_data));
 							<h4><?= @$profile->name ?></h4>
 							<?php if($this->input->cookie('delivery_type', true) !="self") { ?>
 							<p>Wohin soll Deine Bestellung geliefert werden?</p>
+
 							<hr>
 							<div class="row">
 								<div class="col-md-12 col-xl-6">
@@ -84,7 +86,12 @@ $this->load->view('includes/header', array('user_data' => $user_data));
 												<label>Postleitzahl</label>
 												<input type="text" name="order_user_details[pincode]" placeholder=""
 													   class="form-control"
-													   value="<?=$pincode?>">
+														 disabled
+													   value="<?=$pincode?>"
+												>
+												<a class="pull-right" href="#" data-toggle="modal"
+												   data-backdrop="static" data-keyboard="false"
+												   data-target="#search-pop-header"> <u><small>Veränderung Postleitzahl</small></u>  </a>
 											</div>
 										</div>
 										<div class="col-md-12 col-xl-6">
@@ -101,6 +108,11 @@ $this->load->view('includes/header', array('user_data' => $user_data));
 						</div>
 						<div class="mt-3 payment-head">
 							<p>Wie können wir Dich erreichen?</p>
+							<?php if($no_cart_item){ ?>
+							<div class="alert alert-warning my-2" role="alert">
+						  	Es befindet sich kein Produkt im Warenkorb. Klicke <a href="<?=site_url().$this->input->cookie('currentRestaurant', TRUE)?>">hier</a> um zurück zur Menükarte des Restaurants zu gelangen, sodass Du Produkte zu Deinem Warenkorb hinzufügen kannst.
+							</div>
+							<?php } ?>
 							<hr>
 							<div class="row">
 								<div class="col-md-12 col-xl-6">
@@ -135,15 +147,16 @@ $this->load->view('includes/header', array('user_data' => $user_data));
 							<div class="row">
 								<div class="col-md-12 col-xl-6">
 									<div class="form-group">
-										<label>Gewünschte Lieferzeit</label>
+										<label>Gewünschte Lieferzeit <i style="font-size: 10px;color: #bebebe;" class="fa fa-asterisk" aria-hidden="true"></i></label>
 										<div class="cstm-select">
 											<select class="form-control" name="order[desired_delivery_time]">
-												<option value="So schnell wie möglich" selected>So schnell wie möglich</option>
+												<option value="" selected>Lieferzeitpunkt wählen </option>
 												<?php
+												if(sizeof($profile->time_slots) > 0)
+													echo '<option value="So schnell wie möglich">So schnell wie möglich</option>';
 												foreach ($profile->time_slots as $slot) { ?>
 													<option value="<?= $slot ?>"><?= $slot ?></option>
 												<?php } ?>
-
 											</select>
 										</div>
 									</div>
@@ -180,12 +193,12 @@ $this->load->view('includes/header', array('user_data' => $user_data));
 										<span>Barzahlung</span>
 									</div>
 
-									
+
 									<div class="info-pay-card text-center" data-ref="Paypal">
 										<img src="http://harjassinfotech.com/html/eatura-1.3/images/payment_18.png" class="embedleft" alt="PayPal" title="PayPal">
 										<span>PayPal</span>
 									</div>
-									
+
 									<input type="hidden" class="payment_mode" name="order[payment_mode]" value="Cash">
 									<input type="hidden" name="order[delivery_charge]"
 										   value="<?= @$matchedPinCodeRow->deliverycharges ? @$matchedPinCodeRow->deliverycharges : 0.00  ?>">
@@ -268,7 +281,7 @@ $this->load->view('includes/header', array('user_data' => $user_data));
 										<span>Für kontaktlose Lieferung: Bitte wählen Sie eine Online-Zahlungsmethode</span>
 									</div>
 									<div class="btn-sec">
-										<button type="submit" class="btn btn-primary">
+										<button <?php if($no_cart_item) echo "disabled";?> type="submit" class="btn btn-primary">
 											Zahlungspflichtig bestellen
 										</button>
 									</div>

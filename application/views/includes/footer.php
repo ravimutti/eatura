@@ -34,7 +34,7 @@
 	<!--	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>-->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-	<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>	
+	<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 	<!--		  popup-->
 	<div class="modal fade rounded-0 show" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel"
 		 aria-hidden="true" id="pro-info">
@@ -207,7 +207,7 @@
 											<div class="info-tab-section">
 												<table class="table">
 													<tbody>
-													<?php 
+													<?php
 
 														function setStartEndTime($ordertime) {
 
@@ -281,7 +281,7 @@
 															}else{
 																echo "Not provided";
 															}?>
-															
+
 														</td>
 													</tr>
 													</tbody>
@@ -350,7 +350,10 @@
 												Impressum
 											</h2>
 											<div class="info-tab-section menucard-imprint__section">
-												<?php echo $profile->cname; ?> - <?php echo $profile->address; ?> <br>
+												<?php echo $profile->cname; ?>
+												<br>
+												<?php echo $profile->address; ?> 
+												<br>
 												<div>
 													<br>
 													E-Mail: <?php echo $profile->email; ?>
@@ -500,9 +503,9 @@
 									</a>
 								</div>
 							</section>
-							
+
 							<section class="bottom-content listdata">
-								<?php if(isset($this->session->userdata('userdata')['user']->userId)) { 
+								<?php if(isset($this->session->userdata('userdata')['user']->userId)) {
 									$myorder = getMyOrders(array('userId' => $this->session->userdata('userdata')['user']->userId));
 									if($myorder->error == 202) {
 									    echo '<ul class="atom-list-link userpanel-list-link">
@@ -522,19 +525,19 @@
 												<h5 class="card-title"><?=$myOrderObj->name?></h5>
 										<p class="card-text"><?=$myOrderObj->address?></p>
 												<span class="card-price"><?=$myOrderObj->total_price+$myOrderObj->delivery_charge.' €'?></span>
-												
+
 											  </div>
 											  </div>
 											</div>
-								
-										<?php } 
-										} else if($myorder->error == 404) { 
+
+										<?php }
+										} else if($myorder->error == 404) {
 											echo '<div class="card" style="padding:15px"><div class="card" style="padding:15px">'.$myorder->message.'</div></div>';
 								} } ?>
 							</section>
-							
+
 						</div>
-					    
+
 						<div class="tab-pane container authcontainer <?php if($this->pageParam->isAuth == true) { ?> active <?php } ?> p-0" id="logintab">
 							<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 								<span aria-hidden="true">&times;</span>
@@ -626,12 +629,12 @@
 								    </div>
 								</div>
 								<div class="button-login">
-									
+
 								</div>
 								<div class="separator">
 									<span>oder</span>
 								</div>
-								
+
 								<div class="form_panel">
 								    <div class="row">
 								        <div class="col-md-6">
@@ -671,9 +674,9 @@
 								</div>
 								<a data-toggle="tab" href="#login" aria-controls="login" role="tab" class="link-open p-2 tlogin">Einloggen</a>
 							</form>
-							
+
 						</section>
-						
+
 						<section class="login-tab p-3 tab-pane p-0 forget-password-form" id="for">
 							<form action="<?php echo site_url() . 'forgotsendlink' ?>" id="forget-form" method="post">
 								<button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -688,7 +691,7 @@
 									<input type="text" name="email" value="" tabindex="1"
 										   class="textfield-form form-control" maxlength="100">
 								</div>
-								
+
 								<div class="form-group">
 									<button class="btn btn-primary">Send</button>
 								</div>
@@ -696,7 +699,7 @@
 								erstellen</a>
 							</form>
 						</section>
-						
+
 						<section class="login-tab p-3 tab-pane fade p-0 login-fm" id="login">
 							<form action="<?php echo site_url() . 'login' ?>" id="login-form" method="post">
 								<button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -748,22 +751,22 @@
 				$('#login-form')[0].reset();
 				$('#forget-form')[0].reset();
 			});
-			
+
 		    $('.ordertarget').click(function () {
 			   $('.authcontainer').removeClass('active').addClass('fade');
 			   $('.myoderdlist').addClass('active');
 			});
-			
+
 			$('.orlistshow').click(function () {
 			   $('.myoderdlist').removeClass('active');
 			   $('.authcontainer').removeClass('fade').addClass('active');
 			});
-			
+
 			$('.forget-password').click(function () {
 				 $('.login-fm').removeClass('active').addClass('fade');
 				$('.forget-password-form').addClass('active');
 			});
-			
+
 			$('.search-icon').click(function () {
 				$('.slide-content').addClass('active');
 			});
@@ -804,7 +807,7 @@
 
 	<script>
 		$(document).ready(function () {
-			
+
 			let refIds = [];
 			// Cache selectors
 			var lastId,
@@ -862,7 +865,7 @@
 
 			// Get container scroll position
 			var fromTop = $(this).scrollTop() + topMenuHeight;
-			
+
 			// Get id of current scroll item
 			var cur = scrollItems.map(function(){
 				if ($(this).offset().top < fromTop){
@@ -884,7 +887,7 @@
 					.parents(".owl-item")
 					.next(".owl-item")
 					.length;
-					
+
 					if(nextItem == 1){
 						owl.trigger('next.owl.carousel');
 					}
@@ -918,11 +921,11 @@
 					.filter("[href='#"+id+"']")
 					.parent()
 					.addClass("active");
-			}                   
+			}
 			});
 		});
 
-		
+
 	</script>
 
 	<script>

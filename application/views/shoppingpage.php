@@ -23,7 +23,7 @@ foreach ($deliverydetails as $charge) {
 <script>
 	let prepareCartItemArr = '<?= (count($this->cart->contents())) ? json_encode(array_values($this->cart->contents())) : json_encode(array())?>';
 	let restaurantPinCodes = '<?= (count($deliverydetails)) ? json_encode(array_values($deliverydetails)) : json_encode(array())?>';
-	let currentPinCodeRow = '<?= json_encode($matchedPinCodeRow)?>';
+	let currentPinCodeRow = '<?= $this->input->cookie('delivery_type', true) == "delivery" ? json_encode($matchedPinCodeRow) : json_encode([]) ?>';
 	let restaurantStatus = 1;
 	let errorMessageInCaseOfPinCode = '<?=$errorMessageInCaseOfPinCode?>';
 </script>
@@ -143,7 +143,7 @@ foreach ($deliverydetails as $charge) {
 						}
 
 						?>
-						<?php if ($profile->status == 1 && $restaurant_status == 1) { 
+						<?php if ($profile->status == 1 && $restaurant_status == 1) {
 								$productNameWithSku  = ($prodcutrow->sku !="") ? $prodcutrow->sku.". " : "";
 								$productNameWithSku .= $prodcutrow->name;
 							?>
@@ -179,24 +179,24 @@ foreach ($deliverydetails as $charge) {
 													?>
 													</span>
 
-										<?php 
+										<?php
 										$openDescriptionModal = "d-none";
-										if (isset($prodcutrow->more_info) && trim($prodcutrow->more_info) !="" ) { 
+										if (isset($prodcutrow->more_info) && trim($prodcutrow->more_info) !="" ) {
 											$openDescriptionModal = "d-inline-block";
 										}
 
-										?> 
+										?>
 										<a href="javascript:void(0)"
 										   class="green-text  <?=$openDescriptionModal?>" title="Product Information"
 										   data-ref="<?= $prodcutrow->id ?>" onclick="showProductDescription(<?= $prodcutrow->id ?>)"> <i class="fa fa-info-circle"></i></i></a>
 									</p>
 
 									<div class="meal-description" id="product_description_<?= $prodcutrow->id ?>">
-										<?php 
+										<?php
 											$description = json_decode($prodcutrow->description);
 											if (is_array($description) && sizeof($description)) {
 												if(sizeof($description) == 1) {
-													$descriptionString = "<p class='product_description'>$description[0]</pre>";
+													$descriptionString = "<p class='product_description'>$description[0]</p>";
 												}else{
 													$descriptionString = '<ul class="product-discription">';
 													foreach ($description as $key => $value) {
@@ -216,7 +216,7 @@ foreach ($deliverydetails as $charge) {
 											<?php } else { ?>
 												<p data-description=""
 														<?php if (isset($prodcutrow->more_info)) { ?> data-more_info="<?php echo htmlspecialchars(($prodcutrow->more_info), ENT_QUOTES, 'UTF-8'); ?>" <?php } else { ?> data-more_info="" <?php } ?>
-												   class="product_description hasJson"><?= $prodcutrow->description ?>.</p>
+												   class="product_description hasJson"><?= $prodcutrow->description ?></p>
 											<?php }
 										 ?>
 										<p class="product_chosen_of"
@@ -309,15 +309,15 @@ foreach ($deliverydetails as $charge) {
 																				$checkCount = ($kkkkey > 2) ? "canHideShow d-none" : '';
 
 																				$subToppings .= '<div class="custom-control custom-checkbox my-2 ' . $checkCount . '">
-                                          <input type="checkbox" class="custom-control-input cart_variants_add_on " 
-                                          													id="subtoppings' . $rowsubtoppings->id . $prodcutrow->id . '" 
+                                          <input type="checkbox" class="custom-control-input cart_variants_add_on "
+                                          													id="subtoppings' . $rowsubtoppings->id . $prodcutrow->id . '"
                                           													data-ref="' . $rowsubtoppings->id . '"
                                           													data-type="variantMap"
                                           													data-kkkkey="' . $kkkkey . '"
 																						   data-price="' . $rowsubtoppings->price . '"
 																						   data-name="' . $rowsubtoppings->name . '"
 																						   >
-                                          <label class="custom-control-label" for="subtoppings' . $rowsubtoppings->id . $prodcutrow->id . '">mit ' . $rowsubtoppings->name;
+                                          <label class="custom-control-label" for="subtoppings' . $rowsubtoppings->id . $prodcutrow->id . '"> ' . $rowsubtoppings->name;
 																				if (!empty($rowsubtoppings->price) && $rowsubtoppings->price != '0.00' && $rowsubtoppings->price != '0') {
 																					$subToppings .= ' (+ €' . formatPrice($rowsubtoppings->price) . ')';
 																				}
@@ -338,7 +338,7 @@ foreach ($deliverydetails as $charge) {
 																} ?>
 															</select>
 															<p class="mb-0 ml-0">
-															<span class="currentVariant"><?=$firstVariant?></span>	
+															<span class="currentVariant"><?=$firstVariant?></span>
 																<a href="javascript:void(0);" class="<?=$openDescriptionModal?>" onclick="showProductDescription(<?= $prodcutrow->id ?>)">productinfo</a>
 															</p>
 
@@ -377,8 +377,6 @@ foreach ($deliverydetails as $charge) {
 																			   onclick="showProductDescription(<?= $prodcutrow->id ?>)"
 																			   data-ref="<?= $prodcutrow->id ?>">Produktinfo</a>
 																		</div>
-
-
 																		<?php if ($iii == sizeof($provariants->product_topping_maps) - 1 && trim($checkCount) != '') {
 																			echo '<div class="custom-checkbox my-2"><a class="see-more-options" href="javascript:void(0)" data-result-count="' . ($iii - 2) . '"> <i class="fas fa-chevron-up"></i> Show ' . ($iii - 2) . ' more</a></div>';
 																		}
@@ -465,7 +463,9 @@ foreach ($deliverydetails as $charge) {
 							<div class="content-foot">
 								<h2 class="menucard-imprint__heading">Impressum</h2>
 								<div class="info-tab-section menucard-imprint__section">
-									<?php echo $profile->cname; ?> - <?php echo $profile->address; ?>
+									<?php echo $profile->cname; ?>
+									<br>
+									<?php echo $profile->address; ?>
 									<div>
 										<br>
 										E-Mail: <?php echo $profile->email; ?>
@@ -474,11 +474,11 @@ foreach ($deliverydetails as $charge) {
 										Fax: <?php echo $profile->fax; ?>
 									</div>
 									<br>
-									
+
 										<div>
 											VAT Number <?php echo ($profile->vat_no !="") ? $profile->vat_no : "NA"; ?>
 										</div>
-									
+
 
 									<div class="menucard-resolution-url">
 										<a href="javascript:void(0);" class="menucard-imprint" target="_blank">Plattform
@@ -550,15 +550,29 @@ foreach ($deliverydetails as $charge) {
 														<textarea class="form-control"
 																  placeholder="Write item notes..."><?= $item['options']['product']->note; ?></textarea>
 														</div>
+
+														<?php
+														if( strlen(trim( $item['options']['product']->note)) == 0){
+															$save = "Add";
+															$cancel = "Cancel";
+														}else{
+															$save = "Save";
+															$cancel = "Delete";
+														}
+														?>
 														<div class="SaveCancelNote">
 															<a href="javascript:void(0)"
-															   style="float: right;color: #333;"
-															   data-ref="<?= $item['id'] ?>"
-															   class="cancel_note">Cancel</a>
-															<a href="javascript:void(0)"
 															   style="float: right;color: #1474f5;"
-															   data-ref="<?= $item['id'] ?>"
-															   class="saveCartNote">Save</a>
+																 data-type="<?=$save ?>"
+															   data-ref="<?=$item['id'] ?>"
+															   class="saveCartNote"><?=$save ?>
+															 </a>
+															 <a href="javascript:void(0)"
+ 															   style="float: right;color: #333;"
+																 data-type="<?=$cancel ?>"
+ 															   data-ref="<?=$item['id'] ?>"
+ 															   class="cancel_note"><?=$cancel ?>
+ 															 </a>
 														</div>
 													</div>
 													<small class="subAddOns"><?= $item['options']['product']->addOnsString ?></small>

@@ -117,13 +117,13 @@ jQuery(document).ready(function () {
 
 	});
 
-	
+
 	_.on('click', '.addToCartSimpleProduct', function (event) {
 		setCurrentProductActive($(this));
 		// here we need to add simple product to cart
 		var acpanels = $(".container-fluid").find(".collapse.show");
 		acpanels.collapse("hide");
-		
+
 		if ($(event.target).hasClass("fa-info-circle")) return false;
 		let checkResponse = checkProductIsAvailble($(this));
 
@@ -216,49 +216,62 @@ jQuery(document).ready(function () {
 		const $this = $(this);
 		const itemSKU = $this.attr('data-ref');
 		const findElement = $(document).find('.textarea' + itemSKU);
+		const inputTextSpanfindElement = $(document).find('.item_note' + itemSKU);
 		// console.log(findElement);
-
 		if (!findElement.hasClass('d-none')) {
 			findElement.addClass('d-none');
 			findElement.find('.saveCartNote').trigger('click');
+			inputTextSpanfindElement.removeClass('d-none').addClass("d-flex");
 		} else {
 			findElement.removeClass('d-none');
+			inputTextSpanfindElement.addClass('d-none').removeClass("d-flex");
 		}
 	})
 
 	_.on('click', '.saveCartNote', function (e) {
-		const $this = $(this);
-		const itemSKU = $this.attr('data-ref');
-		const findItemIndex = prepareCartItemArr.findIndex((item) => item.id === itemSKU);
-		if (findItemIndex > -1) {
-			const findElement = $(document).find('.textarea' + itemSKU);
-			prepareCartItemArr[findItemIndex].options.product.note = findElement.find('textarea').val();
-			//update html here
-			findElement.addClass('d-none');
-			var shortText = truncateString(prepareCartItemArr[findItemIndex].options.product.note);
-			$(document).find('.item_note' + itemSKU).html(shortText);
-			sendCartItemToServer(prepareCartItemArr);
+				const $this = $(this);
+				const itemSKU = $this.attr('data-ref');
+				const itemType = $this.attr('data-type');
+				const findItemIndex = prepareCartItemArr.findIndex((item) => item.id === itemSKU);
+				if (findItemIndex > -1) {
+					const findElement = $(document).find('.textarea' + itemSKU);
+					const inputTextSpanfindElement = $(document).find('.item_note' + itemSKU);
+					prepareCartItemArr[findItemIndex].options.product.note = findElement.find('textarea').val();
+					//update html here
+					findElement.addClass('d-none');
+					inputTextSpanfindElement.removeClass('d-none').addClass("d-flex");
+					var shortText = truncateString(prepareCartItemArr[findItemIndex].options.product.note);
+					$(document).find('.item_note' + itemSKU).html(shortText);
+					shuffleProductNoteText(prepareCartItemArr[findItemIndex],itemSKU);
+					sendCartItemToServer(prepareCartItemArr);
+				} else {
+					alert('invalid product you can not update the value.');
+				}
+		});
 
-		} else {
-			alert('invalid product you can not update the value.');
-		}
-	});
-    
     _.on("click",'.cancel_note',function(e){
-		const $this = $(this);
-		const itemSKU = $this.attr('data-ref');
-		const findItemIndex = prepareCartItemArr.findIndex((item) => item.id === itemSKU);
-		if (findItemIndex > -1) {
-			const findElement = $(document).find('.textarea' + itemSKU);
-			//update html here
-			findElement.find('textarea').val(prepareCartItemArr[findItemIndex].options.product.note);
-			//update html here
-			findElement.addClass('d-none');
-			var shortText = truncateString(prepareCartItemArr[findItemIndex].options.product.note);
-			$(document).find('.item_note' + itemSKU).html(shortText);
-		}
-	});
-	
+					const $this = $(this);
+					const itemSKU = $this.attr('data-ref');
+					const itemType = $this.attr('data-type');
+					const findItemIndex = prepareCartItemArr.findIndex((item) => item.id === itemSKU);
+					if (findItemIndex > -1) {
+						const findElement = $(document).find('.textarea' + itemSKU);
+						const inputTextSpanfindElement = $(document).find('.item_note' + itemSKU);
+						if(itemType == "Delete") {
+							 prepareCartItemArr[findItemIndex].options.product.note = "";
+						}
+						findElement.find('textarea').val(prepareCartItemArr[findItemIndex].options.product.note);
+						findElement.addClass('d-none');
+						inputTextSpanfindElement.removeClass('d-none').addClass("d-flex");
+						shuffleProductNoteText(prepareCartItemArr[findItemIndex],itemSKU);
+						var shortText = truncateString(prepareCartItemArr[findItemIndex].options.product.note);
+						$(document).find('.item_note' + itemSKU).html(shortText);
+
+						if(itemType == "Delete")
+								sendCartItemToServer(prepareCartItemArr);
+					}
+			});
+
 	/**
 	 * Event to search products
 	 */
@@ -300,11 +313,16 @@ jQuery(document).ready(function () {
 
 	_.on('click', '.unavailable', function (e) {
 		const restaurantName = $(document).find('.food-name').find('h3').text().trim();
-		let message = `${restaurantName} is closed at the moment. Please try again after sometime.`;
+		let message = `${restaurantName} ist momentan geschlossen. Bitte versuche es morgen.`;
 		if(errorMessageInCaseOfPinCode && errorMessageInCaseOfPinCode.length > 0) {
 			message = errorMessageInCaseOfPinCode;
+			swalAlert('Error', message, 3000);
+			return false;
 		}
-		swalAlert('Error', message, 3000);
+
+		$('#not-accepting-orders-model').modal('show');
+
+		setTimeout(function() {$('#not-accepting-orders-model').modal('hide')},2000)
 	});
 
 	_.on('click', '.see-more-options', function (e) {
@@ -408,7 +426,7 @@ jQuery(document).ready(function () {
 			$(document).find('.form-cstm').prop('disabled', true);
 		}
 	});
-	
+
 	_.on('click', '.link-open ', function (e) {
 		setTimeout(() => {
 			$(this).removeClass('active');
@@ -580,7 +598,7 @@ function updateCartPrice() {
 
 
 	$(document).find('#subTotal').html(formatAmount(subTotal.toFixed(2)) + ' €');
-	if (deliveryType.toString() === "delivery") {
+	if (deliveryType.toString().toLowerCase() === "delivery") {
 		$(document).find('#deliveryCosts').html(formatAmount(deliveryCosts.toFixed(2)) + ' €');
 	}
 	$(document).find('#totalPrice').html(formatAmount(totalPrice.toFixed(2)) + ' €');
@@ -830,7 +848,7 @@ function showMinimumOrderAmountByPinCode(replacePrice) {
 			return sum + (parseFloat(amount.price) * amount.qty);
 		}, 0);
 	}
-	
+
 	// we need to check minimum cart price according to pin code
 	const minimumCartAmountContainer = _.find('.minimum_cart_amount_container');
 	const valid_cart_minimum_order = _.find('.valid_cart_minimum_order');
@@ -852,7 +870,7 @@ function showMinimumOrderAmountByPinCode(replacePrice) {
 		valid_cart_minimum_order.addClass('d-none');
 		no_items_in_cart.removeClass('d-none');
 
-		
+
 		if ($(window).width() < 770){
 			add_more_item_mobile.removeClass('d-none');
 		}
@@ -909,7 +927,7 @@ function showProductDescription(productRef) {
 	// we need to open modal with product information
 		const productDescriptionContainer = _.find('#product_description_' + productRef);
 		let hasJson = productDescriptionContainer.find('.product_description').hasClass('hasJson');
-		
+
 		if (hasJson) {
 			// let prepareJSON = JSON.parse(productDescriptionContainer.find('.product_description').attr('data-description'));
 			let hasMoreInfoJson = "";
@@ -954,6 +972,19 @@ function setCurrentProductActive(current) {
 		$('.addToCartSimpleProduct').removeClass('selected_current');
 		current.addClass('selected_current');
 }
+
+function shuffleProductNoteText(arr,itemSKU) {
+		const noteVal = arr.options.product.note;
+		let save = "Save";let cancel = "Delete";
+		if (noteVal.trim() == "") {save = "Add";cancel = "Cancel";}
+		const findElement = $(document).find('.textarea' + itemSKU);
+		findElement.find(".SaveCancelNote").find(".saveCartNote").attr("data-type",save).html(save);
+		findElement.find(".SaveCancelNote").find(".cancel_note").attr("data-type",cancel).html(cancel);
+}
+
+if( typeof updateCart !== 'undefined') {
+	sendCartItemToServer(prepareCartItemArr);
+}
 /*
 Changes have been made
 1. Only one collapsed open at the same time (If clicked on new product,  previous product expansion not closed).
@@ -969,8 +1000,8 @@ Query
 Remove product order qty. limit from 10 pcs. Only
 Explain the behavior
  */
- 
- 
+
+
  (function($) {
   $.fn.nodoubletapzoom = function() {
       $(this).bind('touchstart', function preventZoom(e) {

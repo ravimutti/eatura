@@ -358,10 +358,11 @@ jQuery(document).ready(function () {
 				}
 		})
 
-	_.on('click', '.more-info-product', function (e) {
+	_.on('click', '.more-info_product', function (e) {
 			// we need to open modal with product information
 			let productDescriptionContainer = $(this).attr("data-more_info");
 
+			console.log({productDescriptionContainer:productDescriptionContainer});
 			let check = IsJsonString(productDescriptionContainer);
 
 			if(check === false) {

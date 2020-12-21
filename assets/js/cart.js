@@ -44,8 +44,11 @@ jQuery(document).ready(function () {
 		const closestContainer = $(this).closest(".sidedishes");
 		closestContainer.find('.manageCartQtyInput').val(1);
 		const currentSelectedVariant = $(this).find("option:selected").attr("data-variant-name");
-
+		const currentSelectedMoreInfo = $(this).find("option:selected").attr("data-more_info");
 		$(this).parent(".cstm-select").find(".currentVariant").html(currentSelectedVariant);
+		$(this).parent(".cstm-select").find(".more-info-product ").attr("data-more_info",currentSelectedMoreInfo);
+
+
 		prepareCartPrice($container);
 	})
 
@@ -340,28 +343,34 @@ jQuery(document).ready(function () {
 
 	setChosenOfProducts()
 
-	_.on('click', '.openDescriptionModal', function (e) {
-		// we need to open modal with product information
-		const productDescriptionContainer = _.find('#product_description_' + $(this).attr('data-ref'));
-		let hasJson = productDescriptionContainer.find('.product_description').hasClass('hasJson');
 
-		if (hasJson) {
-			// let prepareJSON = JSON.parse(productDescriptionContainer.find('.product_description').attr('data-description'));
-			let hasMoreInfoJson = "";
-			if (productDescriptionContainer.find('.product_description').attr('data-more_info').trim() != "")
-				hasMoreInfoJson = JSON.parse(productDescriptionContainer.find('.product_description').attr('data-more_info'));
+
+
+		$('.modal').on('hidden.bs.modal', function (e) {
+				const modalId = $(this).attr('id');
+				if(modalId == "productOverviewModal") {
+					$(this).find(".product_description").html("");
+				}
+		})
+
+	_.on('click', '.more-info-product', function (e) {
+			// we need to open modal with product information
+			let productDescriptionContainer = $(this).attr("data-more_info");
+
+			let check = IsJsonString(productDescriptionContainer);
+
+			if(check === false) {
+				swalAlert("Error","No Description to show.");
+				return;
+			}else {
+				productDescriptionContainer = JSON.parse(productDescriptionContainer);
+			}
 
 			const getData = async () => {
 				let product_description = '<ul class="product-discription">';
-				// $.each(prepareJSON, function (index, value) {
-				// 	product_description += '<li>' + value + '</li>';
-				// });
-				$.each(hasMoreInfoJson, function (index, value) {
+				$.each(productDescriptionContainer, function (index, value) {
 					product_description += '<li>' + value + '</li>';
 				});
-
-				if (hasMoreInfoJson.length === 0)
-					product_description += '<li>No description for this product.</li>';
 
 				return product_description += '</ul>';
 			}
@@ -369,16 +378,8 @@ jQuery(document).ready(function () {
 				$("#productOverviewModal").find(".product_description").html(data);
 				$("#productOverviewModal").modal("show");
 			});
-		} else {
-			let product_description = productDescriptionContainer.find('.product_description').attr('data-description');
-			if(product_description) {
-				$("#productOverviewModal").find(".product_description").html(product_description.trim());
-				$("#productOverviewModal").modal("show");
-				return false;
-			}
-			swalAlert("Error","No Product Description to show.");
-		}
 	});
+
 
 	_.on('click', '.open_cartModal', function (e) {
 		const itemsContainer = $(".pizza-column");
@@ -923,6 +924,16 @@ if (parseInt(restaurantStatus) === 0) {
 	});
 }
 
+
+function IsJsonString(str) {
+	try {
+			JSON.parse(str);
+	} catch (e) {
+			return false;
+	}
+	return true;
+}
+
 function showProductDescription(productRef) {
 	// we need to open modal with product information
 		const productDescriptionContainer = _.find('#product_description_' + productRef);
@@ -934,9 +945,15 @@ function showProductDescription(productRef) {
 			const _product = productDescriptionContainer.find('.product_description');
 			// console.log(_product.attr('data-more_info').trim());
 
-			if (_product.attr('data-more_info').trim() != "") {
+			let check = IsJsonString(_product.attr('data-more_info'));
+
+			if(check === false) {
+				swalAlert("Error","No Product Description to show.");
+				return;
+			}else {
 				hasMoreInfoJson = JSON.parse(_product.attr('data-more_info'));
 			}
+
 
 			const getData = async () => {
 				let product_description = '<ul class="product-discription">';

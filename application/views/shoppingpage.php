@@ -131,6 +131,9 @@ foreach ($deliverydetails as $charge) {
 						foreach ($resultrow->products as $prodcutrow) {
 						$canOrder = true;
 
+						$productNameWithSku= ($prodcutrow->sku !="") ? $prodcutrow->sku.". " : "";
+						$productNameWithSku.= $prodcutrow->name;
+
 						if (trim($prodcutrow->start_time) != "" && trim($prodcutrow->end_time) != "") {
 							$currentTime = date("h:i");
 							$start_time = date("h:i", strtotime($prodcutrow->start_time));
@@ -144,8 +147,7 @@ foreach ($deliverydetails as $charge) {
 
 						?>
 						<?php if ($profile->status == 1 && $restaurant_status == 1) {
-								$productNameWithSku  = ($prodcutrow->sku !="") ? $prodcutrow->sku.". " : "";
-								$productNameWithSku .= $prodcutrow->name;
+
 							?>
 						<div
 								class="<?= $prodcutrow->type_id && $canOrder ? '  ' : ' addToCartSimpleProduct '; ?> <?= ($canOrder) ? 'can_order' : ' bg-light can_not_order' ?> meal-des fadeInDown wow d-flex my-2 p-3 border rounded  <?= ($profile->status == 1 && $restaurant_status == 1) ? 'available' : 'unavailable' ?> <?php echo "productContainer" . $prodcutrow->id;
@@ -180,10 +182,10 @@ foreach ($deliverydetails as $charge) {
 													</span>
 
 										<?php
-										$openDescriptionModal = "d-none";
-										if (isset($prodcutrow->more_info) && trim($prodcutrow->more_info) !="" ) {
-											$openDescriptionModal = "d-inline-block";
-										}
+										$openDescriptionModal = "d-inline-block";
+										// if (isset($prodcutrow->more_info) && trim($prodcutrow->more_info) !="" ) {
+										// 	$openDescriptionModal = "d-inline-block";
+										// }
 
 										?>
 										<a href="javascript:void(0)"
@@ -269,8 +271,15 @@ foreach ($deliverydetails as $charge) {
 																	foreach ($provariants->product_variant_maps as $kyyyy => $provariantMap) {
 
 																		$chosenOf .= strip_tags($provariantMap->name . ', ');
-																		if($kyyyy == 0)
-																			$firstVariant = $provariantMap->name;
+																		if($kyyyy == 0){
+
+																			$firstVariant = [
+																				"name" => $provariantMap->name,
+																				"info" =>  htmlspecialchars(($provariantMap->info), ENT_QUOTES, 'UTF-8'),
+																				"ref" =>	$provariantMap->id
+																			];
+																		}
+
 																		if (strlen($chosenOf) > 100) {
 																			// truncate string
 																			$chosenOfCut = substr($chosenOf, 0, 100);
@@ -286,6 +295,7 @@ foreach ($deliverydetails as $charge) {
 																		<option class="<?= $provariantMap->name ?>"
 																				value="<?php echo $provariantMap->id; ?>"
 																				data-label="<?php echo $provariants->id; ?>"
+																				<?php if (isset($provariantMap->info)) { ?> data-more_info="<?php echo htmlspecialchars(($provariantMap->info), ENT_QUOTES, 'UTF-8'); ?>" <?php } else { ?> data-more_info="" <?php } ?>
 																				data-product-ref="<?php echo $prodcutrow->id; ?>"
 																				data-variant-price="<?php echo $provariantMap->price; ?>"
 																				data-variant-name="<?php echo $provariantMap->name; ?>">
@@ -322,8 +332,10 @@ foreach ($deliverydetails as $charge) {
 																					$subToppings .= ' (+ €' . formatPrice($rowsubtoppings->price) . ')';
 																				}
 																				$subToppings .= '</label>
-																				<a href="javascript:void(0)" class="pull-right '.$openDescriptionModal.' "
-																			   data-ref="' . $prodcutrow->id . '" onclick="showProductDescription($prodcutrow->id)">Produktinfo</a></div>';
+																				<a href="javascript:void(0)" class="pull-right  more-info-product"
+
+																				data-more_info="'.htmlspecialchars(($rowsubtoppings->info), ENT_QUOTES, 'UTF-8').'"
+																			   data-ref="' . $prodcutrow->id . '">Produktinfo</a></div>';
 																				$countsubcheck++;
 
 																				if ($kkkkey == sizeof($provariantMap->variantMap) - 1 && trim($checkCount) != '') {
@@ -338,8 +350,11 @@ foreach ($deliverydetails as $charge) {
 																} ?>
 															</select>
 															<p class="mb-0 ml-0">
-															<span class="currentVariant"><?=$firstVariant?></span>
-																<a href="javascript:void(0);" class="<?=$openDescriptionModal?>" onclick="showProductDescription(<?= $prodcutrow->id ?>)">productinfo</a>
+															<span class="currentVariant currentVariant_<?=$firstVariant['ref']?>" data-target=".currentVariant_<?=$firstVariant['ref']?>"><?=$firstVariant['name']?></span>
+																<a data-more_info="<?=$firstVariant['info']?>"
+																href="javascript:void(0);"
+																class="more-info-product">productinfo
+																</a>
 															</p>
 
 														</div>
@@ -373,8 +388,8 @@ foreach ($deliverydetails as $charge) {
 																					echo ' (+ €' . formatPrice($protoppingsMap->price) . ')';
 																				} ?> </label>
 																			<a href="javascript:void(0)"
-																			   class="pull-right <?=$openDescriptionModal?>"
-																			   onclick="showProductDescription(<?= $prodcutrow->id ?>)"
+																			   class="pull-right more-info-product"
+																			   data-more-info="<?=htmlspecialchars(($protoppingsMap->info), ENT_QUOTES, 'UTF-8')?>"
 																			   data-ref="<?= $prodcutrow->id ?>">Produktinfo</a>
 																		</div>
 																		<?php if ($iii == sizeof($provariants->product_topping_maps) - 1 && trim($checkCount) != '') {

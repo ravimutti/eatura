@@ -45,6 +45,11 @@ jQuery(document).ready(function () {
 		closestContainer.find('.manageCartQtyInput').val(1);
 		const currentSelectedVariant = $(this).find("option:selected").attr("data-variant-name");
 		const currentSelectedMoreInfo = $(this).find("option:selected").attr("data-more_info");
+		if(currentSelectedMoreInfo.length == "") {
+			$(this).parent(".cstm-select").find(".more-info-product").addClass("d-none");
+		} else {
+			$(this).parent(".cstm-select").find(".more-info-product").removeClass("d-none");
+		}
 		$(this).parent(".cstm-select").find(".currentVariant").html(currentSelectedVariant);
 		$(this).parent(".cstm-select").find(".more-info-product ").attr("data-more_info",currentSelectedMoreInfo);
 

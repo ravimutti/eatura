@@ -182,10 +182,10 @@ foreach ($deliverydetails as $charge) {
 													</span>
 
 										<?php
-										$openDescriptionModal = "d-inline-block";
-										// if (isset($prodcutrow->more_info) && trim($prodcutrow->more_info) !="" ) {
-										// 	$openDescriptionModal = "d-inline-block";
-										// }
+										$openDescriptionModal = "d-none";
+										if (isset($prodcutrow->more_info) && trim($prodcutrow->more_info) !="" ) {
+											$openDescriptionModal = "d-inline-block";
+										}
 
 										?>
 										<a href="javascript:void(0)"
@@ -331,11 +331,13 @@ foreach ($deliverydetails as $charge) {
 																				if (!empty($rowsubtoppings->price) && $rowsubtoppings->price != '0.00' && $rowsubtoppings->price != '0') {
 																					$subToppings .= ' (+ €' . formatPrice($rowsubtoppings->price) . ')';
 																				}
+																				$rowsubtoppings_dnone = "";
+																				if(trim($rowsubtoppings->info) == '' ) $rowsubtoppings_dnone = 'd-none';
 																				$subToppings .= '</label>
-																				<a href="javascript:void(0)" class="pull-right  more-info-product"
+																				<a href="javascript:void(0)" class="pull-right  more-info-product '.$rowsubtoppings_dnone.' "
 
 																				data-more_info="'.htmlspecialchars(($rowsubtoppings->info), ENT_QUOTES, 'UTF-8').'"
-																			   data-ref="' . $prodcutrow->id . '">Produktinfo</a></div>';
+																			   data-ref="' . $prodcutrow->id . '"><i class="green-text fa fa-info-circle"></i></a></div>';
 																				$countsubcheck++;
 
 																				if ($kkkkey == sizeof($provariantMap->variantMap) - 1 && trim($checkCount) != '') {
@@ -353,7 +355,8 @@ foreach ($deliverydetails as $charge) {
 															<span class="currentVariant currentVariant_<?=$firstVariant['ref']?>" data-target=".currentVariant_<?=$firstVariant['ref']?>"><?=$firstVariant['name']?></span>
 																<a data-more_info="<?=$firstVariant['info']?>"
 																href="javascript:void(0);"
-																class="more-info-product">productinfo
+																class="more-info-product <?php if(trim($firstVariant['info']) == '' ) echo 'd-none';?> ">
+																<i class="green-text fa fa-info-circle"></i>
 																</a>
 															</p>
 
@@ -388,9 +391,10 @@ foreach ($deliverydetails as $charge) {
 																					echo ' (+ €' . formatPrice($protoppingsMap->price) . ')';
 																				} ?> </label>
 																			<a href="javascript:void(0)"
-																			   class="pull-right more-info-product"
+																			   class="pull-right more-info-product <?php if(trim($protoppingsMap->info) == '' ) echo 'd-none';?>"
+
 																			   data-more-info="<?=htmlspecialchars(($protoppingsMap->info), ENT_QUOTES, 'UTF-8')?>"
-																			   data-ref="<?= $prodcutrow->id ?>">Produktinfo</a>
+																			   data-ref="<?= $prodcutrow->id ?>"><i class="green-text fa fa-info-circle"></i></a>
 																		</div>
 																		<?php if ($iii == sizeof($provariants->product_topping_maps) - 1 && trim($checkCount) != '') {
 																			echo '<div class="custom-checkbox my-2"><a class="see-more-options" href="javascript:void(0)" data-result-count="' . ($iii - 2) . '"> <i class="fas fa-chevron-up"></i> Show ' . ($iii - 2) . ' more</a></div>';

@@ -493,11 +493,12 @@ foreach ($deliverydetails as $charge) {
 									</div>
 									<br>
 
+									<?php if(!empty($profile->vat_no)) { ?>
 										<div>
-											VAT Number <?php echo ($profile->vat_no !="") ? $profile->vat_no : "NA"; ?>
+											VAT Number <?php echo $profile->vat_no; ?>
 										</div>
-
-
+									<?php } ?>
+								
 									<div class="menucard-resolution-url">
 										<a href="javascript:void(0);" class="menucard-imprint" target="_blank">Plattform
 											der
@@ -512,7 +513,7 @@ foreach ($deliverydetails as $charge) {
 					<div class="basket-container js-basket-container <?php if(trim($this->input->cookie('delivery_type', true))!="self"){ echo "customclassbasket";}?>" id="ibasket">
 						<div class="cartHeaderContainer basket-button basket-button--secondary">
 							<p class="basket-button__label">
-								<span class="basket-button__label-title">Shopping cart</span>
+								<span class="basket-button__label-title">Warenkorb</span>
 								<span class="text-right cart_mobile_icon d-none"
 									  style="margin-left: 32%;position: absolute;">
 									<i class="fa fa-minus"></i>
@@ -571,11 +572,11 @@ foreach ($deliverydetails as $charge) {
 
 														<?php
 														if( strlen(trim( $item['options']['product']->note)) == 0){
-															$save = "Add";
-															$cancel = "Cancel";
+															$save = "Hinzufügen";
+															$cancel = "Abbrechen";
 														}else{
-															$save = "Save";
-															$cancel = "Delete";
+															$save = "Bearbeiten";
+															$cancel = "Löschen";
 														}
 														?>
 														<div class="SaveCancelNote">
@@ -603,13 +604,13 @@ foreach ($deliverydetails as $charge) {
 									</div>
 									<div class="cart-sum border-top">
 										<div class="d-flex cart-data pt-3">
-											<span class="pr-name">Subtotal</span>
+											<span class="pr-name">Zwischensumme</span>
 											<span class="cart-price"
 												  id="subTotal"><?= formatPrice($subtotal) ?> €</span>
 										</div>
 										<div
 												class=" cart-data delivery_costs_container pt-3 <?php if (count($this->cart->contents())) { ?> d-flex <?php } else echo 'd-none'; ?>">
-											<span class="pr-name">Delivery costs</span>
+											<span class="pr-name">Lieferkosten</span>
 											<?php
 											$total = $subtotal;
 											if (isset($matchedPinCodeRow->deliverycharges) && count($this->cart->contents())) {
@@ -625,7 +626,7 @@ foreach ($deliverydetails as $charge) {
 
 										</div>
 										<div class="d-flex cart-data total-sum pt-2">
-											<span class="pr-name">Total</span>
+											<span class="pr-name">Gesamt</span>
 											<span class="cart-price"
 												  id="totalPrice"><?= formatPrice($total) ?> €</span>
 										</div>
@@ -635,21 +636,16 @@ foreach ($deliverydetails as $charge) {
 										<div
 												class=" cart-data total-sum pt-2 minimum_cart_amount_container <?= (isset($matchedPinCodeRow->minimum_amount) && $matchedPinCodeRow->minimum_amount > $subtotal && count($this->cart->contents())) ? 'd-flex' : 'd-none' ?>"
 												style="color: #380">
-											<span class="pr-name">Amount needed to reach the minimum order value</span>
+											<span class="pr-name">Benötigter Betrag, um den Mindestbestellwert zu erreichen.</span>
 											<span
 													class="cart-price minimum_cart_amount"
 													data-minimum-cart-amount="<?= $matchedPinCodeRow->minimum_amount ?>"><?= formatPrice(isset($matchedPinCodeRow->minimum_amount) ? $matchedPinCodeRow->minimum_amount - $subtotal : 0) ?> €</span>
 										</div>
-
 									</div>
 
-
 									<div class="orderamount no_items_in_cart <?php if ((isset($matchedPinCodeRow->minimum_amount) && $matchedPinCodeRow->minimum_amount > $subtotal)) { ?>  <?php } else echo 'd-none'; ?>">
-										Sorry, you can't order yet. <?php echo $profile->name; ?> has set a minimum
-										order
-										amount
-										of <?= formatPrice(isset($matchedPinCodeRow->minimum_amount) ? $matchedPinCodeRow->minimum_amount : 0) ?>
-										€ (excl. delivery costs)
+										Leider kannst Du noch nicht bestellen. <?php echo $profile->name; ?> liefert erst ab einem Mindestbestellwert von <?= formatPrice(isset($matchedPinCodeRow->minimum_amount) ? $matchedPinCodeRow->minimum_amount : 0) ?>
+										€ (exkl. Lieferkosten).
 									</div>
 
 									<div
@@ -673,7 +669,7 @@ foreach ($deliverydetails as $charge) {
 						<button data-target-url="<?php echo site_url($profile->slugname . '/place-order') ?>"
 								href="<?php echo site_url($profile->slugname . '/place-order') ?>"
 								class="basket__order-button btn-primary cartbutton-button cartButtonSubmit">
-							To order
+							Bestellen
 						</button>
 					</div>
 				</div>

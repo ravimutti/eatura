@@ -69,7 +69,7 @@
 		<div class="modal-dialog modal-md">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h2 class="modal-title">About the restaurant</h2>
+					<h2 class="modal-title">Über das Restaurant</h2>
 					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 						<span aria-hidden="true">&times;</span>
 					</button>
@@ -78,7 +78,7 @@
 					<ul class="nav nav-tabs w-100" role="tablist">
 						<li class="nav-item" role="presentation">
 							<a class="nav-link active" data-toggle="tab" href="#reviews" role="tab"
-							   aria-selected="true">reviews</a>
+							   aria-selected="true">Bewertungen </a>
 						</li>
 						<li class="nav-item text-center" role="presentation">
 							<a class="nav-link" data-toggle="tab" href="#info" role="tab" aria-selected="false">info</a>
@@ -91,7 +91,7 @@
 						<div class="tab-content" id="modalTabContent">
 							<div class="tab-pane fade show active" id="reviews" role="tabpanel" aria-labelledby="">
 								<div class="content-review">
-									<h3>General evaluation</h3>
+									<h3>Allgemeine Bewertung</h3>
 									<section class="pt-2 review-data d-flex">
 										<div class="rating-number-container">
 											<span>4.0</span>
@@ -103,7 +103,7 @@
 												</div>
 											</div>
 											<div class="overviewstar">
-												<span class="text">out of 3519 ratings</span>
+												<span class="text">Von 3519 Bewertungen</span>
 											</div>
 										</div>
 									</section>
@@ -115,18 +115,18 @@
 												<span class="notranslate">Ute Kohl</span>
 											</div>
 											<div class="review-date">
-												<span itemprop="datePublished" class="reviewdate" content="2020-08-18"> Tuesday, August 18, 2020 </span>
+												<span itemprop="datePublished" class="reviewdate" content="2020-08-18"> Dienstag, 18. August 2020 </span>
 											</div>
 										</section>
 										<section class="ratingscontainer d-flex flex-column">
 											<div class="review-rating d-flex flex-row flex-space-between">
-												<span> eat </span>
+												<span> Essen  </span>
 												<div class="review-stars notranslate">
 													<span style="width: 100%;" class="review-stars-range"></span>
 												</div>
 											</div>
 											<div class="review-rating d-flex">
-												<span> delivery </span>
+												<span> Lieferung </span>
 												<div class="review-stars notranslate">
 													<span style="width: 100%;" class="review-stars-range"> </span>
 												</div>
@@ -208,7 +208,15 @@
 												<table class="table">
 													<tbody>
 													<?php
-
+														$daysArr = [
+															"Monday" => "Montag",
+															"Tuesday" => "Dienstag",
+															"Wednesday" => "Donnerstag",
+															"Thursday" => "Mittwoch",
+															"Friday" => "Freitag",
+															"Saturday" => "Samstag",
+															"Sunday" => "Sonntag",
+														];
 														function setStartEndTime($ordertime) {
 
 															if($ordertime->start_time == $ordertime->after_lunch) {
@@ -221,7 +229,7 @@
 														foreach($ordertimes as $ordertime) { ?>
 													<tr>
 														<td valign="top">
-															<?=$ordertime->day?>
+															<?=$daysArr[$ordertime->day]?>
 														</td>
 														<td valign="center" align="right">
 															<?php if($ordertime->mark == 0) { echo 'Closed'; } else {  ?>
@@ -352,7 +360,7 @@
 											<div class="info-tab-section menucard-imprint__section">
 												<?php echo $profile->cname; ?>
 												<br>
-												<?php echo $profile->address; ?> 
+												<?php echo $profile->address; ?>
 												<br>
 												<div>
 													<br>
@@ -414,7 +422,7 @@
 		<div class="modal-dialog modal-md  modal-dialog-centered">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h2 class="modal-title">Bitte wählen Sie aus</h2>
+					<h2 class="">Bitte wählen Sie aus</h2>
 				</div>
 				<div class="modal-body">
 					<form id="pincodeFORM" action="<?php echo base_url('/'); ?>" method="post" autocomplete="off">

@@ -321,7 +321,8 @@ jQuery(document).ready(function () {
 
 	_.on('click', '.unavailable', function (e) {
 		const restaurantName = $(document).find('.food-name').find('h3').text().trim();
-		let message = `${restaurantName} ist momentan geschlossen. Bitte versuche es morgen.`;
+		// let message = `${restaurantName} ist momentan geschlossen. Bitte versuche es morgen.`;
+		let message = `Bitte beachten Sie: Zurzeit können wir keine Bestellungen entgegennehmen. Bitte versuchen Sie es später noch einmal.`;
 		if(errorMessageInCaseOfPinCode && errorMessageInCaseOfPinCode.length > 0) {
 			message = errorMessageInCaseOfPinCode;
 			swalAlert('Error', message, 3000);
@@ -525,6 +526,8 @@ function updateCartQtyInCaseOfDuplicateRequest(response) {
 function prepareCartItemArrHTML(response) {
 	const cartContainer = $(document).find('#items');
 	let addOnString = response.options.product.addOnsString;
+	let save = "Hinzufügen";
+	let cancel = "Abbrechen";
 
 	let cartItemHTML = `<div id="cartItem${response.id}">
 							<div class="add-meal">
@@ -555,13 +558,17 @@ function prepareCartItemArrHTML(response) {
 								</div>
 								<div class="SaveCancelNote">
 									<a href="javascript:void(0)"
-									   style="float: right;color: #333;"
-									   data-ref=""
-									   class="cancel_note">Cancel</a>
-									<a href="javascript:void(0)"
 									   style="float: right;color: #1474f5;"
 									   data-ref="${response.id}"
-									   class="saveCartNote">Save</a>
+										 data-type="${save}"
+									   class="saveCartNote">${save}
+									</a>
+								 <a href="javascript:void(0)"
+									   style="float: right;color: #333;"
+									   data-ref="${response.id}"
+										 data-type="${cancel}"
+									   class="cancel_note">${cancel}
+									</a>
 								</div>
 							</div>
 							<small class="subAddOns">${addOnString}</small>
@@ -998,8 +1005,8 @@ function setCurrentProductActive(current) {
 
 function shuffleProductNoteText(arr,itemSKU) {
 		const noteVal = arr.options.product.note;
-		let save = "Save";let cancel = "Delete";
-		if (noteVal.trim() == "") {save = "Add";cancel = "Cancel";}
+		let save = "Bearbeiten";let cancel = "Löschen";
+		if (noteVal.trim() == "") {save = "Hinzufügen";cancel = "Abbrechen";}
 		const findElement = $(document).find('.textarea' + itemSKU);
 		findElement.find(".SaveCancelNote").find(".saveCartNote").attr("data-type",save).html(save);
 		findElement.find(".SaveCancelNote").find(".cancel_note").attr("data-type",cancel).html(cancel);

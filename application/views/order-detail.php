@@ -21,10 +21,10 @@ $this->load->view('includes/header', array('user_data' => $user_data)); ?>
                <div class="comp-logo">
                   <div class="comp-left">
                       <div class="restro-logo">
-                         <img src="<?php echo LOGOPATH . $order->restaurant->logo; ?>"> 
+                         <img src="<?php echo LOGOPATH . $order->restaurant->logo; ?>">
                       </div>
                       <h3><?php echo $order->restaurant->name; ?></h3>
-							 
+
                   </div>
                   <div class="comp-right"> <img src="<?php echo  base_url();?>assets/images/delivery-boy.gif" alt=""> </div>
                </div>
@@ -40,13 +40,18 @@ $this->load->view('includes/header', array('user_data' => $user_data)); ?>
                       </thead>
                       <tbody>
                         <?php foreach ($order->orders as $key => $item): ?>
+                          <?php  $product_array = json_decode($item->product_add_ons); ?>
                              <tr>
-                              <td><?=$item->item_name?></td>
+                              <td>
+                                <div class="">
+                                  <p class="m-0"><?=$item->item_name?> <br> <small style="font-style:italic"><?=$product_array->product->addOnsString?></small></p>
+                                </div>
+                              </td>
                               <td><?=$item->item_qty?></td>
                               <td><?= formatPrice($item->item_price * $item->item_qty) ?> €</td>
                             </tr>
                         <?php endforeach ?>
-                                     
+
                       </tbody>
                   </table>
                </div>
@@ -64,5 +69,5 @@ $this->load->view('includes/header', array('user_data' => $user_data)); ?>
          </div>
          </div>
       </section>
-         
+
  <?php $this->load->view('includes/footer'); ?>

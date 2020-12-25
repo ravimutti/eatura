@@ -373,7 +373,15 @@ class Store extends MyController
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		$response = json_decode(curl_exec($ch));
 		curl_close($ch);
-		// echo "<pre>"; print_r($response); echo "</pre>";
+		// echo "<pre>";
+		// // print_r($response->order->orders); echo "</pre>";
+		//
+		// foreach ($response->order->orders as $key => $value) {
+		// 	$product_array = json_decode($value->product_add_ons);
+		// 	print_r( $product_array->product->addOnsString );
+		// }
+
+		// die;
 		if (!empty($response)) {
 			if ($response->error == '202') {
 				$this->load->view('order-detail', $response);

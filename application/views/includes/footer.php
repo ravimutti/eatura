@@ -421,7 +421,7 @@
 		 aria-hidden="true" id="search-pop-header">
 		<div class="modal-dialog modal-md  modal-dialog-centered">
 			<div class="modal-content">
-				<div class="modal-header">
+				<div class="modal-header my-4 text-center">
 					<h2 class="">Bitte wählen Sie aus</h2>
 				</div>
 				<div class="modal-body">

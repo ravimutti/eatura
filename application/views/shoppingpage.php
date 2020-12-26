@@ -336,11 +336,11 @@ foreach ($deliverydetails as $charge) {
 																					$subToppings .= ' (+ €' . formatPrice($rowsubtoppings->price) . ')';
 																				}
 																				$rowsubtoppings_dnone = "";
-																				if(trim($rowsubtoppings->info) == '' ) $rowsubtoppings_dnone = 'd-none';
+																				$rowsubtoppingsinfo = isset($rowsubtoppings->info) ? htmlspecialchars(($rowsubtoppings->info), ENT_QUOTES, 'UTF-8') : '';
+																				if(isset($rowsubtoppings->info) && trim($rowsubtoppings->info) == '' ) $rowsubtoppings_dnone = 'd-none';
 																				$subToppings .= '</label>
 																				<a href="javascript:void(0)" class="pull-right  more-info_product '.$rowsubtoppings_dnone.' "
-
-																				data-more_info="'.htmlspecialchars(($rowsubtoppings->info), ENT_QUOTES, 'UTF-8').'"
+																				data-more_info="'.$rowsubtoppingsinfo.'"
 																			   data-ref="' . $prodcutrow->id . '"><i class="green-text fa fa-info-circle"></i></a></div>';
 																				$countsubcheck++;
 

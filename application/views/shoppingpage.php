@@ -279,7 +279,7 @@ foreach ($deliverydetails as $charge) {
 
 																			$firstVariant = [
 																				"name" => $provariantMap->name,
-																				"info" =>  htmlspecialchars(($provariantMap->info), ENT_QUOTES, 'UTF-8'),
+																				"info" => isset($provariantMap->info) ? htmlspecialchars(($provariantMap->info), ENT_QUOTES, 'UTF-8') : '',
 																				"ref" =>	$provariantMap->id
 																			];
 																		}

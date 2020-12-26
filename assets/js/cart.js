@@ -846,7 +846,7 @@ function setChosenOfProducts() {
 }
 
 function formatAmount(replacePrice) {
-	return replacePrice.toString().replace(".", ",");
+	return replacePrice.toString().replace(/\d(?=(\d{3})+\.)/g, '$&,').replace(".", ",");
 }
 
 function checkProductIsAvailble(container) {

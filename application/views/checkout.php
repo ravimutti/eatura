@@ -108,11 +108,11 @@ $this->load->view('includes/header', array('user_data' => $user_data));
 						</div>
 						<div class="mt-3 payment-head">
 							<p>Wie können wir Dich erreichen?</p>
-							<?php if($no_cart_item){ ?>
-							<div class="alert alert-warning my-2" role="alert">
-						  	Es befindet sich kein Produkt im Warenkorb. Klicke <a href="<?=site_url().$this->input->cookie('currentRestaurant', TRUE)?>">hier</a> um zurück zur Menükarte des Restaurants zu gelangen, sodass Du Produkte zu Deinem Warenkorb hinzufügen kannst.
+
+							<div class="alert alert-warning my-2 no_items_found_on_checkout <?php if(!$no_cart_item) { ?> d-none <?php } ?>" role="alert">
+						  	Es befindet sich kein Produkt im Warenkorb. Klicke <a style="color:#007bff" href="<?=site_url().$this->input->cookie('currentRestaurant', TRUE)?>">hier</a> um zurück zur Menükarte des Restaurants zu gelangen, sodass Du Produkte zu Deinem Warenkorb hinzufügen kannst.
 							</div>
-							<?php } ?>
+
 							<hr>
 							<div class="row">
 								<div class="col-md-12 col-xl-6">

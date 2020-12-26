@@ -175,7 +175,7 @@ foreach ($deliverydetails as $charge) {
 												date-ref="productContainer<?= $prodcutrow->id ?>">
 													<?php
 														if(!empty($prodcutrow->sku)) {
-															echo $prodcutrow->sku.'. ';
+															echo $prodcutrow->sku;
 														}
 														echo $prodcutrow->name;
 													?>
@@ -391,8 +391,8 @@ foreach ($deliverydetails as $charge) {
 																					echo ' (+ €' . formatPrice($protoppingsMap->price) . ')';
 																				} ?> </label>
 																			<a href="javascript:void(0)"
-																			   class="pull-right more-info_product <?php if(trim($protoppingsMap->info) == '' ) echo 'd-none';?>"
-																			   data-more_info="<?=htmlspecialchars(($protoppingsMap->info), ENT_QUOTES, 'UTF-8')?>"
+																			   class="pull-right more-info_product <?php if(isset($protoppingsMap->info) && trim($protoppingsMap->info) == '' ) echo 'd-none';?>"
+																			   data-more_info="<?= isset($protoppingsMap->info) ? htmlspecialchars(($protoppingsMap->info), ENT_QUOTES, 'UTF-8') : ''; ?>"
 																			   data-ref="<?= $prodcutrow->id ?>"><i class="green-text fa fa-info-circle"></i></a>
 																		</div>
 																		<?php if ($iii == sizeof($provariants->product_topping_maps) - 1 && trim($checkCount) != '') {
@@ -498,7 +498,7 @@ foreach ($deliverydetails as $charge) {
 											VAT Number <?php echo $profile->vat_no; ?>
 										</div>
 									<?php } ?>
-								
+
 									<div class="menucard-resolution-url">
 										<a href="javascript:void(0);" class="menucard-imprint" target="_blank">Plattform
 											der

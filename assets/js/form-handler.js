@@ -118,7 +118,7 @@ jQuery(document).ready(function () {
 		}
 	});
 	/*******************************************/
-	
+
 	/******* Forgot password Validation ***/
 	$("#forget-form").validate({
 		rules: {
@@ -166,8 +166,8 @@ jQuery(document).ready(function () {
 	});
 	/*******************************************/
 	/******* Profile Validation ***/
-	
-	
+
+
 	/******* changepassword Validation ***/
 	$("#changepassword-form").validate({
 		rules: {
@@ -250,7 +250,24 @@ jQuery(document).ready(function () {
 			formSubmit(form);
 		}
 	});
+
 	/*******************************************/
+  $("#pincodeFORM").validate({
+		submitHandler: function (form) {
+			let deliveryType = $('input[name="delivery"]:checked').val();
+
+      if(deliveryType == "delivery") {
+        let pincodeValue = $(document).find("#input_pincode").val();
+        if(pincodeValue.length == 0) {
+          // we need to show error
+          $(document).find(".invalid-pincode").removeClass("d-none");
+          return false;
+        }
+      }
+
+      form.submit();
+		}
+	});
 
 });
 
@@ -283,20 +300,20 @@ function formSubmit(form) {
 				delayTime = response.delayTime;
 
 			if (parseInt(response.error) === 202) {
-			    
+
 			    if(form.id == 'register-form') {
 					$('#register').removeClass('active');
 					$('#login').addClass('active');
 					$('#login').addClass('show');
 				}
-				
+
 				// Success Response show alert
 				if(response.success_message) {
 					swalAlert('Success', response.success_message, delayTime);
 				}else{
 					swalAlert('Success', response.message, delayTime);
 				}
-				
+
 				setInterval(function () {
 					$("input[type=submit]").prop("disabled", false);
 					$("button[type=submit]").prop("disabled", false);

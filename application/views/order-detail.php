@@ -1,4 +1,10 @@
-
+<script type="text/javascript">
+let prepareCartItemArr = '<?= (count($this->cart->contents())) ? json_encode(array_values($this->cart->contents())) : json_encode(array())?>';
+let restaurantPinCodes = '<?= json_encode(array())?>';
+let currentPinCodeRow = '<?= json_encode([]) ?>';
+let restaurantStatus = 1;
+let errorMessageInCaseOfPinCode = '';
+</script>
 <?php $user_data = $this->session->userdata('userdata');
 $this->load->view('includes/header', array('user_data' => $user_data)); ?>
 
@@ -71,3 +77,40 @@ $this->load->view('includes/header', array('user_data' => $user_data)); ?>
       </section>
 
  <?php $this->load->view('includes/footer'); ?>
+<script type="text/javascript">
+let start = '<?= strtotime('+25 minutes', strtotime($order->created_at)); ?>';
+var compareDate = new Date();
+var endDate   = new Date(parseInt(start)*1000)
+
+var timer;
+timer = setInterval(function() {
+  timeBetweenDates(endDate);
+}, 1000);
+
+function timeBetweenDates(toDate) {
+  var dateEntered = toDate;
+  var now = new Date();
+  var difference = dateEntered.getTime() - now.getTime();
+
+  if (difference <= 0) {
+
+    // Timer done
+    clearInterval(timer);
+
+  } else {
+
+    var seconds = Math.floor(difference / 1000);
+    var minutes = Math.floor(seconds / 60);
+    var hours = Math.floor(minutes / 60);
+    var days = Math.floor(hours / 24);
+
+    hours %= 24;
+    minutes %= 60;
+    seconds %= 60;
+
+    $(".timer").find('h2').text(minutes);
+    // $("#seconds").text(seconds);
+  }
+}
+
+</script>

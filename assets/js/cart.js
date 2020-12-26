@@ -46,12 +46,12 @@ jQuery(document).ready(function () {
 		const currentSelectedVariant = $(this).find("option:selected").attr("data-variant-name");
 		const currentSelectedMoreInfo = $(this).find("option:selected").attr("data-more_info");
 		if(currentSelectedMoreInfo.length == "") {
-			$(this).parent(".cstm-select").find(".more-info-product").addClass("d-none");
+			$(this).parent(".cstm-select").find(".more-info_product").addClass("d-none");
 		} else {
-			$(this).parent(".cstm-select").find(".more-info-product").removeClass("d-none");
+			$(this).parent(".cstm-select").find(".more-info_product").removeClass("d-none");
 		}
 		$(this).parent(".cstm-select").find(".currentVariant").html(currentSelectedVariant);
-		$(this).parent(".cstm-select").find(".more-info-product ").attr("data-more_info",currentSelectedMoreInfo);
+		$(this).parent(".cstm-select").find(".more-info_product").attr("data-more_info",currentSelectedMoreInfo);
 
 
 		prepareCartPrice($container);
@@ -115,6 +115,10 @@ jQuery(document).ready(function () {
 				sendCartItemToServer(prepareCartItemArr);
 				// and remove the item from cart list as well
 				$(document).find('#cartItem' + cartReference).remove();
+
+				if(prepareCartItemArr.length == 0) {
+					$(document).find('.no_items_found_on_checkout').removeClass('d-none');
+				}
 			}
 			setTimeout(() => {
 				updateCartPrice();

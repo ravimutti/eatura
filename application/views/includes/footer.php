@@ -453,16 +453,18 @@
 						<div class="pin_code_form <?= in_array($this->input->cookie('delivery_type', true), ["self",""]) ? "d-none" : ' ' ?>">
 							<div class="search-location form-group mb-0"><i class="fa fa-map-marker-alt"></i>
 								<input
-										class="form-control form-cstm" id="myInput" type="text" name="pincode"
+										class="form-control form-cstm" id="myInput" type="text"
 										autocomplete="off"
 										placeholder="PLZ eingeben"
-										required
 										<?= $this->input->cookie('delivery_type', true) === "self" ? "disabled" : '' ?>
 										value="<?= $this->input->cookie('pincode', true) ?>">
 							</div>
-							<button type="submit" class="btn btn-search">Anzeigen</button>
-						</div>
 
+							<button type="submit" class="btn btn-search">Anzeigen</button>
+							<label class="invalid-pincode text-danger d-none" for="">Bitte geben Sie die gültige Postleitzahl ein</label>
+						</div>
+						<input type="hidden" id="input_pincode" name="pincode" <?= $this->input->cookie('delivery_type', true) === "self" ? "disabled" : '' ?>
+							value="<?= $this->input->cookie('pincode', true) ?>">
 					</form>
 
 				</div>
@@ -963,6 +965,7 @@
 			/*execute a function when someone writes in the text field:*/
 			inp.addEventListener("input", function (e) {
 				var a, b, i, val = this.value;
+				$(document).find("#input_pincode").val('');
 				/*close any already open lists of autocompleted values*/
 				closeAllLists();
 				if (!val) {
@@ -981,6 +984,7 @@
 					if (arr[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
 						/*create a DIV element for each matching element:*/
 						b = document.createElement("DIV");
+						b.classList.add("autocomplete-item");
 						/*make the matching letters bold:*/
 						b.innerHTML = "<strong>" + arr[i].substr(0, val.length) + "</strong>";
 						b.innerHTML += arr[i].substr(val.length);
@@ -990,6 +994,8 @@
 						b.addEventListener("click", function (e) {
 							/*insert the value for the autocomplete text field:*/
 							inp.value = this.getElementsByTagName("input")[0].value;
+							$(document).find("#input_pincode").val( this.getElementsByTagName("input")[0].value );
+							$(document).find(".invalid-pincode").addClass("d-none");
 							/*close the list of autocompleted values,
 							(or any other open lists of autocompleted values:*/
 							closeAllLists();
@@ -1051,12 +1057,16 @@
 						x[i].parentNode.removeChild(x[i]);
 					}
 				}
+
+				$(document).find(".autocomplete-item").length
 			}
 
 			/*execute a function when someone clicks in the document:*/
 			document.addEventListener("click", function (e) {
 				closeAllLists(e.target);
 			});
+
+
 		}
 
 

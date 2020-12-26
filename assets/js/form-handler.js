@@ -258,13 +258,18 @@ jQuery(document).ready(function () {
 
       if(deliveryType == "delivery") {
         let pincodeValue = $(document).find("#input_pincode").val();
-        if(pincodeValue.length == 0) {
-          // we need to show error
-          $(document).find(".invalid-pincode").removeClass("d-none");
-          return false;
+        let myInput = $(document).find("#myInput").val();
+        // match value in array
+        if(countries.includes(myInput)){
+          $(document).find("#input_pincode").val(myInput);
+        }else{
+          if(pincodeValue.length == 0) {
+            // we need to show error
+            $(document).find(".invalid-pincode").removeClass("d-none");
+            return false;
+          }
         }
       }
-
       form.submit();
 		}
 	});

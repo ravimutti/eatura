@@ -463,7 +463,7 @@
 							<button type="submit" class="btn btn-search">Anzeigen</button>
 							<label class="invalid-pincode text-danger d-none" for="">Bitte geben Sie die gültige Postleitzahl ein</label>
 						</div>
-						<input type="hidden" id="input_pincode" name="pincode" <?= $this->input->cookie('delivery_type', true) === "self" ? "disabled" : '' ?>
+						<input type="hidden" id="input_pincode" name="pincode"
 							value="<?= $this->input->cookie('pincode', true) ?>">
 					</form>
 

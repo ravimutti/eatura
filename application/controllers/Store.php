@@ -47,8 +47,9 @@ class Store extends MyController
 
 		delete_cookie('pincode');
 		delete_cookie('delivery_type');
+		// print_r($_POST);die;
 		if (isset($_POST['pincode']) || isset($_POST['delivery'])) {
-			$pinCode = $_POST['pincode'];
+			$pinCode = isset($_POST['pincode']) ? $_POST['pincode'] : '';
 			if($_POST['delivery'] == "delivery" && trim($pinCode) !="") {
 				$cookie = array('name' => 'pincode','value' => $pinCode,'expire' => time()+86400,"path"=>'/');
 				$this->input->set_cookie($cookie);

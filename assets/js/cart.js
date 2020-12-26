@@ -154,6 +154,7 @@ jQuery(document).ready(function () {
 				product: {
 					note: '',
 					addOnsString: '',
+					sku: $this.attr("data-product-sku"),
 					productSKU: $this.attr('data-product-slugname'),
 					id: $this.attr('data-product-ref'),
 				}
@@ -537,7 +538,7 @@ function prepareCartItemArrHTML(response) {
 							<div class="add-meal">
 								<span class="cart-meal-amount notranslate"
 								  id="cartItemQty${response.id}">${response.qty}x</span>
-								<span class="cart-meal-name notranslate">${response.name}</span>
+								<span class="cart-meal-name notranslate"> <span class="product_sku">${response.options.product.sku}</span> ${response.name}</span>
 								<div class="cart-meal-edit-buttons">
 										<button type="button"
 										class="cart-meal-edit-delete updateCartQty" data-ref="${response.id}" data-type="down">
@@ -781,6 +782,7 @@ function prepareItemPriceByClosestElement(closestContainer) {
 			variants: variantWithToppings,
 			product: {
 				note: '',
+				sku: closestContainer.attr("data-product-sku"),
 				addOnsString: addOnsString.replace(/,\s*$/, ""),
 				productSKU: closestContainer.attr("data-product-slugname"),
 				id: closestContainer.attr("data-product-ref"),

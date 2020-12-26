@@ -65,13 +65,9 @@ class Store extends MyController
 				}
 			}
 
-
 			return redirect('/' . $this->currentSlug);
 		}
 
-
-		// die($this->currentSlug);
-		// return redirect('/' . $this->currentSlug);
 		$url = SITEURL . "getAllRestruent";
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
@@ -79,9 +75,6 @@ class Store extends MyController
 		curl_setopt($ch, CURLOPT_POSTFIELDS, "purchaseKey=value");
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		$response = json_decode(curl_exec($ch));
-		// echo "<pre>";
-		// print_r($response);
-		// die;
 		curl_close($ch);
 		$this->load->view('all-restruents', $response);
 	}
@@ -131,11 +124,43 @@ class Store extends MyController
 		}
 	}
 
+	public function restaurantBarCodeAction() {
+		delete_cookie('pincode');
+		delete_cookie('delivery_type');
+		$queryParams = $_GET;
+		// http://localhost/eatura/000024?d=d&pincode=123456
+		// print_r($queryParams);die;
+		if (isset($queryParams['pincode']) || isset($queryParams['delivery'])) {
+			$pinCode = isset($queryParams['pincode']) ? $queryParams['pincode'] : '';
+			if($queryParams['delivery'] == "delivery" && trim($pinCode) !="") {
+				$cookie = array('name' => 'pincode','value' => $pinCode,'expire' => time()+86400,"path"=>'/');
+				$this->input->set_cookie($cookie);
+			}
+			$cookie = array('name' => 'delivery_type','value' => $queryParams['delivery'],'expire' => time()+86400,"path"=>'/');
+			$this->input->set_cookie($cookie);
+			return redirect('/' . $this->currentSlug);
+		}
+	}
+
 	/**
 	 * @param $slug
 	 */
 	public function shop($slug)
 	{
+		// here we need to check get variables
+		$queryParams = $_GET;
+		if(isset($queryParams['d'])) {
+			$delivery_type = "self";
+			$pincode = "";
+			if($queryParams['d'] == 'd')
+				$delivery_type = "delivery";
+
+			if( isset($queryParams['pincode']) && trim($queryParams['pincode']) !="")
+				$pincode = $queryParams['pincode'];
+
+			return redirect(site_url("/restaurant-barcode?delivery=$delivery_type&pincode=$pincode"));
+		}
+		// print_r($queryParams);die;
 		$pinCode = $this->input->cookie('pincode', true);
 		$cookie = array('name' => 'uriRestaurant','value' =>$slug,'expire' => time()+86400);
 		$this->input->set_cookie($cookie);
@@ -163,13 +188,11 @@ class Store extends MyController
 					$response->restaurant_status = 0;
 					$response->errorMessageInCaseOfPinCode =  $response->profile->name." is not delivering orders on the entered pin code.";
 					$this->cart->destroy();
-					// echo "<pre>";print_r($response);die;
-//					return redirect($_SERVER['HTTP_REFERER']);
 				}
-
-
 				if ($this->input->cookie('currentRestaurant', TRUE) !== $slug) {
 					$this->cart->destroy();
+					delete_cookie('pincode');
+					delete_cookie('delivery_type');
 				}
 
 				$cookie = array('name' => 'currentRestaurant','value' => $response->profile->slugname,'expire' => time()+86400);

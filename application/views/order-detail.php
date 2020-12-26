@@ -50,7 +50,7 @@ $this->load->view('includes/header', array('user_data' => $user_data)); ?>
                              <tr>
                               <td>
                                 <div class="">
-                                  <p class="m-0"><?=$item->item_name?> <br> <small style="font-style:italic"><?=$product_array->product->addOnsString?></small></p>
+                                  <p class="m-0">	<span class="product_sku"><?=$product_array->product->sku?></span> <?=$item->item_name?> <br> <small style="font-style:italic"><?=$product_array->product->addOnsString?></small></p>
                                 </div>
                               </td>
                               <td><?=$item->item_qty?></td>

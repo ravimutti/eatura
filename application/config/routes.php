@@ -54,6 +54,7 @@ $route['default_controller'] ='Store/index';
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
 $route['save-cart-item'] = 'Store/storeCartItemAction';
+$route['restaurant-barcode'] = 'Store/restaurantBarCodeAction';
 $route['register'] = 'Auth/registerAction';
 $route['profile'] = 'Auth/profile';
 

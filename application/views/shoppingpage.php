@@ -152,7 +152,8 @@ foreach ($deliverydetails as $charge) {
 						<div
 								class="<?= $prodcutrow->type_id && $canOrder ? '  ' : ' addToCartSimpleProduct '; ?> <?= ($canOrder) ? 'can_order' : ' bg-light can_not_order' ?> meal-des fadeInDown wow d-flex my-2 p-3 border rounded  <?= ($profile->status == 1 && $restaurant_status == 1) ? 'available' : 'unavailable' ?> <?php echo "productContainer" . $prodcutrow->id;
 								if (!$prodcutrow->type_id) echo " addToCartSimpleProduct "; else echo " showProductOnTop variantProduct productRow" . $prodcutrow->id; ?>" <?php if ($prodcutrow->type_id && $canOrder) { ?> data-toggle="collapse" data-target="#collapseMeal<?php echo $collepcount; ?>" aria-expanded="false" aria-controls="collapseMeal<?php echo $collepcount; ?>"<?php } else { ?> data-product-ref="<?= $prodcutrow->id ?>"
-							data-product-name="<?=$productNameWithSku ?>"
+								data-product-name="<?=$prodcutrow->name ?>"
+								data-product-sku="<?=$prodcutrow->sku ?>"
 							data-product-slugname="<?= $prodcutrow->slugname ?>"
 							data-product-price="<?= $prodcutrow->price ?>" <?php } ?>
 								data-ref="<?= $prodcutrow->id ?>">
@@ -160,7 +161,8 @@ foreach ($deliverydetails as $charge) {
 
 							<div
 									class=" <?= ($canOrder) ? 'can_order' : 'can_not_order' ?> meal-des fadeInDown wow d-flex my-2 p-3 border rounded  <?= ($profile->status == 1 && $restaurant_status == 1) ? 'available' : 'unavailable' ?>"
-									data-product-name="<?=$productNameWithSku ?>"
+									data-product-name="<?=$prodcutrow->name ?>"
+									data-product-sku="<?=$prodcutrow->sku ?>"
 									data-product-slugname="<?= $prodcutrow->slugname ?>"
 									data-product-price="<?= $prodcutrow->price ?>"
 									data-ref="<?= $prodcutrow->id ?>">
@@ -175,7 +177,7 @@ foreach ($deliverydetails as $charge) {
 												date-ref="productContainer<?= $prodcutrow->id ?>">
 													<?php
 														if(!empty($prodcutrow->sku)) {
-															echo $prodcutrow->sku;
+															echo '<span class="product_sku">'.$prodcutrow->sku.'</span> ' ;
 														}
 														echo $prodcutrow->name;
 													?>
@@ -234,7 +236,8 @@ foreach ($deliverydetails as $charge) {
 									<a href="javascript:void(0)" <?php if (!$prodcutrow->type_id) { ?>
 
 										data-product-ref="<?= $prodcutrow->id ?>"
-										data-product-name="<?=$productNameWithSku ?>"
+										data-product-name="<?=$prodcutrow->name ?>"
+										data-product-sku="<?=$prodcutrow->sku ?>"
 										data-product-price="<?= $prodcutrow->price ?>"
 										<?php $productPrice += $prodcutrow->price;
 									} ?> ><i
@@ -248,7 +251,8 @@ foreach ($deliverydetails as $charge) {
 									<div class="sidedishes" id="productVariantContainer<?php echo $prodcutrow->id ?>"
 										 data-target="<?php echo $prodcutrow->id ?>"
 										 data-product-ref="<?php echo $prodcutrow->id ?>"
-										 data-product-name="<?=$productNameWithSku ?>"
+										 data-product-name="<?=$prodcutrow->name ?>"
+	 									data-product-sku="<?=$prodcutrow->sku ?>"
 										 data-product-slugname="<?php echo $prodcutrow->slugname; ?>"
 										 data-product-price="<?php echo $prodcutrow->price ?>">
 										<?php if (!empty($prodcutrow->product_variants)) {
@@ -541,7 +545,10 @@ foreach ($deliverydetails as $charge) {
 													<div class="add-meal">
 												<span class="cart-meal-amount notranslate"
 													  id="cartItemQty<?= $item['id'] ?>"><?= $item['qty'] ?>x</span>
-														<span class="cart-meal-name notranslate"><?= $item['name'] ?></span>
+														<span class="cart-meal-name notranslate">
+															<span class="product_sku"><?= $item['options']['product']->sku; ?></span>
+															<?= $item['name'] ?>
+														</span>
 
 														<div class="cart-meal-edit-buttons">
 															<button type="button"

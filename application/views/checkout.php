@@ -333,7 +333,10 @@ Daten, die Sie eingegeben haben und mit unseren einverstanden sind
 												<div class="add-meal">
 												<span class="cart-meal-amount notranslate"
 													  id="cartItemQty<?= $item['id'] ?>"><?= $item['qty'] ?>x</span>
-													<span class="cart-meal-name notranslate"><?= $item['name'] ?></span>
+														<span class="cart-meal-name notranslate">
+															<span class="product_sku"><?= $item['options']['product']->sku; ?></span>
+															<?= $item['name'] ?>
+														</span>
 
 													<div class="cart-meal-edit-buttons">
 														<button type="button"

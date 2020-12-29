@@ -105,7 +105,7 @@ foreach ($deliverydetails as $charge) {
 
 						as $resultrow) {
 						?>
-						<div class="menu-post fadeInUp wow <?= ($profile->status == 1 && $restaurant_status == 1) ? 'available' : 'unavailable' ?>"
+						<div class="menu-post fadeInUp wow my-3 <?= ($profile->status == 1 && $restaurant_status == 1) ? 'available' : 'unavailable' ?>"
 							 id="<?php echo $resultrow->catslug; ?>">
 							<?php if (!empty($resultrow->cimage)) { ?>
 								<div class="post-img">
@@ -150,7 +150,7 @@ foreach ($deliverydetails as $charge) {
 
 							?>
 						<div
-								class="<?= $prodcutrow->type_id && $canOrder ? '  ' : ' addToCartSimpleProduct '; ?> <?= ($canOrder) ? 'can_order' : ' bg-light can_not_order' ?> meal-des fadeInDown wow d-flex my-2 p-3 border rounded  <?= ($profile->status == 1 && $restaurant_status == 1) ? 'available' : 'unavailable' ?> <?php echo "productContainer" . $prodcutrow->id;
+								class="<?= $prodcutrow->type_id && $canOrder ? '  ' : ' addToCartSimpleProduct '; ?> <?= ($canOrder) ? 'can_order' : ' bg-light can_not_order' ?> meal-des fadeInDown wow d-flex my-3 p-3 border rounded  <?= ($profile->status == 1 && $restaurant_status == 1) ? 'available' : 'unavailable' ?> <?php echo "productContainer" . $prodcutrow->id;
 								if (!$prodcutrow->type_id) echo " addToCartSimpleProduct "; else echo " showProductOnTop variantProduct productRow" . $prodcutrow->id; ?>" <?php if ($prodcutrow->type_id && $canOrder) { ?> data-toggle="collapse" data-target="#collapseMeal<?php echo $collepcount; ?>" aria-expanded="false" aria-controls="collapseMeal<?php echo $collepcount; ?>"<?php } else { ?> data-product-ref="<?= $prodcutrow->id ?>"
 								data-product-name="<?=$prodcutrow->name ?>"
 								data-product-sku="<?=$prodcutrow->sku ?>"
@@ -163,7 +163,7 @@ foreach ($deliverydetails as $charge) {
 							<?php } else { ?>
 
 							<div
-									class=" <?= ($canOrder) ? 'can_order' : 'can_not_order' ?> meal-des fadeInDown wow d-flex my-2 p-3 border rounded  <?= ($profile->status == 1 && $restaurant_status == 1) ? 'available' : 'unavailable' ?>"
+									class=" <?= ($canOrder) ? 'can_order' : 'can_not_order' ?> meal-des fadeInDown wow d-flex my-3 p-3 border rounded  <?= ($profile->status == 1 && $restaurant_status == 1) ? 'available' : 'unavailable' ?>"
 									data-product-name="<?=$prodcutrow->name ?>"
 									data-product-sku="<?=$prodcutrow->sku ?>"
 									data-product-start-time="<?=trim($prodcutrow->start_time) != "" ? date("h:i", strtotime($prodcutrow->start_time)) : '' ?>"

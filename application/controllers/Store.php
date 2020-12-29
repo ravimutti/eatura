@@ -362,7 +362,7 @@ class Store extends MyController
 				if($order['order']['payment_mode'] === self::PaymentMethodPayPal) {
 					return $this->buyWithPaypalProduct($response);
 				}
-				$response->url = site_url('order/tracking/' . $response->order);
+				$response->url = site_url($this->currentSlug.'/order/tracking/'.$response->order);
 				echo json_encode($response);
 				die;
 			} elseif ($response->error == '404') {
@@ -380,7 +380,8 @@ class Store extends MyController
 	 */
 	public function thankYouAction()
 	{
-		$id = $this->uri->segment(3);
+		$id = $this->uri->segment(4);
+		$slug = $this->uri->segment(1);
 		$url = SITEURL . "getorder";
 
 		$pin_code = $this->input->cookie('pincode', true);
@@ -391,14 +392,23 @@ class Store extends MyController
 		curl_setopt($ch, CURLOPT_POST, 1);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, array(
 			"order_id" => $id,
-			"pin_code" => $id,
+			"pin_code" =>$pin_code,
 			"delivery_type" => $delivery_type,
 		));
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		$response = json_decode(curl_exec($ch));
 		curl_close($ch);
-		// echo "<pre>";
-		// // print_r($response->order->orders); echo "</pre>";
+
+		$url = SITEURL . "pincodes";
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_POST, 1);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, "purchaseKey=value1&slugname=" . $slug);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		$pincodes = json_decode(curl_exec($ch));
+		curl_close($ch);
+		$response->pincodes = $pincodes->pincodes;
+		// echo $response->order->restaurant->slugname.'/order/tracking/'.$response->order->order_id;die;
 		//
 		// foreach ($response->order->orders as $key => $value) {
 		// 	$product_array = json_decode($value->product_add_ons);
@@ -420,29 +430,42 @@ class Store extends MyController
 	}
 
 	public function buyWithPaypalProduct($post){
-        //Set variables for paypal form
-        $returnURL 	= base_url().'paypal/success'; //payment success url
-        $failURL 	= base_url().'paypal/fail'; //payment fail url
-        $notifyURL 	= base_url().'paypal/ipn'; //ipn url
+    //Set variables for paypal form
+    $returnURL 	= base_url().'paypal/success'; //payment success url
+    $failURL 	= base_url().'paypal/fail'; //payment fail url
+    $notifyURL 	= base_url().'paypal/ipn'; //ipn url
 		$userID 	= 0; //current user id
 		if(isset($this->session->userdata('userdata')['user']->userId)) {
 			$userID  = $this->session->userdata('userdata')['user']->userId;
 		}
-        $logo 		= base_url().'Your_logo_url';
-        $this->paypal_lib->add_field('return', $returnURL);
-        $this->paypal_lib->add_field('fail_return', $failURL);
-        $this->paypal_lib->add_field('notify_url', $notifyURL);
-        $this->paypal_lib->add_field('item_name', $post->order);
-        $this->paypal_lib->add_field('custom', $userID);
-        $this->paypal_lib->add_field('amount',  $post->amount);
-        $this->paypal_lib->image($logo);
-        $this->paypal_lib->paypal_auto_form();
+    $logo = base_url().'Your_logo_url';
+    $this->paypal_lib->add_field('return', $returnURL);
+    $this->paypal_lib->add_field('fail_return', $failURL);
+    $this->paypal_lib->add_field('notify_url', $notifyURL);
+    $this->paypal_lib->add_field('item_name', $post->order);
+    $this->paypal_lib->add_field('custom', $userID);
+    $this->paypal_lib->add_field('amount',  $post->amount);
+    $this->paypal_lib->image($logo);
+    $this->paypal_lib->paypal_auto_form();
 	}
 
 	public function paypalPaymentSuccessAction(){
-		log_message('error', 'Some variable did not contain a value.');
-		$rawData = $_POST;
-		return redirect(site_url('/order/tracking/'.$rawData['item_name']));
+			log_message('error', 'Some variable did not contain a value.');
+			$rawData = $_POST;
+			$url = SITEURL . "getorder";
+			$pin_code = $this->input->cookie('pincode', true);
+			$delivery_type = $this->input->cookie('delivery_type', true);
+			$ch = curl_init();
+			curl_setopt($ch, CURLOPT_URL, $url);
+			curl_setopt($ch, CURLOPT_POST, 1);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, array(
+				"order_id" => $rawData['item_name'],
+				"pin_code" =>$pin_code,
+				"delivery_type" => $delivery_type,
+			));
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			$response = json_decode(curl_exec($ch));
+			return redirect(site_url($response->order->restaurant->slugname.'/order/tracking/'.$response->order->order_id));
     }
 
     public function paypalPaymentpaymentFailAction(){
@@ -452,22 +475,22 @@ class Store extends MyController
 
 
 	public function paypalIpnAction(){
-        //paypal return transaction details array
-		$paypalInfo    			        = $this->input->post();
-        $data['user_id'] 		        = $paypalInfo['custom'];
-        $data['order_id'] 		        = $paypalInfo["item_name"];
-        $data['transaction_id']         = $paypalInfo["txn_id"];
-        $data['paid_amount'] 	        = $paypalInfo["mc_gross"];
-        $data['transaction_raw_data'] 	= json_encode($paypalInfo);
-        $data['payment_mode'] 	        = self::PaymentMethodPayPal;
-        $data['payment_status']         = $paypalInfo["payment_status"];
-        $data['created_at']             = date("Y-m-d h:i:s");
-        $data['updated_at']             = date("Y-m-d h:i:s");
+      //paypal return transaction details array
+			$paypalInfo    			        = $this->input->post();
+      $data['user_id'] 		        = $paypalInfo['custom'];
+      $data['order_id'] 		        = $paypalInfo["item_name"];
+      $data['transaction_id']         = $paypalInfo["txn_id"];
+      $data['paid_amount'] 	        = $paypalInfo["mc_gross"];
+      $data['transaction_raw_data'] 	= json_encode($paypalInfo);
+      $data['payment_mode'] 	        = self::PaymentMethodPayPal;
+      $data['payment_status']         = $paypalInfo["payment_status"];
+      $data['created_at']             = date("Y-m-d h:i:s");
+      $data['updated_at']             = date("Y-m-d h:i:s");
 
-        $paypalURL = $this->paypal_lib->paypal_url;
-        $result    = $this->paypal_lib->curlPost($paypalURL,$paypalInfo);
-        //check whether the payment is verified
-        if(preg_match("/VERIFIED/i",$result)){
+      $paypalURL = $this->paypal_lib->paypal_url;
+      $result    = $this->paypal_lib->curlPost($paypalURL,$paypalInfo);
+      //check whether the payment is verified
+      if(preg_match("/VERIFIED/i",$result)){
             //insert the transaction data into the database
 			$url = SITEURL . "saveTransaction";
 			$ch = curl_init();

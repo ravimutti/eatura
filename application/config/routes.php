@@ -74,6 +74,6 @@ $route['updateresetpassword'] = 'Store/updateresetpassword';
 $route['login'] = 'Auth/loginAction';
 $route['logout'] = 'Auth/logoutAction';
 $route['checkout'] = 'Store/checkoutAction';
-$route['order/tracking/(:any)'] = 'Store/thankYouAction';
+$route['(:any)/order/tracking/(:any)'] = 'Store/thankYouAction';
 $route['(:any)/place-order'] = 'Store/placeOrderAction';
 $route['(:any)'] = 'Store/shop/$1';

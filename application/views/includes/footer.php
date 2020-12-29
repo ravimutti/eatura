@@ -1,5 +1,5 @@
 <footer class="footer">
-	<button onclick="topFunction()" id="myBtntoptobottom" title="Go to top"><i class="fa fa-angle-up"></i></button>
+	<button id="myBtntoptobottom" title="Go to top"><i class="fa fa-angle-up"></i></button>
 	<?php if (isset($profile)) { ?>
 		<div class="responsive-menu" id="responsive-cart-items">
 			<button data-target-url="<?php echo site_url($profile->slugname . '/place-order') ?>"
@@ -816,8 +816,9 @@
 	</script>
 
 	<script>
-		$(document).ready(function () {
 
+		$(document).ready(function () {
+				let userHasScrolled = false;
 			let refIds = [];
 			// Cache selectors
 			var lastId,
@@ -835,7 +836,7 @@
 				});
 			// Bind click handler to menu items
 			// so we can get a fancy scroll animation
-			let userHasScrolled = false;
+
 
 			$('.slide-sec a').on('click', function (e) {
 				e.preventDefault(); // prevent hard jump, the default behavior
@@ -888,32 +889,6 @@
 			var id = cur && cur.length ? cur[0].id : "";
 
 			if (lastId !== id) {
-				/************************************************************************
-				var st = window.pageYOffset || document.documentElement.scrollTop;
-				if (st > lastScrollTop){
-					// downscroll code
-					let nextItem = $(document)
-					.find("a[href='#"+lastId+"']")
-					.parents(".owl-item")
-					.next(".owl-item")
-					.length;
-
-					if(nextItem == 1){
-						owl.trigger('next.owl.carousel');
-					}
-				} else {
-					// upscroll code
-					let prevtItem = $(document)
-					.find("a[href='#"+lastId+"']")
-					.parents(".owl-item")
-					.prev(".owl-item")
-					.length;
-					if(prevtItem == 1){
-						owl.trigger('prev.owl.carousel');
-					}
-				}
-				lastScrollTop = st <= 0 ? 0 : st; // For Mobile or negative scrolling
-				*************************************************************************/
 				if(id) {
 					let cEle = $('a[href="#'+id+'"]').parents(".owl-item");
 					if(!cEle.find(".owl-item").hasClass("active")) {
@@ -933,6 +908,13 @@
 					.addClass("active");
 			}
 			});
+
+			// When the user clicks on the button, scroll to the top of the document
+			$(document).on('click',"#myBtntoptobottom",function(e) {
+				userHasScrolled = true;
+				window.scroll(0,0);
+			})
+
 		});
 
 
@@ -959,6 +941,8 @@
 
 	<script>
 		function autocomplete(inp, arr) {
+
+			console.log({arr:arr});
 			/*the autocomplete function takes two arguments,
 			the text field element and an array of possible autocompleted values:*/
 			var currentFocus;
@@ -1090,11 +1074,7 @@
 		}
 	}
 
-	// When the user clicks on the button, scroll to the top of the document
-	function topFunction() {
-		document.body.scrollTop = 0;
-		document.documentElement.scrollTop = 0;
-	}
+
 </script>
 <script>
 	/*An array containing all the pincode:*/

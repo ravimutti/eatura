@@ -335,9 +335,18 @@ foreach ($deliverydetails as $charge) {
 																				if (!empty($rowsubtoppings->price) && $rowsubtoppings->price != '0.00' && $rowsubtoppings->price != '0') {
 																					$subToppings .= ' (+ €' . formatPrice($rowsubtoppings->price) . ')';
 																				}
-																				$rowsubtoppings_dnone = "";
+
+
+																				$rowsubtoppings_dnone = "d-none";
 																				$rowsubtoppingsinfo = isset($rowsubtoppings->info) ? htmlspecialchars(($rowsubtoppings->info), ENT_QUOTES, 'UTF-8') : '';
-																				if(isset($rowsubtoppings->info) && trim($rowsubtoppings->info) == '' ) $rowsubtoppings_dnone = 'd-none';
+																				if(isset($rowsubtoppings->info)) {
+																					if(empty($rowsubtoppings->info) == "") {
+																							$rowsubtoppings_dnone = "d-none";
+																					}else{
+																							$rowsubtoppings_dnone = "";
+																					}
+																				}
+
 																				$subToppings .= '</label>
 																				<a href="javascript:void(0)" class="pull-right  more-info_product '.$rowsubtoppings_dnone.' "
 																				data-more_info="'.$rowsubtoppingsinfo.'"
@@ -394,13 +403,25 @@ foreach ($deliverydetails as $charge) {
 																				if (!empty($protoppingsMap->price) && $protoppingsMap->price != '0.00' && $protoppingsMap->price != '0') {
 																					echo ' (+ €' . formatPrice($protoppingsMap->price) . ')';
 																				} ?> </label>
+
+																				<?php
+																				$protoppingsMapInfoClass = "d-none";
+																				$protoppingsMapInfoJSON = isset($protoppingsMap->info) ? htmlspecialchars(($protoppingsMap->info), ENT_QUOTES, 'UTF-8') : '';
+																				if(isset($protoppingsMap->info)) {
+																					if(empty($protoppingsMap->info) == "") {
+																							$protoppingsMapInfoClass = "d-none";
+																					}else{
+																							$protoppingsMapInfoClass = "";
+																					}
+																				}
+																				?>
 																			<a href="javascript:void(0)"
-																			   class="pull-right more-info_product <?php if(isset($protoppingsMap->info) && trim($protoppingsMap->info) == '' ) echo 'd-none';?>"
-																			   data-more_info="<?= isset($protoppingsMap->info) ? htmlspecialchars(($protoppingsMap->info), ENT_QUOTES, 'UTF-8') : ''; ?>"
+																			   class="pull-right more-info_product <?=$protoppingsMapInfoClass?>"
+																			   data-more_info="<?= $protoppingsMapInfoJSON ?>"
 																			   data-ref="<?= $prodcutrow->id ?>"><i class="green-text fa fa-info-circle"></i></a>
 																		</div>
 																		<?php if ($iii == sizeof($provariants->product_topping_maps) - 1 && trim($checkCount) != '') {
-																			echo '<div class="custom-checkbox my-2"><a class="see-more-options" href="javascript:void(0)" data-result-count="' . ($iii - 2) . '"> <i class="fas fa-chevron-up"></i> Show ' . ($iii - 2) . ' more</a></div>';
+																			echo '<div class="custom-checkbox my-2"><a class="see-more-options" href="javascript:void(0)" data-result-count="' . ($iii - 2) . '"> <i class="fas fa-chevron-down"></i> Show ' . ($iii - 2) . ' more</a></div>';
 																		}
 																	}
 																} ?>
@@ -546,7 +567,10 @@ foreach ($deliverydetails as $charge) {
 												<span class="cart-meal-amount notranslate"
 													  id="cartItemQty<?= $item['id'] ?>"><?= $item['qty'] ?>x</span>
 														<span class="cart-meal-name notranslate">
-															<span class="product_sku"><?= $item['options']['product']->sku; ?></span>
+															<?php if(trim($item['options']['product']->sku) !="") {?>
+																<span class="product_sku"><?= $item['options']['product']->sku; ?></span>
+															<?php } ?>
+
 															<?= $item['name'] ?>
 														</span>
 
@@ -609,6 +633,7 @@ foreach ($deliverydetails as $charge) {
 
 
 									</div>
+
 									<div class="cart-sum border-top">
 										<div class="d-flex cart-data pt-3">
 											<span class="pr-name">Zwischensumme</span>

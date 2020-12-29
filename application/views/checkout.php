@@ -86,7 +86,7 @@ $this->load->view('includes/header', array('user_data' => $user_data));
 												<label>Postleitzahl</label>
 												<input type="text" name="order_user_details[pincode]" placeholder=""
 													   class="form-control"
-														 disabled
+														 readonly
 													   value="<?=$pincode?>"
 												>
 												<a class="pull-right" href="#" data-toggle="modal"
@@ -331,12 +331,15 @@ Daten, die Sie eingegeben haben und mit unseren einverstanden sind
 												<?php $subtotal += $item['subtotal'];
 												++$cartCount; ?>
 												<div class="add-meal">
-												<span class="cart-meal-amount notranslate"
-													  id="cartItemQty<?= $item['id'] ?>"><?= $item['qty'] ?>x</span>
-														<span class="cart-meal-name notranslate">
+											<span class="cart-meal-amount notranslate"
+													id="cartItemQty<?= $item['id'] ?>"><?= $item['qty'] ?>x</span>
+													<span class="cart-meal-name notranslate">
+														<?php if(trim($item['options']['product']->sku) !="") {?>
 															<span class="product_sku"><?= $item['options']['product']->sku; ?></span>
-															<?= $item['name'] ?>
-														</span>
+														<?php } ?>
+
+														<?= $item['name'] ?>
+													</span>
 
 													<div class="cart-meal-edit-buttons">
 														<button type="button"
@@ -352,29 +355,41 @@ Daten, die Sie eingegeben haben und mit unseren einverstanden sind
 																	class="fas fa-pencil-alt"></i>
 														</button>
 														<span id="cartItemPrice<?= $item['id'] ?>"
-															  class="cart-meal-price notranslate"><?= formatPrice($item['subtotal']) ?> €</span>
+																class="cart-meal-price notranslate"><?= formatPrice($item['subtotal']) ?> €</span>
 														<button type="button" class="cart-meal-delete removeCartItem"
 																data-cart-ref="<?= $item['id'] ?>">
 															<i class="fas fa-trash-alt"></i></button>
 													</div>
-
-
 												</div>
 
 												<div class="textarea<?= $item['id'] ?> d-none">
 													<div class="form-group mb-0">
-														<textarea class="form-control"
-																  placeholder="Write item notes..."><?= $item['options']['product']->note; ?></textarea>
+													<textarea class="form-control"
+																placeholder="Write item notes..."><?= $item['options']['product']->note; ?></textarea>
 													</div>
+
+													<?php
+													if( strlen(trim( $item['options']['product']->note)) == 0){
+														$save = "Hinzufügen";
+														$cancel = "Abbrechen";
+													}else{
+														$save = "Bearbeiten";
+														$cancel = "Löschen";
+													}
+													?>
 													<div class="SaveCancelNote">
 														<a href="javascript:void(0)"
-														   style="float: right;color: #333;"
-														   data-ref="<?= $item['id'] ?>"
-														   class="cancel_note">Cancel</a>
-														<a href="javascript:void(0)"
-														   style="float: right;color: #1474f5;"
-														   data-ref="<?= $item['id'] ?>"
-														   class="saveCartNote">Save</a>
+															 style="float: right;color: #1474f5;"
+															 data-type="<?=$save ?>"
+															 data-ref="<?=$item['id'] ?>"
+															 class="saveCartNote"><?=$save ?>
+														 </a>
+														 <a href="javascript:void(0)"
+															 style="float: right;color: #333;"
+															 data-type="<?=$cancel ?>"
+															 data-ref="<?=$item['id'] ?>"
+															 class="cancel_note"><?=$cancel ?>
+														 </a>
 													</div>
 												</div>
 												<small class="subAddOns"><?= $item['options']['product']->addOnsString ?></small>
@@ -385,11 +400,12 @@ Daten, die Sie eingegeben haben und mit unseren einverstanden sind
 
 
 								</div>
+
 								<div class="cart-sum border-top">
 									<div class="d-flex cart-data pt-3">
 										<span class="pr-name">Zwischensumme</span>
 										<span class="cart-price"
-											  id="subTotal"><?= formatPrice($subtotal) ?> €</span>
+												id="subTotal"><?= formatPrice($subtotal) ?> €</span>
 									</div>
 									<div
 											class=" cart-data delivery_costs_container pt-3 <?php if (count($this->cart->contents())) { ?> d-flex <?php } else echo 'd-none'; ?>">
@@ -400,7 +416,7 @@ Daten, die Sie eingegeben haben und mit unseren einverstanden sind
 											$total += $matchedPinCodeRow->deliverycharges;
 											?>
 											<span class="cart-price"
-												  id="deliveryCosts"> <?= formatPrice($matchedPinCodeRow->deliverycharges) ?> €</span>
+													id="deliveryCosts"> <?= formatPrice($matchedPinCodeRow->deliverycharges) ?> €</span>
 										<?php } else {
 											?>
 											<span class="cart-price" id="deliveryCosts"> Gratis</span>
@@ -411,37 +427,32 @@ Daten, die Sie eingegeben haben und mit unseren einverstanden sind
 									<div class="d-flex cart-data total-sum pt-2">
 										<span class="pr-name">Gesamt</span>
 										<span class="cart-price"
-											  id="totalPrice"><?= formatPrice($total) ?> €</span>
+												id="totalPrice"><?= formatPrice($total) ?> €</span>
 									</div>
 									<?php
-									if (isset($matchedPinCodeRow->minimum_amount)) {
+									if(isset($matchedPinCodeRow->minimum_amount)) {
 									?>
 									<div
 											class=" cart-data total-sum pt-2 minimum_cart_amount_container <?= (isset($matchedPinCodeRow->minimum_amount) && $matchedPinCodeRow->minimum_amount > $subtotal && count($this->cart->contents())) ? 'd-flex' : 'd-none' ?>"
 											style="color: #380">
-										<span class="pr-name">Amount needed to reach the minimum order value</span>
+										<span class="pr-name">Benötigter Betrag, um den Mindestbestellwert zu erreichen.</span>
 										<span
 												class="cart-price minimum_cart_amount"
 												data-minimum-cart-amount="<?= $matchedPinCodeRow->minimum_amount ?>"><?= formatPrice(isset($matchedPinCodeRow->minimum_amount) ? $matchedPinCodeRow->minimum_amount - $subtotal : 0) ?> €</span>
 									</div>
-
 								</div>
 
-
 								<div class="orderamount no_items_in_cart <?php if ((isset($matchedPinCodeRow->minimum_amount) && $matchedPinCodeRow->minimum_amount > $subtotal)) { ?>  <?php } else echo 'd-none'; ?>">
-									Sorry, you can't order yet. <?php echo $profile->name; ?> has set a minimum
-									order
-									amount
-									of <?= formatPrice(isset($matchedPinCodeRow->minimum_amount) ? $matchedPinCodeRow->minimum_amount : 0) ?>
-									€ (excl. delivery costs)
+									Leider kannst Du noch nicht bestellen. <?php echo $profile->name; ?> liefert erst ab einem Mindestbestellwert von <?= formatPrice(isset($matchedPinCodeRow->minimum_amount) ? $matchedPinCodeRow->minimum_amount : 0) ?>
+									€ (exkl. Lieferkosten).
 								</div>
 
 								<div
 										class="orderamount <?= (isset($matchedPinCodeRow->minimum_amount) && $matchedPinCodeRow->minimum_amount < $subtotal) ? '' : 'd-none' ?>  valid_cart_minimum_order"
 										style="color: #380">
 									Du hast den Mindestbestellwert von <span
-											class="amount minimum_cart_amount"> <?= formatPrice(isset($matchedPinCodeRow->minimum_amount) ? $matchedPinCodeRow->minimum_amount : 0) ?> €</span>
-									erreicht und kannst jetzt fortfahren
+										class="amount minimum_cart_amount"> <?= formatPrice(isset($matchedPinCodeRow->minimum_amount) ? $matchedPinCodeRow->minimum_amount : 0) ?> €</span>
+								erreicht und kannst jetzt fortfahren
 								</div>
 								<?php
 								}

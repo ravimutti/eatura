@@ -270,7 +270,7 @@ jQuery(document).ready(function () {
 					if (findItemIndex > -1) {
 						const findElement = $(document).find('.textarea' + itemSKU);
 						const inputTextSpanfindElement = $(document).find('.item_note' + itemSKU);
-						if(itemType == "Delete") {
+						if(itemType == "Löschen") {
 							 prepareCartItemArr[findItemIndex].options.product.note = "";
 						}
 						findElement.find('textarea').val(prepareCartItemArr[findItemIndex].options.product.note);
@@ -533,12 +533,12 @@ function prepareCartItemArrHTML(response) {
 	let addOnString = response.options.product.addOnsString;
 	let save = "Hinzufügen";
 	let cancel = "Abbrechen";
-
+	let prepareSkuHTML = response.options.product.sku ? `<span class="product_sku">${response.options.product.sku}</span>` : '';
 	let cartItemHTML = `<div id="cartItem${response.id}">
 							<div class="add-meal">
 								<span class="cart-meal-amount notranslate"
 								  id="cartItemQty${response.id}">${response.qty}x</span>
-								<span class="cart-meal-name notranslate"> <span class="product_sku">${response.options.product.sku}</span> ${response.name}</span>
+								<span class="cart-meal-name notranslate"> ${prepareSkuHTML} ${response.name}</span>
 								<div class="cart-meal-edit-buttons">
 										<button type="button"
 										class="cart-meal-edit-delete updateCartQty" data-ref="${response.id}" data-type="down">

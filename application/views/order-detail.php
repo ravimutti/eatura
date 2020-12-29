@@ -12,7 +12,7 @@ $this->load->view('includes/header', array('user_data' => $user_data)); ?>
          <div class="map">
             <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d6509918.949550237!2d-123.79820902299119!3d37.184280336325216!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x808fb9fe5f285e3d%3A0x8b5109a227086f55!2sCalifornia%2C%20USA!5e0!3m2!1sen!2sin!4v1604215488833!5m2!1sen!2sin" width="100%" height="380" frameborder="0" style="border:0;" allowfullscreen="" aria-hidden="false" tabindex="0"></iframe>
          </div>
-         <div class="timer"><h2>25</h2> <h6>min.s</h6></div>
+         <div class="timer"><h2><i class="fa fa-spinner fa-spin" aria-hidden="true"></i></h2> <h6>min.s</h6></div>
          <div class="container">
             <div class="row">
             <div class="col-md-8 m-auto">
@@ -23,7 +23,7 @@ $this->load->view('includes/header', array('user_data' => $user_data)); ?>
 							<h5 class=m-0>Forgot Something?</h5>
 							<p > <a style="color:#56d042" class="font-weight-bold" href="<?=site_url().$this->input->cookie('uriRestaurant', true)?>">Create new order</a>  </p>
 						</div>
-						<p>Your order reference: <span  class="font-weight-bold"><?=$this->uri->segment(3)?></span> </p>
+						<p>Your order reference: <span  class="font-weight-bold"><?=$order->order_id?></span> </p>
                <div class="comp-logo">
                   <div class="comp-left">
                       <div class="restro-logo">
@@ -50,7 +50,15 @@ $this->load->view('includes/header', array('user_data' => $user_data)); ?>
                              <tr>
                               <td>
                                 <div class="">
-                                  <p class="m-0">	<span class="product_sku"><?=$product_array->product->sku?></span> <?=$item->item_name?> <br> <small style="font-style:italic"><?=$product_array->product->addOnsString?></small></p>
+                                  <p class="m-0">
+                                    <?php if(trim($product_array->product->sku) !="") {?>
+        														  <span class="product_sku"><?=$product_array->product->sku?></span>
+        														<?php } ?>
+
+
+                                    <?=$item->item_name?> <br>
+                                    <small style="font-style:italic"><?=$product_array->product->addOnsString?></small>
+                                  </p>
                                 </div>
                               </td>
                               <td><?=$item->item_qty?></td>
@@ -76,9 +84,17 @@ $this->load->view('includes/header', array('user_data' => $user_data)); ?>
          </div>
       </section>
 
- <?php $this->load->view('includes/footer'); ?>
+ <?php $this->load->view('includes/footer',["pincodes" => $pincodes]);
+ $mintuesToAdd = 25;
+ if($order->pincode && isset($order->pincode->id)) {
+   $mintuesToAdd = date('i',strtotime($order->pincode->delivery_time));
+ }
+ ?>
+
 <script type="text/javascript">
-let start = '<?= strtotime('+25 minutes', strtotime($order->created_at)); ?>';
+
+let mintuesToAdd = '<?= $mintuesToAdd?>';
+let start = '<?= strtotime("+$mintuesToAdd minutes", strtotime($order->created_at)); ?>';
 var compareDate = new Date();
 var endDate   = new Date(parseInt(start)*1000)
 

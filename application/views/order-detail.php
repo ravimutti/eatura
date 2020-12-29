@@ -18,12 +18,12 @@ $this->load->view('includes/header', array('user_data' => $user_data)); ?>
             <div class="col-md-8 m-auto">
                <div class="o-detail-lft">
                   <div class="order-names">
-                  <h2>Thank you for your order.</h2>
+                  <h2>Danke für Deine Bestellung.</h2>
 						<div class="forget-order">
-							<h5 class=m-0>Forgot Something?</h5>
-							<p > <a style="color:#56d042" class="font-weight-bold" href="<?=site_url().$this->input->cookie('uriRestaurant', true)?>">Create new order</a>  </p>
+							<h5 class=m-0>Du hast etwas vergessen?</h5>
+							<p > <a style="color:#56d042" class="font-weight-bold" href="<?=site_url().$this->input->cookie('uriRestaurant', true)?>">Neue Bestellung aufgeben</a>  </p>
 						</div>
-						<p>Your order reference: <span  class="font-weight-bold"><?=$order->order_id?></span> </p>
+						<p>Ihre Bestellnummer: <span  class="font-weight-bold"><?=$order->order_id?></span> </p>
                <div class="comp-logo">
                   <div class="comp-left">
                       <div class="restro-logo">
@@ -39,9 +39,9 @@ $this->load->view('includes/header', array('user_data' => $user_data)); ?>
                   <table class="table table-borderless">
                       <thead>
                         <tr>
-                          <th>Product Name</th>
-                          <th>Qty</th>
-                          <th style="border-radius:0 5px 5px 0">Sub Total</th>
+                          <th>Produktname</th>
+                          <th>Anzahl</th>
+                          <th style="border-radius:0 5px 5px 0">Zwischensumme</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -71,12 +71,12 @@ $this->load->view('includes/header', array('user_data' => $user_data)); ?>
                </div>
                </div>
                <div class="procesing-sec">
-                  <h3>Order Status</h3>
+                  <h3>Bestellstatus</h3>
                   <ul>
-                     <li><div class="process"><div class="tick <?= in_array($order->order_status,['Created','Processing','Accepted','Processing','Ready to delever']) ? 'done' : ''?> "><img src="images/tick.png" alt=""></div> <h5>Accepted</h5></div></li>
-                     <li><div class="process"><div class="tick <?= in_array($order->order_status,['Processing','Accepted','Ready to delever']) ? 'done' : ''?>"><img src="images/tick.png" alt=""></div> <h5>Processing</h5></div></li>
-                     <li><div class="process"><div class="tick <?= in_array($order->order_status,['Accepted','Processing','Ready to delever']) ? 'done' : ''?>"><img src="images/tick.png" alt=""></div> <h5>Ready to Deliver</h5></div></li>
-                     <li><div class="process"><div class="tick <?= in_array($order->order_status,['Accepted','Processing','Ready to delever','Delivered']) ? 'done' : ''?>"><img src="images/tick.png" alt=""></div> <h5>Delivered</h5></div></li>
+                     <li><div class="process"><div class="tick <?= in_array($order->order_status,['Created','Processing','Accepted','Processing','Ready to delever']) ? 'done' : ''?> "><img src="images/tick.png" alt=""></div> <h5>Bestelleingang</h5></div></li>
+                     <li><div class="process"><div class="tick <?= in_array($order->order_status,['Processing','Accepted','Ready to delever']) ? 'done' : ''?>"><img src="images/tick.png" alt=""></div> <h5>Verarbeitung</h5></div></li>
+                     <li><div class="process"><div class="tick <?= in_array($order->order_status,['Accepted','Processing','Ready to delever']) ? 'done' : ''?>"><img src="images/tick.png" alt=""></div> <h5>Lieferbereit</h5></div></li>
+                     <li><div class="process"><div class="tick <?= in_array($order->order_status,['Accepted','Processing','Ready to delever','Delivered']) ? 'done' : ''?>"><img src="images/tick.png" alt=""></div> <h5>Ausgeliefert</h5></div></li>
                   </ul>
                </div>
             </div>

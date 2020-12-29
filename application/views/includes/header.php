@@ -12,7 +12,7 @@
 		  href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.css"/>
 	<link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/bootstrap.min.css">
 	<link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/toaster.css">
-	<link rel="icon" href="<?php echo base_url(); ?>assets/images/fav.png" type="image/png" sizes="20x20">
+	<!-- <link rel="icon" href="<?php echo base_url(); ?>assets/images/fav.png" type="image/png" sizes="20x20"> -->
 	<link rel="stylesheet" type="text/css" href="<?php echo base_url(); ?>assets/css/style.css">
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css">
 

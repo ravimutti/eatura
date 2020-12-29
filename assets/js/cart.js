@@ -88,7 +88,7 @@ jQuery(document).ready(function () {
 
 
 		$(closestContainer).find('.see-more-options').each(function (e) {
-			$(this).html(` <i class="fas fa-chevron-down"></i> Show ${$(this).attr('data-result-count')} more`);
+			$(this).html(` <i class="fas fa-chevron-down"></i> Weniger ${$(this).attr('data-result-count')} anzeigen`);
 		});
 
 		scrollCartScrollBar()
@@ -344,10 +344,10 @@ jQuery(document).ready(function () {
 		const resultCount = $(this).attr('data-result-count');
 		if ($(container).find('.canHideShow').hasClass('d-none')) {
 			$(container).find('.canHideShow').removeClass('d-none');
-			$(this).html(` <i class="fas fa-chevron-up"></i> Show ${resultCount} less`);
+			$(this).html(` <i class="fas fa-chevron-up"></i> ${resultCount} weniger anzeigen`);
 		} else {
 			$(container).find('.canHideShow').addClass('d-none');
-			$(this).html(` <i class="fas fa-chevron-down"></i> Show ${resultCount} more`);
+			$(this).html(` <i class="fas fa-chevron-down"></i> Weniger ${resultCount} anzeigen`);
 		}
 	});
 

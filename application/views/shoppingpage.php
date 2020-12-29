@@ -359,7 +359,7 @@ foreach ($deliverydetails as $charge) {
 																				$countsubcheck++;
 
 																				if ($kkkkey == sizeof($provariantMap->variantMap) - 1 && trim($checkCount) != '') {
-																					$subToppings .= '<div class="custom-checkbox my-2"><a class="see-more-options" href="javascript:void(0)" data-result-count="' . ($kkkkey - 2) . '"><i class="fa fa-chevron-down"></i>  Show ' . ($kkkkey - 2) . ' more</a></div>';
+																					$subToppings .= '<div class="custom-checkbox my-2"><a class="see-more-options" href="javascript:void(0)" data-result-count="' . ($kkkkey - 2) . '"><i class="fa fa-chevron-down"></i>  Weniger ' . ($kkkkey - 2) . ' anzeigen</a></div>';
 																				}
 																			}
 																			$subToppings .= '</div></div>';
@@ -426,7 +426,7 @@ foreach ($deliverydetails as $charge) {
 																			   data-ref="<?= $prodcutrow->id ?>"><i class="green-text fa fa-info-circle"></i></a>
 																		</div>
 																		<?php if ($iii == sizeof($provariants->product_topping_maps) - 1 && trim($checkCount) != '') {
-																			echo '<div class="custom-checkbox my-2"><a class="see-more-options" href="javascript:void(0)" data-result-count="' . ($iii - 2) . '"> <i class="fas fa-chevron-down"></i> Show ' . ($iii - 2) . ' more</a></div>';
+																			echo '<div class="custom-checkbox my-2"><a class="see-more-options" href="javascript:void(0)" data-result-count="' . ($iii - 2) . '"> <i class="fas fa-chevron-down"></i> Weniger ' . ($iii - 2) . ' anzeigen</a></div>';
 																		}
 																	}
 																} ?>

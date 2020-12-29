@@ -852,7 +852,12 @@ function formatAmount(replacePrice) {
 function checkProductIsAvailble(container) {
 
 	if (container.hasClass('can_not_order')) {
-		swalAlert('Error', "This product cannot be ordered at this time.", 3000);
+		let starttime = container.attr("data-product-start-time");
+		if(starttime && starttime.length)
+				swalAlert('Error', `Dieses produkt kann nur von: ${starttime}Uhr bestelt werden.`, 3000);
+		else
+				swalAlert('Error', "Dieses Produkt kann derzeit nicht bestellt werden.", 3000);
+
 		return false;
 	}
 	return true;

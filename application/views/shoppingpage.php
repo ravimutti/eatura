@@ -154,8 +154,11 @@ foreach ($deliverydetails as $charge) {
 								if (!$prodcutrow->type_id) echo " addToCartSimpleProduct "; else echo " showProductOnTop variantProduct productRow" . $prodcutrow->id; ?>" <?php if ($prodcutrow->type_id && $canOrder) { ?> data-toggle="collapse" data-target="#collapseMeal<?php echo $collepcount; ?>" aria-expanded="false" aria-controls="collapseMeal<?php echo $collepcount; ?>"<?php } else { ?> data-product-ref="<?= $prodcutrow->id ?>"
 								data-product-name="<?=$prodcutrow->name ?>"
 								data-product-sku="<?=$prodcutrow->sku ?>"
-							data-product-slugname="<?= $prodcutrow->slugname ?>"
-							data-product-price="<?= $prodcutrow->price ?>" <?php } ?>
+								data-product-start-time="<?=trim($prodcutrow->start_time) != "" ? date("h:i", strtotime($prodcutrow->start_time)) : '' ?>"
+								data-product-end-time="<?=trim($prodcutrow->end_time) != "" ? date("h:i", strtotime($prodcutrow->end_time)) : '' ?>"
+								data-product-sku="<?=$prodcutrow->sku ?>"
+								data-product-slugname="<?= $prodcutrow->slugname ?>"
+								data-product-price="<?= $prodcutrow->price ?>" <?php } ?>
 								data-ref="<?= $prodcutrow->id ?>">
 							<?php } else { ?>
 
@@ -163,6 +166,8 @@ foreach ($deliverydetails as $charge) {
 									class=" <?= ($canOrder) ? 'can_order' : 'can_not_order' ?> meal-des fadeInDown wow d-flex my-2 p-3 border rounded  <?= ($profile->status == 1 && $restaurant_status == 1) ? 'available' : 'unavailable' ?>"
 									data-product-name="<?=$prodcutrow->name ?>"
 									data-product-sku="<?=$prodcutrow->sku ?>"
+									data-product-start-time="<?=trim($prodcutrow->start_time) != "" ? date("h:i", strtotime($prodcutrow->start_time)) : '' ?>"
+									data-product-end-time="<?=trim($prodcutrow->end_time) != "" ? date("h:i", strtotime($prodcutrow->end_time)) : '' ?>"
 									data-product-slugname="<?= $prodcutrow->slugname ?>"
 									data-product-price="<?= $prodcutrow->price ?>"
 									data-ref="<?= $prodcutrow->id ?>">

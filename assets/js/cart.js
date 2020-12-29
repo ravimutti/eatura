@@ -334,9 +334,9 @@ jQuery(document).ready(function () {
 			return false;
 		}
 
+		$('#not-accepting-orders-model').find('#not-accepting-orders-model-text').html(message);
 		$('#not-accepting-orders-model').modal('show');
-
-		setTimeout(function() {$('#not-accepting-orders-model').modal('hide')},2000)
+		setTimeout(function() {$('#not-accepting-orders-model').modal('hide')},2000);
 	});
 
 	_.on('click', '.see-more-options', function (e) {
@@ -361,6 +361,10 @@ jQuery(document).ready(function () {
 				const modalId = $(this).attr('id');
 				if(modalId == "productOverviewModal") {
 					$(this).find(".product_description").html("");
+				}
+
+				if(modalId == "not-accepting-orders-model"){
+					$(this).find('#not-accepting-orders-model-text').html('Bitte beachten Sie: Derzeit akzeptieren wir keine Bestellungen. Bitte versuchen Sie es nach einiger Zeit. Danke.');
 				}
 		})
 
@@ -853,10 +857,13 @@ function checkProductIsAvailble(container) {
 
 	if (container.hasClass('can_not_order')) {
 		let starttime = container.attr("data-product-start-time");
+		let message = "Dieses Produkt kann derzeit nicht bestellt werden.";
 		if(starttime && starttime.length)
-				swalAlert('Error', `Dieses produkt kann nur von: ${starttime}Uhr bestelt werden.`, 3000);
-		else
-				swalAlert('Error', "Dieses Produkt kann derzeit nicht bestellt werden.", 3000);
+			message = `Dieses produkt kann nur von: ${starttime}Uhr bestelt werden.`;
+
+		$('#not-accepting-orders-model').find('#not-accepting-orders-model-text').html(message);
+		$('#not-accepting-orders-model').modal('show');
+		setTimeout(function() {$('#not-accepting-orders-model').modal('hide')},2000);
 
 		return false;
 	}

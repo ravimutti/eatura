@@ -479,9 +479,8 @@
 			<div class="modal-content">
 				<div class="modal-body border border-warning">
 					<div class="my-4 text-center">
-						<p>Please note: Currently we are not accepting any order please try after sometime thanks.</p>
+						<p id="not-accepting-orders-model-text">Bitte beachten Sie: Derzeit akzeptieren wir keine Bestellungen. Bitte versuchen Sie es nach einiger Zeit. Danke.</p>
 					</div>
-
 				</div>
 			</div>
 		</div>

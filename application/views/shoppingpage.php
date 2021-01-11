@@ -43,10 +43,15 @@ foreach ($deliverydetails as $charge) {
 								<div class="food-name">
 									<h3><?php echo $profile->name; ?></h3>
 									<div class="d-flex star-rating">
-										<div class="review-stars notranslate">
-											<span class="review-stars-range"></span>
+										<div class="review-stars1 notranslate">
+											<!-- <span class="review-stars-range"></span> -->
+											<i style="color:#d7d7d7" class="fa fa-star" aria-hidden="true"></i>
+											<i style="color:#d7d7d7" class="fa fa-star" aria-hidden="true"></i>
+											<i style="color:#d7d7d7" class="fa fa-star" aria-hidden="true"></i>
+											<i style="color:#d7d7d7" class="fa fa-star" aria-hidden="true"></i>
+											<i style="color:#d7d7d7" class="fa fa-star" aria-hidden="true"></i>
 										</div>
-										<span class="green-text" data-toggle="modal" data-target="#info-modal">(3.8k Bewertungen)</span>
+										<span class="green-text ml-2" data-toggle="modal" data-target="#info-modal">(0 Bewertungen)</span>
 									</div>
 									<p><?php
 										if (strlen($profile->aboutus) > 54) {
@@ -338,7 +343,7 @@ foreach ($deliverydetails as $charge) {
 																						   >
                                           <label class="custom-control-label" for="subtoppings' . $rowsubtoppings->id . $prodcutrow->id . '"> ' . $rowsubtoppings->name;
 																				if (!empty($rowsubtoppings->price) && $rowsubtoppings->price != '0.00' && $rowsubtoppings->price != '0') {
-																					$subToppings .= ' (+ €' . formatPrice($rowsubtoppings->price) . ')';
+																					$subToppings .= ' (+' . formatPrice($rowsubtoppings->price) . ' €)';
 																				}
 
 
@@ -700,7 +705,7 @@ foreach ($deliverydetails as $charge) {
 						</div>
 
 						<div class="add_more_item_mobile d-none ">
-							<a href="javascript:void(0)" class="nav-link text-center"> <b>Add more items</b> </a>
+							<a href="javascript:void(0)" class="nav-link text-center"> <b>Weitre Produkte hinzufügen</b> </a>
 						</div>
 
 						<button data-target-url="<?php echo site_url($profile->slugname . '/place-order') ?>"

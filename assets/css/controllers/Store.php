@@ -1,563 +1,534 @@
-<?php if(!defined('BASEPATH')) exit('No direct script access allowed');
-require APPPATH . '/libraries/BaseController.php';
-
+<?php
+defined('BASEPATH') or exit('No direct script access allowed');
+require APPPATH . '/controllers/MyController.php';
 /**
- * Class : Store (StoreController)
- * User Class to control all user related operations.
- * @author : Ravinder singh / ravimutti.mutti@gmail.com
- * @version : 1.0
- * @since : 18.08.2020
+ * Class Store
  */
-class Store extends BaseController
+class Store extends MyController
 {
-    /**
-     * This is default constructor of the class
-     */
-    public function __construct()
-    {
-        parent::__construct();
-        $this->load->model('User_model');
-        $this->load->model('Store_model');
-		$this->load->model('Product_model');
-        $this->isLoggedIn();
-    }
-	public function categories(){
-				if($this->input->post('submit')){
-					$this->load->library('form_validation');
-					$this->form_validation->set_rules('name','Category Name','trim|required|max_length[128]');
-					if($this->form_validation->run() == TRUE)
-					{
-						$checkpoint=$this->Store_model->check_category($this->session->userdata('userId'),$this->input->post('name'));
-						 $slugname = $this->slugify(ucwords(strtolower($this->security->xss_clean($this->input->post('name')))));
-							$image='';
-							if($checkpoint==0){
-								$config = array(
-									'upload_path' => FCPATH."assets/uploads/category/",
-									'allowed_types' => 'jpg|png|jpeg|gif',
-									'max_size' => "20048"
-								);
-							 $this->load->library('upload', $config);
-							 if($this->upload->do_upload('bannerimage')){
-								  $uploadedimage = $this->upload->data();
-								  $image=$uploadedimage['file_name'];
-							 }else{
-								$this->session->set_flashdata('error', $this->upload->display_errors());
-								redirect('categories');								 
-							 }
-								$insert=array(
-									'storeid'=>$this->session->userdata('userId'),
-									'catslug'=>$slugname,
-									'category'=>$this->input->post('name'),
-									'note'=>$this->input->post('note'),
-									'description'=>$this->input->post('description')
-								);
-								if(!empty($image)){
-									$insert['cimage']=$image;
-								}
-								$result=$this->Store_model->insert($insert,'categories');
-								if($result>0){
-										$this->session->set_flashdata('success', 'Category added successfully');
-										redirect('categories');
-								}else{
-									$this->session->set_flashdata('error', 'Something went wrong please try again later.');
-										redirect('categories');
-								}
-							}else{
-								 $this->session->set_flashdata('error', 'Category already exists');
-								redirect('categories');
-							}
-					}
-				}
-				$this->global['pageTitle'] = 'Eatura : Categories List';
-				$data['storelist']=$this->Store_model->getCategory($this->session->userdata('userId'));
-				$this->loadViews("store/categories", $this->global, $data, NULL);
-	}
-	
-	/* public function storelist()
+	const PaymentMethodPayPal = "Paypal";
+	const PaymentMethodCash = "Cash";
+	/**
+	 * @var string
+	 */
+	public $productToppingMaps = "product_topping_maps";
+	/**
+	 * @var string
+	 */
+	public $productVariantMap = "variantMap";
+
+	public $currentSlug = "";
+	/**
+	 * Store constructor.
+	 */
+	public function __construct()
 	{
-		$this->global['pageTitle'] = 'Eatura : Restaurant List';
-		$data['storelist']=$this->Store_model->getRestaurant();
-		$this->loadViews("store/restaurant", $this->global, $data, NULL);
-	} */
-	
-	public function restaurant()
-	{
-		$this->global['pageTitle'] = 'Eatura : Restaurant List';
-		$data['storelist']=$this->Store_model->getRestaurant();
-		$this->loadViews("store/restaurant", $this->global, $data, NULL);
+		parent::__construct();
+		$this->load->library('cart');
+		$this->load->database();
+		$this->load->model('Api_model');
+		// $this->load->helper('cookie');
+		$this->load->library('user_agent');
+		$this->load->library('paypal_lib');
+		date_default_timezone_set('Europe/Berlin');
+		$this->checkIsAuth();
+
+		$this->currentSlug = $this->input->cookie('uriRestaurant', true);
 	}
-	
-	public function updatecategory($id = null) {
+
+	/**
+	 *
+	 */
+	public function index()
+	{
+		if(trim($this->currentSlug) == "") {
+			$this->currentSlug = $this->uri_slug;
+		}
+		// delete_cookie('delivery_type');
+		// delete_cookie('pincode');
+		if (isset($_POST['pincode']) || isset($_POST['delivery'])) {
 			
-		if($this->input->post()){
-			$this->load->library('form_validation');
-			$this->form_validation->set_rules('name','Category Name','trim|required|max_length[128]');
-            
-            if($this->form_validation->run() == FALSE) {
-				//echo json_encode(array('status' => 'error', 'error' => 'The Category Name field is required.')); exit;
-				redirect('store/updatecategory/'.$id);
+			if($_POST['delivery'] == "self"){
+				delete_cookie('pincode');
 			}
+
+			$pinCode = $_POST['pincode'];
+			$cookie = array(
+				'name' => 'pincode',
+				'value' => $pinCode,
+				'expire' => '3600',
+			);
+			$this->input->set_cookie($cookie);
+			$cookie = array(
+				'name' => 'delivery_type',
+				'value' => $_POST['delivery'],
+				'expire' => '3600',
+			);
+			$this->input->set_cookie($cookie);
 			
-			$checkpoint=$this->Store_model->check_categoryid($id,$this->session->userdata('userId'),$this->input->post('name'));
-			 $slugname = $this->slugify(ucwords(strtolower($this->security->xss_clean($this->input->post('name')))));
-				$image='';
-				if($checkpoint==0){
-					
-					/* $config = array(
-						'upload_path' => FCPATH."assets/uploads/category/",
-						'allowed_types' => 'jpg|png|jpeg|gif',
-						'max_size' => "20048"
-					);
-				 $this->load->library('upload', $config);
-				 if($this->upload->do_upload('bannerimage')){
-					  $uploadedimage = $this->upload->data();
-					  $image=$uploadedimage['file_name'];
-				 }else{
-					 echo json_encode(array('status' => 'error', 'error' => $this->upload->display_errors())); exit;								 
-				 } */
-					$insert=array(
-						'storeid'=>$this->session->userdata('userId'),
-						'catslug'=>$slugname,
-						'category'=>$this->input->post('name'),
-						'note'=>$this->input->post('note'),
-						'description'=>$this->input->post('description')
-					);
-					if(!empty($image)){
-						$insert['cimage']=$image;
-					}
-					$result=$this->Store_model->update($this->input->post('id'), $insert,'categories');
-					if($result>0){
-						$this->session->set_flashdata('success', 'successfully Update');
-						redirect('categories');
-					}else{
-						 $this->session->set_flashdata('error', 'Something went wrong please try again later.');
-						redirect('store/updatecategory/'.$id);
-					}
-				}else{
-					$this->session->set_flashdata('error', 'Category already exists');
-					redirect('store/updatecategory/'.$id);
-				}
-			
+		
+			return redirect('/' . $this->currentSlug);
+		}
+
+
+		// die($this->currentSlug);
+		// return redirect('/' . $this->currentSlug);
+		$url = SITEURL . "getAllRestruent";
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_POST, 1);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, "purchaseKey=value");
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		$response = json_decode(curl_exec($ch));
+		// echo "<pre>";
+		// print_r($response);
+		// die;
+		curl_close($ch);
+		$this->load->view('all-restruents', $response);
+	}
+	
+	public function updateresetpassword()
+	{
+		$url = SITEURL . "updateresetpassword";
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_POST, 1);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $_POST);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		$response = json_decode(curl_exec($ch));
+		curl_close($ch);
+		
+		if (!empty($response)) {
+			if ($response->error == '202')
+			{
+				return redirect('/');
+			}
+			else
+			{
+				return redirect('resetpassword/'.$_POST['token']);
+			}
+		} 
+		return redirect('/');
+ 	}
+	
+	public function resetpassword($token) 
+	{
+		$url = SITEURL . "gettoken";
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_POST, 1);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, array("token" => $token));
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		$response = json_decode(curl_exec($ch));
+		curl_close($ch);
+		if (!empty($response)) {
+			if ($response->error == '202') {
+				$this->load->view('resetpassword', $response);
+			}
+			else
+			{
+				return redirect($_SERVER['HTTP_REFERER']);
+			}
 		} else {
-			$data['category'] = $this->Store_model->getCategoryById($id, $this->session->userdata('userId'));
-			$this->global['pageTitle'] = 'Update Category';
-			//cho '<pre>'; print_r($data['category']->id); die;
-			$this->loadViews("store/categoryform", $data, NULL, true);
+			return redirect($_SERVER['HTTP_REFERER']);
 		}
 	}
-	
-	public function variations_toppings(){
-		if($this->input->post('topping')){
-				$this->load->library('form_validation');
-				$this->form_validation->set_rules('tname','Topping Name','trim|required|max_length[128]');
-				if($this->form_validation->run() == TRUE)
-				{
-					$name = ucwords(strtolower($this->security->xss_clean($this->input->post('tname'))));
-					$slugname = $this->slugify(ucwords(strtolower($this->security->xss_clean($this->input->post('tname')))));
-					if($this->Store_model->checkTopping($this->session->userdata('userId'),$name)==0)
-					{
-							$insert=array(
-								'toppingname'=>$name,
-								'storeid'=>$this->session->userdata('userId'),
-								'toppingslug'=>$slugname,
-							);
-							$result=$this->Store_model->insert($insert,'toppings');
-							if($result>0)
-							{
-								$this->session->set_flashdata('success', 'Topping added successfully');
-								redirect('variations-toppings');
-							}else{
-								$this->session->set_flashdata('error', 'Something went wrong please try again later.');
-								redirect('variations-toppings');
-							}
-					}else{
-						$this->session->set_flashdata('error', 'Topping name already exist.Please choose new name.');
-						redirect('variations-toppings');
-					}
+
+	/**
+	 * @param $slug
+	 */
+	public function shop($slug)
+	{
+		$url = SITEURL . "getDetails";
+		$pinCode = $this->input->cookie('pincode', true);
+
+		$cookie = array('name' => 'uriRestaurant','value' =>$slug,'expire' => '3600');
+		$this->input->set_cookie($cookie);
+		
+		$isByPassPinCodeCheck = ($this->input->cookie('delivery_type', true) == "self" || trim($this->input->cookie('delivery_type', true)) === "") ? true : false;
+		$queryString = "purchaseKey=value1&slugname=$slug&pincode=$pinCode";
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_POST, 1);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $queryString);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		$response = json_decode(curl_exec($ch));
+		curl_close($ch);
+		// echo "<pre>";print_r($response->categories);die;
+		if (!empty($response)) {
+			$response->errorMessageInCaseOfPinCode = null;
+			if ($response->error == '202') {
+				// here we need to match pin code first
+				if (!in_array($pinCode, array_column($response->deliverydetails, 'pincode')) && !$isByPassPinCodeCheck) {
+					// pin code not matched return to home page
+					$this->session->set_flashdata('pin_code_not_found', "We are not available on entered pin code.");
+					$response->restaurant_status = 0;
+					$response->errorMessageInCaseOfPinCode =  $response->profile->name." is not delivering orders on the entered pin code.";
+					$this->cart->destroy();
+					// echo "<pre>";print_r($response);die;
+//					return redirect($_SERVER['HTTP_REFERER']);
 				}
+				
+
+				if ($this->input->cookie('currentRestaurant', TRUE) !== $slug) {
+					$this->cart->destroy();
+				}
+				 				
+				$cookie = array('name' => 'currentRestaurant','value' => $response->profile->slugname,'expire' => '3600');
+				$this->input->set_cookie($cookie);
+
+				$response->pinCode = $this->input->cookie('pincode', true);
+				$url = SITEURL . "pincodes";
+				$ch = curl_init();
+				curl_setopt($ch, CURLOPT_URL, $url);
+				curl_setopt($ch, CURLOPT_POST, 1);
+				curl_setopt($ch, CURLOPT_POSTFIELDS, "purchaseKey=value1&slugname=" . $slug);
+				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+				$pincodes = json_decode(curl_exec($ch));
+				curl_close($ch);
+				$response->pincodes = $pincodes->pincodes;
+				$this->load->view('shoppingpage', $response);
+			} elseif ($response->error == '404') {
+				// $this->session->set_flashdata('pin_code_not_found', "Restaurant not found, please enter your area pin code and try again.");
+				// return redirect($_SERVER['HTTP_REFERER']);
+				$this->load->view('errors/html/error_404');
+			}
+		} else {
+			$this->load->view('errors/html/error_404');
 		}
-		if($this->input->post('variation')){
-			$this->load->library('form_validation');
-			$this->form_validation->set_rules('vname','Variation Name','trim|required|max_length[128]');
-					if($this->form_validation->run() == TRUE)
-					{
-						$name = ucwords(strtolower($this->security->xss_clean($this->input->post('vname'))));
-						$slugname = $this->slugify(ucwords(strtolower($this->security->xss_clean($this->input->post('vname')))));
-						if($this->Store_model->checkVariation($this->session->userdata('userId'),$name)==0){
-								$insert=array(
-									'variationname'=>$name,
-									'storeid'=>$this->session->userdata('userId'),
-									'variationslug'=>$slugname,
-								);
-								$result=$this->Store_model->insert($insert,'variations');
-								if($result>0){
-									$this->session->set_flashdata('success', 'Variation added successfully');
-									redirect('variations-toppings');
-								}else{
-									$this->session->set_flashdata('error', 'Something went wrong please try again later.');
-									redirect('variations-toppings');
-								}
-						}else{
-							$this->session->set_flashdata('error', 'Variation name already exist.Please choose new name.');
-							redirect('variations-toppings');
-						}
-					}	
-		}
-		$this->global['pageTitle'] = 'Eatura : Variations & Toppings List';
-		$data['toppings']=$this->Store_model->getToppings($this->session->userdata('userId'));
-		$data['variations']=$this->Store_model->getVariations($this->session->userdata('userId'));
-		$this->loadViews("store/variations-toppings", $this->global, $data, NULL);
 	}
-	public function createProduct(){
-		$this->global['pageTitle'] = 'Eatura : Add New product';
-		$data['toppings']=$this->Store_model->getToppings($this->session->userdata('userId'));
-		$data['variations']=$this->Store_model->getVariations($this->session->userdata('userId'));
-		// pre($data['variations']);die;
-		$data['categories']=$this->Store_model->getCategory($this->session->userdata('userId'));
-		$this->loadViews("store/products", $this->global, $data, NULL);
+
+	/**
+	 * @purpose save cart items
+	 * @method storeCartItemAction
+	 */
+	public function storeCartItemAction()
+	{
+		if (!$this->input->is_ajax_request()) {
+			exit('No direct script access allowed');
+		}
+		// here we need to add item to cart
+		$postData = json_decode($this->input->post('postData'));
+		$deliveryCharge = json_decode($this->input->post('deliveryCharge'));
+
+		$cartItems = array();
+		foreach ($postData as $k => $post) {
+			// we need to match cart values with db for price
+			$product = $this->Api_model->getProductBySlug($post->options->product->productSKU);
+			if (isset($product->id)) {
+				// check addOn prices
+				$addOnPrice = $postData[$k]->price;
+				$options = $post->options->variants;
+				$post->options->deliveryCharge = $deliveryCharge;
+				if (is_array($options)) {
+					foreach ($options as $key => $option) {
+						if (is_array($option->variantArr)) {
+							foreach ($option->variantArr as $v => $variant) {
+								// here we need to modify price according price
+								foreach ($variant->addOns as $a => $addOn) {
+									if ($option->type == $this->productToppingMaps)
+										$optionRowById = $this->Api_model->getProductToppingMapsById($option->id);
+									else
+										$optionRowById = $this->Api_model->getProductVariantMapsById($option->id);
+
+									if (isset($optionRowById->price)) {
+										$postData[$k]->options->variantArr[$v]->addOns[$a] = $option;
+										$postData[$k]->options->variantArr[$v]->addOns[$a]->price = $optionRowById->price;
+										$addOnPrice += $postData[$k]->options->variantArr[$v]->addOns[$a]->price;
+									}
+								}
+							}
+						}
+					}
+				} else {
+					$addOnPrice = $postData[$k]->price;
+				}
+
+				$post = $postData[$k];
+				// echo "<pre>";print_r($post);
+				$itemPrice = $addOnPrice;
+				$cartItems[$k] = array(
+					'id' => $post->id,
+					'qty' => $post->qty,
+					'price' => $itemPrice,
+					'name' => $post->name,
+					'options' => (array) $post->options
+				);
+			}
+		}
+		$this->cart->destroy();
+		$this->cart->product_name_rules = '[:print:]';
+		$this->cart->insert($cartItems);
+		echo json_encode(array('success' => true, "message" => 'cart has been updated.'));die;
+	}
+
+
+	/**
+	 * @purpose load checkout page and submit details to order place api
+	 * @method placeOrderAction
+	 */
+	public function placeOrderAction()
+	{
+		if (trim($this->uri->segment(1)) != "") {
+			// we need to pass user details as well
+			$slug = $this->uri->segment(1);
+			$url = SITEURL . "getRestaurant";
+			$pin_code = $this->input->cookie('pincode', true);
+			$delivery_type = $this->input->cookie('delivery_type', true);
+			$ch = curl_init();
+			curl_setopt($ch, CURLOPT_URL, $url);
+			curl_setopt($ch, CURLOPT_POST, 1);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, "slugname=$slug&pincode=$pin_code&delivery_type=$delivery_type" );
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			$response = json_decode(curl_exec($ch));
+			
+			curl_close($ch);
+
+			if (!empty($response) && sizeof($this->cart->contents())) {
+				if ($response->error == '202') {
+					// here we need to pass delivery charge
+					$cartItem = $this->cart->contents();
+					$cartItem = array_values($cartItem);
+					$response->matchedPinCodeRow = $cartItem[0]['options']['deliveryCharge'];
+					$url = SITEURL . "pincodes";
+					$ch = curl_init();
+					curl_setopt($ch, CURLOPT_URL, $url);
+					curl_setopt($ch, CURLOPT_POST, 1);
+					curl_setopt($ch, CURLOPT_POSTFIELDS, "purchaseKey=value1&slugname=" . $slug);
+					curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+					$pincodes = json_decode(curl_exec($ch));
+					curl_close($ch);
+					$response->pincodes = $pincodes->pincodes;
+					$this->load->view('checkout', $response);
+				} elseif ($response->error == '404') {
+					$this->session->set_flashdata('pin_code_not_found', "Restaurant not found, please enter your area pin code and try again.");
+					return redirect('/', 'refresh');
+//					$this->load->view('errors/html/error_404');
+				}
+			} else {
+				$this->session->set_flashdata('pin_code_not_found', "Restaurant not found, please enter your area pin code and try again.");
+				return redirect('/', 'refresh');
+//				$this->load->view('errors/html/error_404');
+			}
+		}
+	}
+
+	/**
+	 * @purpose place order api to save order details to db
+	 * @method checkoutAction
+	 */
+	public function checkoutAction()
+	{
+		$order = $_POST;
+		$order['order_user_details']['keyid'] = null;
+		if(isset($this->session->userdata('userdata')['user']->userId)) {
+			$order['order_user_details']['keyid'] = $this->session->userdata('userdata')['user']->userId;
+		}
+		$order["cart"] = $this->cart->contents();
+		$data_string = json_encode($order);
+		$url = SITEURL . "checkoutAction";
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_POST, 1);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, array("postData" => $data_string));
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		$response = json_decode(curl_exec($ch));
+		curl_close($ch);
+		// print_r($response);die;
+		if (!empty($response)) {
+			if ($response->error == '202') {
+				$response->delayTime = 2000;
+				$this->cart->destroy();
+				if($order['order']['payment_mode'] === self::PaymentMethodPayPal) {
+					return $this->buyWithPaypalProduct($response);
+				}
+				$response->url = site_url('order/tracking/' . $response->order);
+				echo json_encode($response);
+				die;
+			} elseif ($response->error == '404') {
+				echo json_encode($response);
+				die;
+			}
+		} else {
+			echo json_encode(array("success" => false, "error_message" => "Something went wrong please try again"));
+			die;
+		}
+	}
+
+	/**
+	 *
+	 */
+	public function thankYouAction()
+	{
+		$id = $this->uri->segment(3);
+		$url = SITEURL . "getorder";
+
+		$pin_code = $this->input->cookie('pincode', true);
+		$delivery_type = $this->input->cookie('delivery_type', true);
+
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_POST, 1);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, array(
+			"order_id" => $id,
+			"pin_code" => $id,
+			"delivery_type" => $delivery_type,
+		));
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		$response = json_decode(curl_exec($ch));
+		curl_close($ch);
+		// echo "<pre>"; print_r($response); echo "</pre>";
+		if (!empty($response)) {
+			if ($response->error == '202') {
+				$this->load->view('order-detail', $response);
+			} elseif ($response->error == '404') {
+				echo json_encode($response);
+				die;
+			}
+		} else {
+			echo json_encode(array("success" => false, "error_message" => "Something went wrong please try again"));
+			die;
+		}
+	}
+
+	public function buyWithPaypalProduct($post){ 
+        //Set variables for paypal form
+        $returnURL 	= base_url().'paypal/success'; //payment success url
+        $failURL 	= base_url().'paypal/fail'; //payment fail url
+        $notifyURL 	= base_url().'paypal/ipn'; //ipn url
+		$userID 	= 0; //current user id	
+		if(isset($this->session->userdata('userdata')['user']->userId)) {
+			$userID  = $this->session->userdata('userdata')['user']->userId;
+		}
+        $logo 		= base_url().'Your_logo_url';
+        $this->paypal_lib->add_field('return', $returnURL);
+        $this->paypal_lib->add_field('fail_return', $failURL);
+        $this->paypal_lib->add_field('notify_url', $notifyURL);
+        $this->paypal_lib->add_field('item_name', $post->order);
+        $this->paypal_lib->add_field('custom', $userID);
+        $this->paypal_lib->add_field('amount',  $post->amount);        
+        $this->paypal_lib->image($logo);
+        $this->paypal_lib->paypal_auto_form(); 
 	}
 	
-	public function price_validate($val)
-    {
-		if($val == '')
-		{
-			$this->form_validation->set_message('price_validate', 'The {field} field is required.');
-            return FALSE;
-		}
-		else if ($val > 0) {
-			return TRUE;
-        } else {
-            $this->form_validation->set_message('price_validate', 'The {field} field must be number or decimal.');
-            return FALSE;
+	public function paypalPaymentSuccessAction(){
+		log_message('error', 'Some variable did not contain a value.'); 
+		$rawData = $_POST;
+		return redirect(site_url('/order/tracking/'.$rawData['item_name']));
+    }
+      
+    public function paypalPaymentpaymentFailAction(){
+        //if transaction cancelled
+        echo "Your order has been cancelled.";
+    }
+      
+	
+	public function paypalIpnAction(){
+        //paypal return transaction details array
+		$paypalInfo    			        = $this->input->post();
+        $data['user_id'] 		        = $paypalInfo['custom'];
+        $data['order_id'] 		        = $paypalInfo["item_name"];
+        $data['transaction_id']         = $paypalInfo["txn_id"];
+        $data['paid_amount'] 	        = $paypalInfo["mc_gross"];
+        $data['transaction_raw_data'] 	= json_encode($paypalInfo);
+        $data['payment_mode'] 	        = self::PaymentMethodPayPal;
+        $data['payment_status']         = $paypalInfo["payment_status"];
+        $data['created_at']             = date("Y-m-d h:i:s");
+        $data['updated_at']             = date("Y-m-d h:i:s");
+			
+        $paypalURL = $this->paypal_lib->paypal_url;        
+        $result    = $this->paypal_lib->curlPost($paypalURL,$paypalInfo);
+        //check whether the payment is verified
+        if(preg_match("/VERIFIED/i",$result)){
+            //insert the transaction data into the database
+			$url = SITEURL . "saveTransaction";
+			$ch = curl_init();
+			curl_setopt($ch, CURLOPT_URL, $url);
+			curl_setopt($ch, CURLOPT_POST, 1);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			$response = json_decode(curl_exec($ch));
+			curl_close($ch);
         }
     }
 	
-	public function handleVariation($productId, $label, $variations, $price) {
-		if(isset($label)) {
-			$userId = $this->session->userdata('userId');
-			$result = $this->Product_model->handleProductVariant($userId, $productId, $label, $variations, $price);
+	/**/
+	public function review($orderId)
+	{
+		if(!isset($this->session->userdata('userdata')['user']->userId)) {
+			return redirect('/' . $this->currentSlug);
 		}
-	}
-	
-	public function product_name($val)
-    {
-		if(empty($val))
-		{
-			$this->form_validation->set_message('product_name', 'The {field} field is required.');
-            return FALSE;
-		}
+		$url = SITEURL . "getReviewByOrderId";
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_POST, 1);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, array('order_id' => $orderId));
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		$response = json_decode(curl_exec($ch));
+		curl_close($ch);
 		
-		$checkProduct = $this->Store_model->check_product($this->session->userdata('userId'), $this->slugify(ucwords(strtolower($val))));
-		if($checkProduct)
-		{
-			$this->form_validation->set_message('product_name', 'The {field} already exixt.');
-            return FALSE;
-		}
-    }
-	
-	function checkProductExists()
-    {
-		$name = ucwords(strtolower($this->security->xss_clean($this->input->post('name'))));
-		$result = $this->Store_model->check_product($this->session->userdata('userId'), $name);
-
-        if(empty($result)){ echo("true"); }
-        else { echo("false"); }
-    }
-	
-	public function handleProduct() {
-		$this->load->library('form_validation');
-		$this->form_validation->set_rules('name','Name','trim|required|max_length[128]');
-		$this->form_validation->set_rules('category_id','Category','trim|required|numeric');
-		$this->form_validation->set_rules('type_id','Type','required|numeric');
-		$this->form_validation->set_rules('description','Description','required');
-		$this->form_validation->set_rules('productprice', 'Price', 'required|trim|callback_price_validate');
-
-		if($this->form_validation->run() == FALSE) {
-			$this->createProduct();
+		//echo '<pre>'; print_r($response);
+		
+		if (!empty($response)) {
+			if ($response->error == '202') {
+				$this->load->view('review', $response);
+			} elseif ($response->error == '404') {
+				return redirect('/' . $this->currentSlug);
+			} elseif ($response->error == '505') {
+				return redirect('/' . $this->currentSlug);
+			}
 		} else {
-			if(isset($_FILES['image']) && $_FILES['image'] == 0)
-			{
-				$config = array(
-					'upload_path' => FCPATH."assets/uploads/product",
-					'allowed_types' => 'jpg|png|jpeg|gif',
-					'max_size' => "20048"
-				);
-				$image = '';
-				$this->load->library('upload', $config);
-				 if($this->upload->do_upload('image'))
-				 {
-					  $uploadedimage = $this->upload->data();
-					  $image=$uploadedimage['file_name'];
-				 }
-				 else 
-				 {
-					$this->session->set_flashdata('error', $this->upload->display_errors());
-					redirect('createProduct');							 
-				 }
-			}
-			 
-			 $name = ucwords(strtolower($this->security->xss_clean($this->input->post('name'))));
-			 $checkProduct = $this->Store_model->check_product($this->session->userdata('userId'), $name);
-			if($checkProduct)
-			{
-				$this->session->set_flashdata('error', 'The '.$name.' already use.');
-				redirect('createProduct');	
-			}
-		
-             $slugname = $this->slugify(ucwords(strtolower($this->security->xss_clean($this->input->post('name')))));
-			 $category_id = $this->slugify(ucwords(strtolower($this->security->xss_clean($this->input->post('category_id')))));
-			 $type_id = $this->slugify(ucwords(strtolower($this->security->xss_clean($this->input->post('type_id')))));
-			 $description = $this->slugify(ucwords(strtolower($this->security->xss_clean($this->input->post('description')))));
-			 $price = $this->security->xss_clean($this->input->post('productprice'));
-			 
-			 $data = array(
-				'name'=> $name,
-				'slugname'=> $slugname,
-				'category_id'=> $category_id,
-				'storeid'=> $this->session->userdata('userId'),
-				'type_id'=>$type_id,
-				'description'=>$description,
-				'price'=>$price,
-				'image'=>$image
-			);
-								
-			$result = $this->Product_model->createProduct($data);
-			
-			if($result > 0)
-			{
-				$this->handleVariation($result, $this->input->post('label'), $this->input->post('variation'), $this->input->post('price')); 
-				$this->session->set_flashdata('success', 'New Product created successfully');
-			}
-			else
-			{
-				$this->session->set_flashdata('error', 'Product creation failed');
-            }
-                
-			redirect('createProduct');
+			return redirect('/' . $this->currentSlug);
 		}
 	}
 	
-	public function products() {
-		$this->global['pageTitle'] = 'Eatura : Product List';
-		$data['products']=$this->Product_model->products($this->session->userdata('userId'));
+	public function orderreview() {
+		$post = $this->input->post();
 		
-		$this->loadViews("store/productlisting", $this->global, $data, NULL);
-	}
-	
-	public function productclone($id) {
-		$this->global['pageTitle'] = 'Eatura : Clone product';
-		$product = $this->Product_model->getProductById($id,$this->session->userdata('userId'));
-		if($product == null)
+		if (!in_array($post['rating'], array(1,2,3,4,5)))
 		{
-			redirect('store/products');
+		  return redirect('/' . $this->currentSlug);
 		}
-		$data['product']=$product;
-		$data['ttoppingus']=$this->Store_model->getToppings($this->session->userdata('userId'));
-		$data['variationdata']=$this->Store_model->getVariations($this->session->userdata('userId'));
+		/* $order_id = $post['order_id'];
+		$rating = $post['rating'];
+		$review = $post['review']; */
 		
-		$data['categories']=$this->Store_model->getCategory($this->session->userdata('userId'));
-		
-		$data['productVariants']=$this->Product_model->getProductVariantByProductId($product->id);
-		
-			//echo '<pre>'; print_r($data['toppings']);die;	
-		$this->loadViews("store/productclone", $this->global, $data, NULL);
-	}
-	
-	public function cloneproduct($id)
-	{
-		
-		$this->load->library('form_validation');
-		$this->form_validation->set_rules('name','Name','trim|required|max_length[128]');
-		$this->form_validation->set_rules('category_id','Category','trim|required|numeric');
-		$this->form_validation->set_rules('type_id','Type','required|numeric');
-		$this->form_validation->set_rules('description','Description','required');
-		$this->form_validation->set_rules('productprice', 'Price', 'required|trim|callback_price_validate');
-
-		if($this->form_validation->run() == FALSE) {
-			$this->productclone($id);
-		} else {
-			if(isset($_FILES['image']) && $_FILES['image'] == 0)
-			{
-				$config = array(
-					'upload_path' => FCPATH."assets/uploads/product",
-					'allowed_types' => 'jpg|png|jpeg|gif',
-					'max_size' => "20048"
-				);
-				$image = '';
-				$this->load->library('upload', $config);
-				 if($this->upload->do_upload('image'))
-				 {
-					  $uploadedimage = $this->upload->data();
-					  $image=$uploadedimage['file_name'];
-				 }
-				 else 
-				 {
-					$this->session->set_flashdata('error', $this->upload->display_errors());
-					redirect('createProduct');							 
-				 }
-			}
-			 
-			 $name = ucwords(strtolower($this->security->xss_clean($this->input->post('name'))));
-			 $checkProduct = $this->Store_model->check_product($this->session->userdata('userId'), $name);
-			if($checkProduct)
-			{
-				$this->session->set_flashdata('error', 'The '.$name.' already use.');
-				redirect('createProduct');	
-			}
-		
-             $slugname = $this->slugify(ucwords(strtolower($this->security->xss_clean($this->input->post('name')))));
-			 $category_id = $this->slugify(ucwords(strtolower($this->security->xss_clean($this->input->post('category_id')))));
-			 $type_id = $this->slugify(ucwords(strtolower($this->security->xss_clean($this->input->post('type_id')))));
-			 $description = $this->slugify(ucwords(strtolower($this->security->xss_clean($this->input->post('description')))));
-			 $price = $this->security->xss_clean($this->input->post('productprice'));
-			 
-			 $data = array(
-				'name'=> $name,
-				'slugname'=> $slugname,
-				'category_id'=> $category_id,
-				'storeid'=> $this->session->userdata('userId'),
-				'type_id'=>$type_id,
-				'description'=>$description,
-				'price'=>$price,
-				'image'=>$image
-			);
-								
-			$result = $this->Product_model->createProduct($data);
-			
-			if($result > 0)
-			{
-				$this->handleVariation($result, $this->input->post('label'), $this->input->post('variation'), $this->input->post('price')); 
-				$this->session->set_flashdata('success', 'New Product created successfully');
-			}
-			else
-			{
-				$this->session->set_flashdata('error', 'Product creation failed');
-            }
-                
-			redirect('createProduct');
+		if(isset($this->session->userdata('userdata')['user']->userId)) {
+			$_POST['user_id'] = $this->session->userdata('userdata')['user']->userId;
 		}
-	}
-	
-	public function updateProductform($id){
-		$this->global['pageTitle'] = 'Eatura : Update product';
-		$product = $this->Product_model->getProductById($id,$this->session->userdata('userId'));
-		if($product == null)
+		else
 		{
-			redirect('store/products');
+			return redirect('/' . $this->currentSlug);
 		}
-		$data['product']=$product;
-		$data['ttoppingus']=$this->Store_model->getToppings($this->session->userdata('userId'));
-		$data['variationdata']=$this->Store_model->getVariations($this->session->userdata('userId'));
 		
-		$data['categories']=$this->Store_model->getCategory($this->session->userdata('userId'));
 		
-		$data['productVariants']=$this->Product_model->getProductVariantByProductId($product->id);
+		$url = SITEURL . "updatereview";
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_POST, 1);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $_POST);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		$response = json_decode(curl_exec($ch));
+		curl_close($ch);
+		/* echo $_POST['order_id'];
+		echo '<pre>'; print_r($response); die; */
 		
-			//echo '<pre>'; print_r($data['toppings']);die;	
-		$this->loadViews("store/updateproduct", $this->global, $data, NULL);
-	}
-	
-	public function detetevariation()
-	{
-		$variationId = $this->input->post('id');
-		$this->input->post('type');
-		echo json_encode(array('status' => 'success'));
-	}
-	
-	public function updateproduct($id)
-	{
-		$this->load->library('form_validation');
-		$this->form_validation->set_rules('name','Name','trim|required|max_length[128]');
-		$this->form_validation->set_rules('category_id','Category','trim|required|numeric');
-		$this->form_validation->set_rules('type_id','Type','required|numeric');
-		$this->form_validation->set_rules('description','Description','required');
-		$this->form_validation->set_rules('productprice', 'Price', 'required|trim|callback_price_validate');
-		
-		if($this->form_validation->run() == FALSE) {
-			$this->updateProductform($id);
+		if (!empty($response)) {
+			if ($response->error == '202') {
+				$this->session->set_flashdata('success', "Successfully review submit.");
+				return redirect('/review/' . $_POST['order_id']);
+			} elseif ($response->error == '404') {
+				$this->session->set_flashdata('error', $response->data);
+				return redirect('/review/' . $_POST['order_id']);
+			} elseif ($response->error == '505') {
+				$this->session->set_flashdata('error', $response->data);
+				return redirect('/review/' . $_POST['order_id']);
+			}
 		} else {
-			 $image = null;
-			 if(isset($_FILES['image']) && $_FILES['image'] == 0)
-			{
-				$config = array(
-					'upload_path' => FCPATH."assets/uploads/product",
-					'allowed_types' => 'jpg|png|jpeg|gif',
-					'max_size' => "20048"
-				);
-				
-				$this->load->library('upload', $config);
-				 if($this->upload->do_upload('image'))
-				 {
-					  $uploadedimage = $this->upload->data();
-					  $image=$uploadedimage['file_name'];
-				 }
-				 else 
-				 {
-					$this->session->set_flashdata('error', $this->upload->display_errors());
-					redirect('createProduct');							 
-				 }
-			}
-			 
-			 $name = ucwords(strtolower($this->security->xss_clean($this->input->post('name'))));
-             $slugname = $this->slugify(ucwords(strtolower($this->security->xss_clean($this->input->post('name')))));
-			 $category_id = $this->slugify(ucwords(strtolower($this->security->xss_clean($this->input->post('category_id')))));
-			 $type_id = $this->slugify(ucwords(strtolower($this->security->xss_clean($this->input->post('type_id')))));
-			 $description = $this->slugify(ucwords(strtolower($this->security->xss_clean($this->input->post('description')))));
-			 $price = $this->slugify(ucwords(strtolower($this->security->xss_clean($this->input->post('productprice')))));
-			 
-			 $data = array(
-				'name'=> $name,
-				'slugname'=> $slugname,
-				'category_id'=> $category_id,
-				'type_id'=>$type_id,
-				'description'=>$description,
-				'price'=>$price,
-				'updatedDtm'=>date('Y-m-d H:i:s')
-			);
-			
-			if($image != null) {
-				$data['image'] = $image;
-			}
-			
-			$result = $this->Store_model->update($id,$data,'products');
-			
-			if($result > 0)
-			{
-				$this->handleVariation($id, $this->input->post('label'), $this->input->post('variation'), $this->input->post('price')); 
-				$this->session->set_flashdata('success', 'Product update successfully');
-				redirect('store/products/');
-			}
-			else
-			{
-				$this->session->set_flashdata('error', 'Product creation failed');
-            }
-			redirect('store/updateproduct/'.$id);
+			return redirect('/' . $this->currentSlug);
 		}
+		
 	}
 	
-	public  function slugify($text)
-	{
-		// replace non letter or digits by -
-		$text = preg_replace('~[^\pL\d]+~u', '-', $text);
-
-		// transliterate
-		$text = iconv('utf-8', 'us-ascii//TRANSLIT', $text);
-
-		// remove unwanted characters
-		$text = preg_replace('~[^-\w]+~', '', $text);
-
-		// trim
-		$text = trim($text, '-');
-
-		// remove duplicate -
-		$text = preg_replace('~-+~', '-', $text);
-
-		// lowercase
-		$text = strtolower($text);
-
-		if (empty($text)) {
-		return 'n-a';
-		}
-		return $text;
-	}
+	
 }

@@ -218,7 +218,7 @@ jQuery(document).ready(function () {
 			$(document).find('#cartItemQty' + itemSKU).html(prepareCartItemArr[findItemIndex].qty + 'x');
 			let itemPrice = parseFloat(prepareCartItemArr[findItemIndex].qty * prepareCartItemArr[findItemIndex].price).toFixed(2);
 			$(document).find('#cartItemPrice' + itemSKU).html(formatAmount(itemPrice) + ' €');
-			updateCartPrice()
+			updateCartPrice();
 			sendCartItemToServer(prepareCartItemArr);
 		} else {
 			alert('invalid product you can not update the value.');
@@ -481,12 +481,28 @@ function setCheckoutButton(flag = 0) {
 
 	}
 
+
 	if (flag === 1) {
 		$('.cartButtonSubmit').attr("disabled", true);
+		$('.cartButtonSubmit').addClass("d-none");
+		if ($(window).width() < 1000) {
+			$(".add_more_item_mobile").removeClass('d-none');
+		}
 	}
-
 	if (flag === 2) {
 		$('.cartButtonSubmit').removeAttr("disabled");
+		$('.cartButtonSubmit').removeClass("d-none");
+		if ($(window).width() < 1000) {
+			$(".pizza-column").removeClass("d-none");
+			$(".cart_mobile_icon").addClass('d-none');
+			$(".add_more_item_mobile").addClass('d-none');
+		}
+	}
+
+	if ($(window).width() > 1000) {
+		$(".pizza-column").removeClass("d-none");
+		$(".cart_mobile_icon").addClass('d-none');
+		$(".add_more_item_mobile").addClass('d-none');
 	}
 }
 
@@ -597,9 +613,11 @@ function updateCartPrice() {
 	if (currentPinCodeRow) {
 		deliveryCosts = parseFloat(currentPinCodeRow.deliverycharges);
 	}
+
 	if (deliveryType.toString() === "self") {
 		deliveryCosts = parseFloat(0);
 	}
+
 	if (prepareCartItemArr.length === 0) {
 		deliveryCosts = 0;
 		_.find('.delivery_costs_container').addClass('d-none').removeClass('d-flex');
@@ -888,31 +906,25 @@ function showMinimumOrderAmountByPinCode(replacePrice) {
 	const add_more_item_mobile = _.find('.add_more_item_mobile');
 	// if minimum order value is greater than current order value
 
-	if($(window).width() > 1000) {
-		$(".pizza-column").removeClass("d-none");
-		$(".cart_mobile_icon").addClass('d-none');
-	}else if ($(window).width() < 1000) {
-		$(".cart_mobile_icon").removeClass('d-none');
-	}
-
 	if (currentPinCodeRow && parseFloat(currentPinCodeRow.minimum_amount) > parseFloat(replacePrice) && prepareCartItemArr.length) {
 		$("#ibasket").addClass("custom_class_basket");
-		minimumCartAmountContainer.removeClass('d-none').addClass('d-flex').find('.minimum_cart_amount').html('€' + parseFloat(currentPinCodeRow.minimum_amount).toFixed(2));
+		minimumCartAmountContainer
+		.removeClass('d-none')
+		.addClass('d-flex')
+		.find('.minimum_cart_amount')
+		.html('€' + parseFloat(currentPinCodeRow.minimum_amount).toFixed(2));
 		// we need to hide minimum order container
 		valid_cart_minimum_order.addClass('d-none');
 		no_items_in_cart.removeClass('d-none');
 
-
-		if ($(window).width() < 770){
-			add_more_item_mobile.removeClass('d-none');
-		}
-		else {
-			add_more_item_mobile.addClass('d-none');
+		if ($(window).width() > 770) {
 			$('.cartButtonSubmit').removeClass('d-none');
 		}
-		if ($('.add_more_item_mobile').is(':visible') || $(window).width() < 770) {
+
+		if (add_more_item_mobile.is(':visible') || $(window).width() < 770) {
 			$('.cartButtonSubmit').addClass('d-none')
 		}
+
 		// we need mark button as disabled
 		const minimumCartPrice = parseFloat(minimumCartAmountContainer.find('.minimum_cart_amount').attr('data-minimum-cart-amount'));
 		if (minimumCartPrice > replacePrice) {
@@ -926,9 +938,9 @@ function showMinimumOrderAmountByPinCode(replacePrice) {
 		valid_cart_minimum_order.removeClass('d-none');
 		minimumCartAmountContainer.addClass('d-none').removeClass('d-flex');
 		no_items_in_cart.addClass('d-none').removeClass('d-flex');
-		add_more_item_mobile.addClass('d-none').removeClass('d-block d-sm-none');
+		// add_more_item_mobile.addClass('d-none').removeClass('d-block d-sm-none');
 
-		if (!$('.add_more_item_mobile').is(':visible')) {
+		if (!add_more_item_mobile.is(':visible')) {
 			$('.cartButtonSubmit').removeClass('d-none')
 		}
 		if (prepareCartItemArr.length)

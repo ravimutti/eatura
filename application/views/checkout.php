@@ -150,10 +150,10 @@ $this->load->view('includes/header', array('user_data' => $user_data));
 										<label>Gewünschte Lieferzeit <i style="font-size: 10px;color: #bebebe;" class="fa fa-asterisk" aria-hidden="true"></i></label>
 										<div class="cstm-select">
 											<select class="form-control" name="order[desired_delivery_time]">
-												<option value="" selected>Lieferzeitpunkt wählen </option>
+												<!-- <option value="" selected>Lieferzeitpunkt wählen </option> -->
 												<?php
 												if(sizeof($profile->time_slots) > 0)
-													echo '<option value="So schnell wie möglich">So schnell wie möglich</option>';
+												//	echo '<option value="So schnell wie möglich">So schnell wie möglich</option>';
 												foreach ($profile->time_slots as $slot) { ?>
 													<option value="<?= $slot ?>"><?= $slot ?></option>
 												<?php } ?>
@@ -462,7 +462,7 @@ Daten, die Sie eingegeben haben und mit unseren einverstanden sind
 					</div>
 
 					<div class="add_more_item_mobile d-none ">
-						<a href="<?= site_url() . SLUG ?>" class="nav-link text-center"> <b>Add more items</b> </a>
+						<a href="<?= site_url() . SLUG ?>" class="nav-link text-center"> <b>Weitre Produkte hinzufügen</b> </a>
 					</div>
 
 					<!--					<button data-target-url="-->

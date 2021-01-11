@@ -1,9 +1,11 @@
+<?php date_default_timezone_set('Europe/Berlin'); ?>
 <script type="text/javascript">
 let prepareCartItemArr = '<?= (count($this->cart->contents())) ? json_encode(array_values($this->cart->contents())) : json_encode(array())?>';
 let restaurantPinCodes = '<?= json_encode(array())?>';
 let currentPinCodeRow = '<?= json_encode([]) ?>';
 let restaurantStatus = 1;
 let errorMessageInCaseOfPinCode = '';
+let byPassPickupCookie = 1;
 </script>
 <?php $user_data = $this->session->userdata('userdata');
 $this->load->view('includes/header', array('user_data' => $user_data)); ?>
@@ -35,6 +37,15 @@ $this->load->view('includes/header', array('user_data' => $user_data)); ?>
                   <div class="comp-right"> <img src="<?php echo  base_url();?>assets/images/delivery-boy.gif" alt=""> </div>
                </div>
                </div>
+               <div class="procesing-sec m-0 my-4">
+                  <h3>Bestellstatus</h3>
+                  <ul>
+                     <li><div class="process"><div class="tick <?= in_array($order->order_status,['Created','Processing','Accepted','Processing','Ready to delever']) ? 'done' : ''?> "><img src="images/tick.png" alt=""></div> <h5>Bestelleingang</h5></div></li>
+                     <li><div class="process"><div class="tick <?= in_array($order->order_status,['Processing','Accepted','Ready to delever']) ? 'done' : ''?>"><img src="images/tick.png" alt=""></div> <h5>Verarbeitung</h5></div></li>
+                     <li><div class="process"><div class="tick <?= in_array($order->order_status,['Accepted','Processing','Ready to delever']) ? 'done' : ''?>"><img src="images/tick.png" alt=""></div> <h5>Lieferbereit</h5></div></li>
+                     <li><div class="process"><div class="tick <?= in_array($order->order_status,['Accepted','Processing','Ready to delever','Delivered']) ? 'done' : ''?>"><img src="images/tick.png" alt=""></div> <h5>Ausgeliefert</h5></div></li>
+                  </ul>
+               </div>
                <div class="order-table">
                   <table class="table table-borderless">
                       <thead>
@@ -45,7 +56,7 @@ $this->load->view('includes/header', array('user_data' => $user_data)); ?>
                         </tr>
                       </thead>
                       <tbody>
-                        <?php foreach ($order->orders as $key => $item): ?>
+                        <?php $price = 0; foreach ($order->orders as $key => $item): ?>
                           <?php  $product_array = json_decode($item->product_add_ons); ?>
                              <tr>
                               <td>
@@ -54,8 +65,6 @@ $this->load->view('includes/header', array('user_data' => $user_data)); ?>
                                     <?php if(trim($product_array->product->sku) !="") {?>
         														  <span class="product_sku"><?=$product_array->product->sku?></span>
         														<?php } ?>
-
-
                                     <?=$item->item_name?> <br>
                                     <small style="font-style:italic"><?=$product_array->product->addOnsString?></small>
                                   </p>
@@ -64,37 +73,39 @@ $this->load->view('includes/header', array('user_data' => $user_data)); ?>
                               <td><?=$item->item_qty?></td>
                               <td><?= formatPrice($item->item_price * $item->item_qty) ?> €</td>
                             </tr>
+                            <?php $price += $item->item_price * $item->item_qty ?>
                         <?php endforeach ?>
-
+                            <tr>
+                              <td></td>
+                              <td>Total</td>
+                              <td><?=formatPrice($price)?> €</td>
+                            </tr>
                       </tbody>
                   </table>
                </div>
                </div>
-               <div class="procesing-sec">
-                  <h3>Bestellstatus</h3>
-                  <ul>
-                     <li><div class="process"><div class="tick <?= in_array($order->order_status,['Created','Processing','Accepted','Processing','Ready to delever']) ? 'done' : ''?> "><img src="images/tick.png" alt=""></div> <h5>Bestelleingang</h5></div></li>
-                     <li><div class="process"><div class="tick <?= in_array($order->order_status,['Processing','Accepted','Ready to delever']) ? 'done' : ''?>"><img src="images/tick.png" alt=""></div> <h5>Verarbeitung</h5></div></li>
-                     <li><div class="process"><div class="tick <?= in_array($order->order_status,['Accepted','Processing','Ready to delever']) ? 'done' : ''?>"><img src="images/tick.png" alt=""></div> <h5>Lieferbereit</h5></div></li>
-                     <li><div class="process"><div class="tick <?= in_array($order->order_status,['Accepted','Processing','Ready to delever','Delivered']) ? 'done' : ''?>"><img src="images/tick.png" alt=""></div> <h5>Ausgeliefert</h5></div></li>
-                  </ul>
-               </div>
+
+
             </div>
          </div>
          </div>
       </section>
 
- <?php $this->load->view('includes/footer',["pincodes" => $pincodes]);
+ <?php $this->load->view('includes/footer',["pincodes" => $pincodes,"profile" => $order->restaurant,"subtotal" =>0,"cartCount" =>0]);
  $mintuesToAdd = 25;
- if($order->pincode && isset($order->pincode->id)) {
+ if($order->pincode && isset($order->pincode->id) && trim($order->pincode->delivery_time) != "" ) {
    $mintuesToAdd = date('i',strtotime($order->pincode->delivery_time));
+ }
+ if($order->restaurant && isset($order->restaurant->userId) && trim($order->restaurant->minimum_order_time) != "" ) {
+   $mintuesToAdd = date('i',strtotime($order->restaurant->minimum_order_time));
  }
  ?>
 
 <script type="text/javascript">
 
 let mintuesToAdd = '<?= $mintuesToAdd?>';
-let start = '<?= strtotime("+$mintuesToAdd minutes", strtotime($order->created_at)); ?>';
+let trackerTime = '<?= $trackerTime?>';
+let start = '<?= strtotime("+$mintuesToAdd minutes", strtotime($trackerTime)); ?>';
 var compareDate = new Date();
 var endDate   = new Date(parseInt(start)*1000)
 

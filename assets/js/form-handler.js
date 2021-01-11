@@ -447,7 +447,12 @@ function toaster(type, message, delayTime = 2000) {
 }
 
 function swalAlert(type, message, delayTime = 2000) {
-	swal({title: type,text: message,icon: type.toLowerCase(),buttons: false,timer: delayTime,});
+  let title = type;
+
+  if(title ="Success")
+    title ="Erfolg";
+    
+	swal({title: title,text: message,icon: type.toLowerCase(),buttons: false,timer: delayTime,});
 }
 // $2y$10$mwAKHl2WIwNw/tF.g6cLNOBm6Z/ZDopEuHLCFLN9ua099jT6T6lja
 // $2y$10$7W7yURnpU8yLai2aK1seUuSWLJoWIiEw6FDzNbIM2B75um.Gpmv26

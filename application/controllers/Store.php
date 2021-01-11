@@ -30,7 +30,11 @@ class Store extends MyController
 		// $this->load->helper('cookie');
 		$this->load->library('user_agent');
 		$this->load->library('paypal_lib');
+		// echo date("Y-m-d H:i:s");
+		// echo "\n";
 		date_default_timezone_set('Europe/Berlin');
+		// echo date("Y-m-d H:i:s");
+
 		$this->checkIsAuth();
 
 		$this->currentSlug = $this->input->cookie('uriRestaurant', true);
@@ -209,6 +213,7 @@ class Store extends MyController
 				$pincodes = json_decode(curl_exec($ch));
 				curl_close($ch);
 				$response->pincodes = $pincodes->pincodes;
+
 				$this->load->view('shoppingpage', $response);
 			} elseif ($response->error == '404') {
 				// $this->session->set_flashdata('pin_code_not_found', "Restaurant not found, please enter your area pin code and try again.");
@@ -408,14 +413,14 @@ class Store extends MyController
 		$pincodes = json_decode(curl_exec($ch));
 		curl_close($ch);
 		$response->pincodes = $pincodes->pincodes;
-		// echo $response->order->restaurant->slugname.'/order/tracking/'.$response->order->order_id;die;
-		//
-		// foreach ($response->order->orders as $key => $value) {
-		// 	$product_array = json_decode($value->product_add_ons);
-		// 	print_r( $product_array->product->addOnsString );
-		// }
+		if(trim($response->order->desired_delivery_time) !="")
+			$response->trackerTime = date('Y-m-d').' '.$response->order->desired_delivery_time .':00';
+		else
+			$response->trackerTime = date('Y-m-d H:i:s');
 
-		// die;
+			// echo "<pre>";
+			// print_r($response);
+			// die;
 		if (!empty($response)) {
 			if ($response->error == '202') {
 				$this->load->view('order-detail', $response);

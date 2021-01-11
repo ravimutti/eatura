@@ -1,13 +1,13 @@
 <footer class="footer">
 	<button id="myBtntoptobottom" title="Go to top"><i class="fa fa-angle-up"></i></button>
 	<?php if (isset($profile)) { ?>
-		<div class="responsive-menu" id="responsive-cart-items">
+		<div class="responsive-menu d-none" id="responsive-cart-items">
 			<button data-target-url="<?php echo site_url($profile->slugname . '/place-order') ?>"
 					href="<?php echo site_url($profile->slugname . '/place-order') ?>" type="button"
 					class="btn btn-primary open_cartModal">
 				  <span class="noti fa fa-shopping-bag">
                 <em id="mobileCartItemsCount"><?= $cartCount ?></em>
-				  </span> Shopping cart (<span id="mobileCartPrice"><?= number_format($subtotal, 2) ?></span> €)
+				  </span> Warenkorb (<span id="mobileCartPrice"><?= number_format($subtotal, 2) ?></span> €)
 			</button>
 		</div>
 	<?php } ?>
@@ -90,11 +90,37 @@
 					<div class="modal-tab">
 						<div class="tab-content" id="modalTabContent">
 							<div class="tab-pane fade show active" id="reviews" role="tabpanel" aria-labelledby="">
+
 								<div class="content-review">
 									<h3>Allgemeine Bewertung</h3>
 									<section class="pt-2 review-data d-flex">
 										<div class="rating-number-container">
-											<span>4.0</span>
+											<span>0.0</span>
+										</div>
+										<div class="review-stars-container">
+											<div class="review-rating">
+												<div class="review-stars1">
+													<i class="fa fa-star" aria-hidden="true"></i>
+													<i class="fa fa-star" aria-hidden="true"></i>
+													<i class="fa fa-star" aria-hidden="true"></i>
+													<i class="fa fa-star" aria-hidden="true"></i>
+													<i class="fa fa-star" aria-hidden="true"></i>
+												</div>
+											</div>
+											<div class="overviewstar">
+												<span class="text">Von 0 Bewertungen</span>
+											</div>
+										</div>
+									</section>
+
+								</div>
+
+								<?php /*
+								<div class="content-review">
+									<h3>Allgemeine Bewertung</h3>
+									<section class="pt-2 review-data d-flex">
+										<div class="rating-number-container">
+											<span>0.0</span>
 										</div>
 										<div class="review-stars-container">
 											<div class="review-rating">
@@ -188,6 +214,7 @@
 										<section class="review-body"><span>The driver was totally rude</span></section>
 									</div>
 								</div>
+								*/?>
 							</div>
 							<div class="tab-pane fade" id="info" role="tabpanel" aria-labelledby="">
 								<div class="info-container">
@@ -261,13 +288,13 @@
 														<td valign="top">
 															Mindestbestellwert
 														</td>
-														<td valign="center" align="right">12,00 €</td>
+														<td valign="center" align="right"><?=formatPrice($profile->minimum_order_amount);?> €</td>
 													</tr>
 													<tr>
 														<td valign="top">
 															Lieferkosten
 														</td>
-														<td valign="center" align="right">0,00 €</td>
+														<td valign="center" align="right"><?=formatPrice($profile->delivery_charges);?> €</td>
 													</tr>
 													</tbody>
 												</table>
@@ -912,6 +939,9 @@
 			$(document).on('click',"#myBtntoptobottom",function(e) {
 				userHasScrolled = true;
 				window.scroll(0,0);
+				owl.trigger('to.owl.carousel',[0, 100]);
+
+				$(document).find('.owl-stage').find('.owl-item').find('.item').removeClass("active");
 			})
 
 		});
@@ -940,8 +970,6 @@
 
 	<script>
 		function autocomplete(inp, arr) {
-
-			console.log({arr:arr});
 			/*the autocomplete function takes two arguments,
 			the text field element and an array of possible autocompleted values:*/
 			var currentFocus;
@@ -1048,7 +1076,6 @@
 			document.addEventListener("click", function (e) {
 				closeAllLists(e.target);
 			});
-
 
 		}
 

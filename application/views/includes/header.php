@@ -93,9 +93,13 @@
 						</a>
 					<?php } else { ?>
 						<a class="topbar__title" data-toggle="modal" data-backdrop="static" data-keyboard="false"
-						   data-target="#search-pop-header"> Wo möchtest Du
+						   data-target="#search-pop-header">
+							 Abholen
+							 <!-- Wo möchtest Du
 							Essen
-							bestellen?</a>
+							bestellen? -->
+
+						</a>
 					<?php }
 					?>
 
@@ -116,8 +120,13 @@
 	</div>
 </header>
 <?php
+
+
 function formatPrice($amount)
 {
+	if(trim($amount) == '')
+		$amount = 0;
+
 	$amount = number_format($amount, 2);
 	return str_replace(".", ",", $amount);
 }
@@ -150,5 +159,5 @@ function substrwords($text, $maxchar, $end = '...')
 
 ?>
 <script>
-	let deliveryType = '<?= $this->input->cookie('delivery_type', true)?>';
+	let deliveryType = '<?= trim($this->input->cookie('delivery_type', true)) !="" ? $this->input->cookie('delivery_type', true) : 'self'?>';
 </script>

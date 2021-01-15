@@ -1,6 +1,14 @@
 <?php
 $user_data = $this->session->userdata('userdata');
 $this->load->view('includes/header', array('user_data' => $user_data));
+
+$delivery_type = "self";
+
+if(trim($this->input->cookie('delivery_type', true)) != "")
+	$delivery_type = $this->input->cookie('delivery_type', true);
+
+
+
 ?>
 <style>
 	html {
@@ -343,7 +351,7 @@ foreach ($deliverydetails as $charge) {
 																						   >
                                           <label class="custom-control-label" for="subtoppings' . $rowsubtoppings->id . $prodcutrow->id . '"> ' . $rowsubtoppings->name;
 																				if (!empty($rowsubtoppings->price) && $rowsubtoppings->price != '0.00' && $rowsubtoppings->price != '0') {
-																					$subToppings .= ' (+' . formatPrice($rowsubtoppings->price) . ' €)';
+																					$subToppings .= ' (+' . formatPrice($rowsubtoppings->price).' €)';
 																				}
 
 
@@ -411,7 +419,7 @@ foreach ($deliverydetails as $charge) {
 																			<label class="custom-control-label"
 																				   for="variants_<?php echo $protoppingsMap->id . $prodcutrow->id ?>"><?php echo $protoppingsMap->name;
 																				if (!empty($protoppingsMap->price) && $protoppingsMap->price != '0.00' && $protoppingsMap->price != '0') {
-																					echo ' (+ €' . formatPrice($protoppingsMap->price) . ')';
+																					echo ' (+ ' . formatPrice($protoppingsMap->price) . ' €)';
 																				} ?> </label>
 
 																				<?php
@@ -519,15 +527,21 @@ foreach ($deliverydetails as $charge) {
 									<?php echo $profile->cname; ?>
 									<br>
 									<?php echo $profile->address; ?>
+									<div class="my-3"></div>
+									<?php if(!empty($profile->whatsapp_number)) { ?>
 									<div>
-										<br>
+										WhatsApp Number: <?php echo $profile->whatsapp_number; ?>
+									</div>
+									<?php } ?>
+									<div>
 										E-Mail: <?php echo $profile->email; ?>
 									</div>
-									<div>
-										Fax: <?php echo $profile->fax; ?>
-									</div>
+									<?php if(!empty($profile->fax)) { ?>
+										<div>
+											Fax: <?php echo $profile->fax; ?>
+										</div>
+									<?php } ?>
 									<br>
-
 									<?php if(!empty($profile->vat_no)) { ?>
 										<div>
 											VAT Number <?php echo $profile->vat_no; ?>
@@ -545,7 +559,7 @@ foreach ($deliverydetails as $charge) {
 					</div>
 				</div>
 				<div class="cart-basket">
-					<div class="basket-container js-basket-container <?php if(trim($this->input->cookie('delivery_type', true))!="self"){ echo "customclassbasket";}?>" id="ibasket">
+					<div class="basket-container js-basket-container <?php if(trim($delivery_type) !="self" ){ echo "customclassbasket";}?>" id="ibasket">
 						<div class="cartHeaderContainer basket-button basket-button--secondary">
 							<p class="basket-button__label">
 								<span class="basket-button__label-title">Warenkorb</span>
@@ -745,7 +759,14 @@ foreach ($deliverydetails as $charge) {
 		</div>
 	</div>
 
-	<?php $this->load->view('includes/footer', array('subtotal' => $subtotal, 'cartCount' => $cartCount, "pinCode" => $pinCode, 'pincodes' => $pincodes, 'user_data' => $user_data, 'profile' => $profile)); ?>
+	<?php $this->load->view('includes/footer', array(
+		'subtotal' => $subtotal,
+		'cartCount' => $cartCount,
+		"pinCode" => $pinCode,
+		'pincodes' => $pincodes,
+		'user_data' => $user_data,
+		'delivery_type' => $delivery_type,
+		'profile' => $profile)); ?>
 	<script>
 		$(window).scroll(function() {
 			if($(window).scrollTop() + $(window).height() > $(document).height() - 100) {

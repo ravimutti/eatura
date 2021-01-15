@@ -2217,7 +2217,7 @@ a#myBtn {
 	font-weight: 600;
 }
 
-.modal-content {
+#info-modal .modal-content {
 	border-radius: 2px;
 	min-height: 600px;
 }

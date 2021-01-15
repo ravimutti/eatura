@@ -1,6 +1,11 @@
 <?php
 $user_data = $this->session->userdata('userdata');
 $this->load->view('includes/header', array('user_data' => $user_data));
+$delivery_type = "self";
+if($this->input->cookie('delivery_type', true) != "")
+	$delivery_type = $this->input->cookie('delivery_type', true);
+
+
 ?>
 <script>
 	let prepareCartItemArr = '<?= (count($this->cart->contents())) ? json_encode(array_values($this->cart->contents())) : json_encode(array())?>';
@@ -113,6 +118,10 @@ $this->load->view('includes/header', array('user_data' => $user_data));
 						  	Es befindet sich kein Produkt im Warenkorb. Klicke <a style="color:#007bff" href="<?=site_url().$this->input->cookie('currentRestaurant', TRUE)?>">hier</a> um zurück zur Menükarte des Restaurants zu gelangen, sodass Du Produkte zu Deinem Warenkorb hinzufügen kannst.
 							</div>
 
+							<div class="alert alert-warning my-2 no_items_found_on_checkout <?php if(count($profile->paymode) > 0) { ?> d-none <?php } ?>" role="alert">
+						  	Zahlungsmethode nicht vom Restaurant zur Verfügung gestellt bitte nach einiger Zeit
+							</div>
+
 							<hr>
 							<div class="row">
 								<div class="col-md-12 col-xl-6">
@@ -142,10 +151,10 @@ $this->load->view('includes/header', array('user_data' => $user_data));
 							</div>
 						</div>
 						<div class="mt-3 payment-head">
-							<p>Wann möchtest Du Deine Bestellung erhalten?</p>
-							<hr>
+							<!-- <p>Wann möchtest Du Deine Bestellung erhalten?</p> -->
+							<!-- <hr> -->
 							<div class="row">
-								<div class="col-md-12 col-xl-6">
+								<div class="col-md-12 col-xl-6 d-none">
 									<div class="form-group">
 										<label>Gewünschte Lieferzeit <i style="font-size: 10px;color: #bebebe;" class="fa fa-asterisk" aria-hidden="true"></i></label>
 										<div class="cstm-select">
@@ -160,8 +169,12 @@ $this->load->view('includes/header', array('user_data' => $user_data));
 											</select>
 										</div>
 									</div>
-									<input type="hidden" name="order[order_pick_up]" value="<?=$this->input->cookie('delivery_type', true)?>">
+
 								</div>
+
+									<input type="hidden" name="order[order_pick_up]" value="<?=$this->input->cookie('delivery_type', true)?>">
+									<input type="hidden" name="order[desired_delivery_time]" value="ASAP">
+
 								<div class="col-md-12 col-xl-6">
 									<div class="form-group">
 										<label>Anmerkungen für das Restaurant</label>
@@ -186,20 +199,29 @@ $this->load->view('includes/header', array('user_data' => $user_data));
 							<hr>
 							<div class="payment-way info-tab-section">
 								<div class="info-pay-card-list">
-									<div class="info-pay-card text-center active" data-ref="Cash">
-										<img src="http://harjassinfotech.com/html/eatura-1.3/images/payment_0.png"
-											 class="embedleft" alt="Barzahlung"
-											 title="Barzahlung">
-										<span>Barzahlung</span>
-									</div>
+
+									<?php
+										$default = "Cash";
+										$default_mode = "live";
+										foreach ($profile->paymode as $key => $mode): ?>
+										<?php if($key == 0 ) {
+											$default = $mode->name;
+											$default_mode = strtolower($mode->mode);
+										} ?>
+										<div class="info-pay-card text-center <?=$key ==0 ?'active' :''?>" data-ref="<?=$mode->name?>">
+											<img src="<?php echo base_url(); ?>assets/images/<?=$mode->icon?>"
+												 class="embedleft" alt="<?=$mode->name?>" title="<?=$mode->name?>">
+											<span><?=$mode->name?></span>
+											<input type="hidden" name="<?=strtolower($mode->name)?>[parnterid]" value="<?=strtolower($mode->parnterid)?>">
+											<input type="hidden" class="gateway_mode" name="<?=strtolower($mode->name)?>[mode]" value="<?=strtolower($mode->mode)?>">
+										</div>
 
 
-									<div class="info-pay-card text-center" data-ref="Paypal">
-										<img src="http://harjassinfotech.com/html/eatura-1.3/images/payment_18.png" class="embedleft" alt="PayPal" title="PayPal">
-										<span>PayPal</span>
-									</div>
+									<?php endforeach; ?>
 
-									<input type="hidden" class="payment_mode" name="order[payment_mode]" value="Cash">
+									<input type="hidden" class="payment_mode" name="order[payment_mode]" value="<?=$default?>">
+									<input type="hidden" class="order_gateway_mode" name="order[gateway_mode]" value="<?=$default_mode?>">
+
 									<input type="hidden" name="order[delivery_charge]"
 										   value="<?= @$matchedPinCodeRow->deliverycharges ? @$matchedPinCodeRow->deliverycharges : 0.00  ?>">
 									<input type="hidden" name="order[restaurant_id]" value="<?= @$profile->userId ?>">
@@ -251,10 +273,10 @@ $this->load->view('includes/header', array('user_data' => $user_data));
 							<!--							</div>-->
 						</div>
 						<div class="my-5 payment-head">
-							<p>Gutschein</p>
+							<!-- <p>Gutschein</p> -->
 							<hr>
 							<div class="row">
-								<div class="col-xl-6 col-md-12">
+								<!-- <div class="col-xl-6 col-md-12">
 									<div class="mb-2 vou-select">
 										<a href="javascript:void(0);" data-toggle="collapse" data-target="#voucher"
 										   class="d-block">Hast du einen Gutschein?</a>
@@ -267,21 +289,21 @@ $this->load->view('includes/header', array('user_data' => $user_data));
 											<button class="voucher-add-check btn btn-primary">Hinzufügen</button>
 										</div>
 									</div>
-								</div>
+								</div> -->
 								<div class="col-md-12">
-									<p class="msg-review">Nachdem Sie eine Bestellung aufgegeben haben, erhalten Sie eine Bestellbestätigung, eine Statusmeldung vom Food Tracker und einen Bewertungslink auf andere Weise (z. B. Push-Nachrichten).</p>
+									<!-- <p class="msg-review">Nachdem Sie eine Bestellung aufgegeben haben, erhalten Sie eine Bestellbestätigung, eine Statusmeldung vom Food Tracker und einen Bewertungslink auf andere Weise (z. B. Push-Nachrichten).</p>
 									<div class="payment-check">
 										<div class="custom-control custom-checkbox mt-3">
 											<input type="checkbox" name="offers_enabled" class="custom-control-input"
 												   id="discount-check">
 											<label class="custom-control-label" for="discount-check">Um Rabatte, Treueangebote oder andere Updates zu erhalten, klicken Sie bitte auf das Kontrollkästchen.</label>
 										</div>
-									</div>
+									</div> -->
 									<div class="note-war my-4">
 										<span>Für kontaktlose Lieferung: Bitte wählen Sie eine Online-Zahlungsmethode</span>
 									</div>
 									<div class="btn-sec">
-										<button <?php if($no_cart_item) echo "disabled";?> type="submit" class="btn btn-primary">
+										<button <?php if($no_cart_item || count($profile->paymode) == 0 ) echo "disabled";?> type="submit" class="checkoutFormSubmit btn btn-primary">
 											Zahlungspflichtig bestellen
 										</button>
 									</div>
@@ -300,17 +322,15 @@ Daten, die Sie eingegeben haben und mit unseren einverstanden sind
 				</form>
 			</div>
 			<div class="cart-basket">
-				<div class="basket-container js-basket-container" id="ibasket">
-					<div class="basket-button basket-button--secondary">
+				<div class="basket-container js-basket-container <?php if(trim($this->input->cookie('delivery_type', true))!="self"){ echo "customclassbasket";}?>" id="ibasket">
+					<div class="cartHeaderContainer basket-button basket-button--secondary">
 						<p class="basket-button__label">
-							<span class="basket-button__label-title">Warenkob</span>
+							<span class="basket-button__label-title">Warenkorb</span>
 							<span class="text-right cart_mobile_icon d-none"
-								  style="margin-left: 32%;position: absolute;">
-									<i class="fa fa-times"></i>
-								</span>
-
+									style="margin-left: 32%;position: absolute;">
+								<i class="fa fa-minus"></i>
+							</span>
 						</p>
-
 					</div>
 					<div class="basket basket-container__scroller">
 						<div class="basket__content js-basket-container__scroller">
@@ -462,7 +482,7 @@ Daten, die Sie eingegeben haben und mit unseren einverstanden sind
 					</div>
 
 					<div class="add_more_item_mobile d-none ">
-						<a href="<?= site_url() . SLUG ?>" class="nav-link text-center"> <b>Weitre Produkte hinzufügen</b> </a>
+						<a href="<?= site_url() . $profile->slugname ?>" class="nav-link text-center"> <b>Weitre Produkte hinzufügen</b> </a>
 					</div>
 
 					<!--					<button data-target-url="-->
@@ -477,7 +497,12 @@ Daten, die Sie eingegeben haben und mit unseren einverstanden sind
 		</div>
 	</div>
 </div>
-<?php $this->load->view('includes/footer', array('subtotal' => $subtotal, 'cartCount' => $cartCount, 'pincodes' => $pincodes, 'user_data' => $user_data)); ?>
+<?php $this->load->view('includes/footer', array(
+	'subtotal' => $subtotal,
+	'cartCount' => $cartCount,
+	'delivery_type' => $delivery_type,
+	'pincodes' => $pincodes,
+	'user_data' => $user_data)); ?>
 <script>
 	$(document).find('#responsive-cart-items').hide();
 </script>

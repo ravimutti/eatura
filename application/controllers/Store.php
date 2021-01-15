@@ -73,6 +73,7 @@ class Store extends MyController
 			return redirect('/' . $this->currentSlug);
 		}
 
+
 		$url = SITEURL . "getAllRestruent";
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
@@ -165,6 +166,11 @@ class Store extends MyController
 
 			return redirect(site_url("/restaurant-barcode?delivery=$delivery_type&pincode=$pincode"));
 		}
+		if(trim($this->input->cookie('delivery_type', true)) == ""){
+			$cookie = array('name' => 'delivery_type','value' => 'self','expire' => time()+86400,"path"=>'/');
+			$this->input->set_cookie($cookie);
+		}
+
 		// print_r($queryParams);die;
 		$pinCode = $this->input->cookie('pincode', true);
 		$cookie = array('name' => 'uriRestaurant','value' =>$slug,'expire' => time()+86400);
@@ -182,9 +188,10 @@ class Store extends MyController
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		$response = json_decode(curl_exec($ch));
 		curl_close($ch);
-		// echo "<pre>";print_r($response);die;
+
 		if (!empty($response)) {
 			$response->errorMessageInCaseOfPinCode = null;
+
 			if ($response->error == '202') {
 				// here we need to match pin code first
 				if (!in_array($pinCode, array_column($response->deliverydetails, 'pincode')) && !$isByPassPinCodeCheck) {
@@ -194,6 +201,12 @@ class Store extends MyController
 					$response->errorMessageInCaseOfPinCode =  $response->profile->name." is not delivering orders on the entered pin code.";
 					$this->cart->destroy();
 				}
+
+				// if( isset($response->profile->paymode) && sizeof($response->profile->paymode) == 0) {
+				// 	$response->restaurant_status = 0;
+				// 	$response->errorMessageInCaseOfPinCode =  $response->profile->name." is not accepting payments right now.";
+				// }
+
 				if ($this->input->cookie('currentRestaurant', TRUE) !== $slug) {
 					$this->cart->destroy();
 					delete_cookie('pincode');
@@ -213,7 +226,8 @@ class Store extends MyController
 				$pincodes = json_decode(curl_exec($ch));
 				curl_close($ch);
 				$response->pincodes = $pincodes->pincodes;
-
+				// echo "<pre>";
+				// print_r($response);die;
 				$this->load->view('shoppingpage', $response);
 			} elseif ($response->error == '404') {
 				// $this->session->set_flashdata('pin_code_not_found', "Restaurant not found, please enter your area pin code and try again.");
@@ -309,7 +323,8 @@ class Store extends MyController
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 			$response = json_decode(curl_exec($ch));
 			curl_close($ch);
-
+			// echo "<pre>";
+			// print_r($response);die;
 			if (!empty($response) ) {
 				if ($response->error == '202') {
 					// here we need to pass delivery charge
@@ -387,11 +402,9 @@ class Store extends MyController
 	{
 		$id = $this->uri->segment(4);
 		$slug = $this->uri->segment(1);
-		$url = SITEURL . "getorder";
-
 		$pin_code = $this->input->cookie('pincode', true);
 		$delivery_type = $this->input->cookie('delivery_type', true);
-
+		$url = SITEURL . "getorder";
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_POST, 1);
@@ -413,9 +426,10 @@ class Store extends MyController
 		$pincodes = json_decode(curl_exec($ch));
 		curl_close($ch);
 		$response->pincodes = $pincodes->pincodes;
-		if(trim($response->order->desired_delivery_time) !="")
-			$response->trackerTime = date('Y-m-d').' '.$response->order->desired_delivery_time .':00';
-		else
+
+		// if(trim($response->order->desired_delivery_time) !="")
+		// 	$response->trackerTime = date('Y-m-d').' '.$response->order->desired_delivery_time .':00';
+		// else
 			$response->trackerTime = date('Y-m-d H:i:s');
 
 			// echo "<pre>";
@@ -436,6 +450,9 @@ class Store extends MyController
 
 	public function buyWithPaypalProduct($post){
     //Set variables for paypal form
+		// echo "<pre>";
+		// print_r($post->paymentInfo->paypal->parnterid);die;
+
     $returnURL 	= base_url().'paypal/success'; //payment success url
     $failURL 	= base_url().'paypal/fail'; //payment fail url
     $notifyURL 	= base_url().'paypal/ipn'; //ipn url
@@ -444,12 +461,19 @@ class Store extends MyController
 			$userID  = $this->session->userdata('userdata')['user']->userId;
 		}
     $logo = base_url().'Your_logo_url';
+		$this->paypal_lib->paypal_url = ( strtolower($post->paymentInfo->paypal->mode) == "live") ? 'https://www.paypal.com/cgi-bin/webscr': 'https://www.sandbox.paypal.com/cgi-bin/webscr';
+		$this->paypal_lib->add_field('business',$post->paymentInfo->paypal->parnterid);
     $this->paypal_lib->add_field('return', $returnURL);
     $this->paypal_lib->add_field('fail_return', $failURL);
     $this->paypal_lib->add_field('notify_url', $notifyURL);
     $this->paypal_lib->add_field('item_name', $post->order);
     $this->paypal_lib->add_field('custom', $userID);
     $this->paypal_lib->add_field('amount',  $post->amount);
+		$this->paypal_lib->add_field('country', 'DE');
+		if(isset($post->paymentInfo->order_user_details) && isset($post->paymentInfo->order_user_details->pincode))
+    	$this->paypal_lib->add_field('zip',  $post->paymentInfo->order_user_details->pincode);
+
+    $this->paypal_lib->add_field('lc',  'DE');
     $this->paypal_lib->image($logo);
     $this->paypal_lib->paypal_auto_form();
 	}
@@ -479,33 +503,45 @@ class Store extends MyController
     }
 
 
-	public function paypalIpnAction(){
-      //paypal return transaction details array
-			$paypalInfo    			        = $this->input->post();
-      $data['user_id'] 		        = $paypalInfo['custom'];
-      $data['order_id'] 		        = $paypalInfo["item_name"];
-      $data['transaction_id']         = $paypalInfo["txn_id"];
-      $data['paid_amount'] 	        = $paypalInfo["mc_gross"];
-      $data['transaction_raw_data'] 	= json_encode($paypalInfo);
-      $data['payment_mode'] 	        = self::PaymentMethodPayPal;
-      $data['payment_status']         = $paypalInfo["payment_status"];
-      $data['created_at']             = date("Y-m-d h:i:s");
-      $data['updated_at']             = date("Y-m-d h:i:s");
-
-      $paypalURL = $this->paypal_lib->paypal_url;
-      $result    = $this->paypal_lib->curlPost($paypalURL,$paypalInfo);
-      //check whether the payment is verified
-      if(preg_match("/VERIFIED/i",$result)){
-            //insert the transaction data into the database
-			$url = SITEURL . "saveTransaction";
+	public function paypalIpnAction() {
+			$url = SITEURL . "getorder";
 			$ch = curl_init();
 			curl_setopt($ch, CURLOPT_URL, $url);
 			curl_setopt($ch, CURLOPT_POST, 1);
-			curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, array("order_id" => $rawData['item_name'],"pin_code" =>'',"delivery_type" => '',));
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 			$response = json_decode(curl_exec($ch));
-			curl_close($ch);
-        }
+
+			if(!empty($response)) {
+					//paypal return transaction details array
+					$paypalInfo    			        		= $this->input->post();
+					$data['user_id'] 		        		= $paypalInfo['custom'];
+					$data['order_id'] 		        	= $paypalInfo["item_name"];
+					$data['transaction_id']         = $paypalInfo["txn_id"];
+					$data['paid_amount'] 	       	  = $paypalInfo["mc_gross"];
+					$data['transaction_raw_data'] 	= json_encode($paypalInfo);
+					$data['payment_mode'] 	        = self::PaymentMethodPayPal;
+					$data['payment_status']         = $paypalInfo["payment_status"];
+					$data['created_at']             = date("Y-m-d h:i:s");
+					$data['updated_at']             = date("Y-m-d h:i:s");
+
+					$paypalURL = $this->paypal_lib->paypal_url;
+					$paypalURL = ( strtolower($response->order->gateway_mode) == "live") ? 'https://www.paypal.com/cgi-bin/webscr': 'https://www.sandbox.paypal.com/cgi-bin/webscr';
+					$result    = $this->paypal_lib->curlPost($paypalURL,$paypalInfo);
+					//check whether the payment is verified
+					if(preg_match("/VERIFIED/i",$result)){
+							//insert the transaction data into the database
+							$url = SITEURL . "saveTransaction";
+							$ch = curl_init();
+							curl_setopt($ch, CURLOPT_URL, $url);
+							curl_setopt($ch, CURLOPT_POST, 1);
+							curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+							curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+							$response = json_decode(curl_exec($ch));
+							curl_close($ch);
+					}
+			}
+
     }
 
 	/**/

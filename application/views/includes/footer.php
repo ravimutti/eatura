@@ -1,6 +1,6 @@
 <footer class="footer">
 	<button id="myBtntoptobottom" title="Go to top"><i class="fa fa-angle-up"></i></button>
-	<?php if (isset($profile)) { ?>
+	<?php if (isset($profile) && !isset($checkout)) { ?>
 		<div class="responsive-menu d-none" id="responsive-cart-items">
 			<button data-target-url="<?php echo site_url($profile->slugname . '/place-order') ?>"
 					href="<?php echo site_url($profile->slugname . '/place-order') ?>" type="button"
@@ -323,18 +323,26 @@
 												</table>
 											</div>
 										</div>
-										<div class="info-card restaurant-info__opening-times">
+										<div class="info-card restaurant-info__opening-times <? if(sizeof($profile->paymode) == 0) echo 'd-none'; ?>">
 											<h2 class="restaurantInfoTitle">
 												<i class="fa fa-credit-card"></i>
 												Bezahlmethoden
 											</h2>
 											<div class="info-tab-section">
 												<div class="info-pay-card-list">
-												<div class="info-pay-card">
-														<img src="<?php echo base_url(); ?>assets/images/payment_0.png"
-															 class="embedleft" alt="Barzahlung" title="Barzahlung">
-													</div>
-													<?php /* ?>
+
+													<?php foreach ($profile->paymode as $key => $mode): ?>
+														<div class="info-pay-card">
+																<img
+																src="<?php echo base_url(); ?>assets/images/<?=$mode->icon?>"
+																class="embedleft"
+																alt="<?=$mode->name?>"
+																title="<?=$mode->name?>">
+														</div>
+													<?php endforeach; ?>
+
+													<?php
+													/* ?>
 													<div class="info-pay-card">
 														<img src="<?php echo base_url(); ?>assets/images/payment_0.png"
 															 class="embedleft" alt="Barzahlung" title="Barzahlung">
@@ -361,10 +369,6 @@
 															 title="American Express">
 													</div>
 													<?php */ ?>
-													<div class="info-pay-card">
-														<img src="<?php echo base_url(); ?>assets/images/payment_18.png"
-															 class="embedleft" alt="PayPal" title="PayPal">
-													</div>
 													<?php /* ?>
 													<div class="info-pay-card">
 														<img src="<?php echo base_url(); ?>assets/images/payment_13.png"
@@ -388,14 +392,20 @@
 												<?php echo $profile->cname; ?>
 												<br>
 												<?php echo $profile->address; ?>
-												<br>
+												<div class="my-3"></div>
+												<?php if(!empty($profile->whatsapp_number)) { ?>
 												<div>
-													<br>
+													WhatsApp Number: <?php echo $profile->whatsapp_number; ?>
+												</div>
+												<?php } ?>
+												<div>
 													E-Mail: <?php echo $profile->email; ?>
 												</div>
-												<div>
-													Fax: <?php echo $profile->fax; ?>
-												</div>
+												<?php if(!empty($profile->fax)) { ?>
+													<div>
+														Fax: <?php echo $profile->fax; ?>
+													</div>
+												<?php } ?>
 												<br>
 												<div class="info-resolution-url">
 													<!--Plattform der EU-Kommission zur Online-Streitbeilegung: <a href="#"
@@ -419,7 +429,7 @@
 							</div>
 							<div class="tab-pane fade" id="Rabatte" role="tabpanel" aria-labelledby="">
 								<div class="rabette-content px-3">
-									<div class="discount-category">Nur Abholung</div>
+									<!-- <div class="discount-category">Nur Abholung</div>
 									<div class="discount-item disabled">
 										<section class="d-flex d-flex-row">
 											<section class="discount-icon">
@@ -433,7 +443,7 @@
 												</div>
 											</section>
 										</section>
-									</div>
+									</div> -->
 								</div>
 							</div>
 						</div>
@@ -455,35 +465,36 @@
 					<form id="pincodeFORM" action="<?php echo base_url('/'); ?>" method="post" autocomplete="off">
 						<div class="popUpOptions">
 							<div class="row">
-								<div class="col-md-6">
-									<div class="form-check">
-										<input class="form-check-input deliveryTypeRadio" type="radio" name="delivery"
-											   value="self"
-											   id="self_pickup"
-										>
-										<label class="form-check-label" for="self_pickup">Abholen</label>
+
+								<?php
+								$arr = [
+										"self" => "Abholen",
+										"delivery" => "Lieferung",
+
+								];
+
+								foreach ($profile->delivery_option as $key => $delivery_option): ?>
+									<div class="col-md-6">
+										<div class="form-check">
+											<input class="form-check-input deliveryTypeRadio" type="radio" name="delivery"
+												   value="<?=$delivery_option->type?>"
+												   id="label__<?=$delivery_option->type?>"
+											>
+											<label class="form-check-label" for="label__<?=$delivery_option->type?>"><?=$arr[$delivery_option->type]?></label>
+										</div>
 									</div>
-								</div>
-								<div class="col-md-6">
-									<div class="form-check">
-										<input class="form-check-input deliveryTypeRadio" type="radio" name="delivery"
-											   value="delivery"
-											   required
-											   id="delivery_pickup" <?= $this->input->cookie('delivery_type', true) === "delivery" ? "checked" : '' ?>>
-										<label class="form-check-label" for="delivery_pickup">
-											Lieferung
-										</label>
-									</div>
-								</div>
+								<?php endforeach; ?>
+
+
 							</div>
 						</div>
-						<div class="pin_code_form <?= in_array($this->input->cookie('delivery_type', true), ["self",""]) ? "d-none" : ' ' ?>">
+						<div class="pin_code_form <?= in_array($delivery_type, ["self",""]) ? "d-none" : ' ' ?>">
 							<div class="search-location form-group mb-0"><i class="fa fa-map-marker-alt"></i>
 								<input
 										class="form-control form-cstm" id="myInput" type="text"
 										autocomplete="off"
 										placeholder="PLZ eingeben"
-										<?= $this->input->cookie('delivery_type', true) === "self" ? "disabled" : '' ?>
+										<?= $delivery_type === "self" ? "disabled" : '' ?>
 										value="<?= $this->input->cookie('pincode', true) ?>">
 							</div>
 

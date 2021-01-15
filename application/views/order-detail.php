@@ -75,10 +75,21 @@ $this->load->view('includes/header', array('user_data' => $user_data)); ?>
                             </tr>
                             <?php $price += $item->item_price * $item->item_qty ?>
                         <?php endforeach ?>
+                          <tr>
+                            <td></td>
+                            <td>Zwischensumme</td>
+                            <td><?=formatPrice($price)?> €</td>
+                            
+                          </tr>
+                          <tr>
+                            <td></td>
+                            <td>Lieferkosten</td>
+                            <td><?=formatPrice($order->delivery_charge)?> €</td>
+                          </tr>
                             <tr>
                               <td></td>
-                              <td>Total</td>
-                              <td><?=formatPrice($price)?> €</td>
+                              <td> <b>Gesamt</b> </td>
+                              <td> <?=formatPrice($price+$order->delivery_charge)?> €</td>
                             </tr>
                       </tbody>
                   </table>
@@ -91,7 +102,7 @@ $this->load->view('includes/header', array('user_data' => $user_data)); ?>
          </div>
       </section>
 
- <?php $this->load->view('includes/footer',["pincodes" => $pincodes,"profile" => $order->restaurant,"subtotal" =>0,"cartCount" =>0]);
+ <?php $this->load->view('includes/footer',["pincodes" => $pincodes,"profile" => $order->restaurant,"subtotal" =>0,"cartCount" =>0,"checkout" =>true]);
  $mintuesToAdd = 25;
  if($order->pincode && isset($order->pincode->id) && trim($order->pincode->delivery_time) != "" ) {
    $mintuesToAdd = date('i',strtotime($order->pincode->delivery_time));
@@ -99,6 +110,9 @@ $this->load->view('includes/header', array('user_data' => $user_data)); ?>
  if($order->restaurant && isset($order->restaurant->userId) && trim($order->restaurant->minimum_order_time) != "" ) {
    $mintuesToAdd = date('i',strtotime($order->restaurant->minimum_order_time));
  }
+
+ if($mintuesToAdd == "00")
+    $mintuesToAdd = 25;
  ?>
 
 <script type="text/javascript">

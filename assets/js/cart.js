@@ -270,6 +270,7 @@ jQuery(document).ready(function () {
 					if (findItemIndex > -1) {
 						const findElement = $(document).find('.textarea' + itemSKU);
 						const inputTextSpanfindElement = $(document).find('.item_note' + itemSKU);
+
 						if(itemType == "Löschen") {
 							 prepareCartItemArr[findItemIndex].options.product.note = "";
 						}
@@ -280,7 +281,7 @@ jQuery(document).ready(function () {
 						var shortText = truncateString(prepareCartItemArr[findItemIndex].options.product.note);
 						$(document).find('.item_note' + itemSKU).html(shortText);
 
-						if(itemType == "Delete")
+						if(itemType == "Löschen")
 								sendCartItemToServer(prepareCartItemArr);
 					}
 			});
@@ -457,7 +458,10 @@ jQuery(document).ready(function () {
 	_.on('click','.info-pay-card',function(e) {
 		_.find('.info-pay-card').removeClass("active");
 		$(this).addClass("active");
-		_.find(".payment_mode").val($(this).attr("data-ref"))
+		let payment_mode = $(this).find(".gateway_mode").val();
+		_.find(".payment_mode").val($(this).attr("data-ref"));
+		_.find(".order_gateway_mode").val(payment_mode);
+
 	});
 
 	$("[data-toggle='collapse']").click(function(event) {
@@ -469,41 +473,34 @@ jQuery(document).ready(function () {
 
 function setCheckoutButton(flag = 0) {
 	if (prepareCartItemArr.length === 0) {
-		// $('.cartbutton-button').attr("href", 'javascript:void(0)');
-		// $('#responsive-cart-items .btn-primary').attr("href", 'javascript:void(0)');
 		$('.cartButtonSubmit').attr("disabled", true);
 		$('.responsive-menu').addClass("d-none");
 	} else {
-		// $('.cartbutton-button').attr("href", $('.cartbutton-button').attr('data-target-url'));
-		// $('#responsive-cart-items .btn-primary').attr("href", $('#responsive-cart-items .btn-primary').attr('data-target-url'));
 		$('.cartButtonSubmit').removeAttr("disabled");
 		$('.responsive-menu').removeClass("d-none");
-
 	}
-
 
 	if (flag === 1) {
 		$('.cartButtonSubmit').attr("disabled", true);
-		$('.cartButtonSubmit').addClass("d-none");
+		// $('.cartButtonSubmit').addClass("d-none");
 		if ($(window).width() < 1000) {
 			$(".add_more_item_mobile").removeClass('d-none');
 		}
 	}
 	if (flag === 2) {
 		$('.cartButtonSubmit').removeAttr("disabled");
-		$('.cartButtonSubmit').removeClass("d-none");
+		// $('.cartButtonSubmit').removeClass("d-none");
 		if ($(window).width() < 1000) {
-			$(".pizza-column").removeClass("d-none");
-			$(".cart_mobile_icon").addClass('d-none');
 			$(".add_more_item_mobile").addClass('d-none');
 		}
 	}
 
+
 	if ($(window).width() > 1000) {
 		$(".pizza-column").removeClass("d-none");
-		$(".cart_mobile_icon").addClass('d-none');
 		$(".add_more_item_mobile").addClass('d-none');
 	}
+
 }
 
 /*This file can handle functionality of cart*/
@@ -608,7 +605,6 @@ function prepareCartItemArrHTML(response) {
 function updateCartPrice() {
 	// here we need to update cart price or make cart price
 	let subTotal, deliveryCosts = 0;
-
 	// here we need to check pincode charge
 	if (currentPinCodeRow) {
 		deliveryCosts = parseFloat(currentPinCodeRow.deliverycharges);
@@ -650,18 +646,36 @@ function updateCartPrice() {
 }
 
 function setMobilePriceOnCheckoutButton() {
-	let subTotal = prepareCartItemArr.reduce(function (sum, amount) {
+
+
+	let subTotal, deliveryCosts = 0;
+	// here we need to check pincode charge
+	if (currentPinCodeRow) {
+		deliveryCosts = parseFloat(currentPinCodeRow.deliverycharges);
+	}
+
+	if (deliveryType.toString() === "self")
+		deliveryCosts = parseFloat(0);
+
+
+	if (prepareCartItemArr.length === 0)
+		deliveryCosts = 0;
+
+
+	subTotal = prepareCartItemArr.reduce(function (sum, amount) {
 		return sum + (parseFloat(amount.price) * amount.qty);
 	}, 0);
+
+	let totalPrice = subTotal + deliveryCosts;
 
 	let cartQty = prepareCartItemArr.reduce(function (sum, amount) {
 		return sum + amount.qty;
 	}, 0);
 
-	subTotal = subTotal.toFixed(2);
+	totalPrice = totalPrice.toFixed(2);
 
 	_.find('#mobileCartItemsCount').html(`${cartQty}`);
-	_.find('#mobileCartPrice').attr('data-cart-item-price', subTotal).html(`${formatAmount(subTotal)}`);
+	_.find('#mobileCartPrice').attr('data-cart-item-price', totalPrice).html(`${formatAmount(totalPrice)}`);
 }
 
 setMobilePriceOnCheckoutButton();
@@ -893,6 +907,8 @@ function checkProductIsAvailble(container) {
  * @param replacePrice
  */
 function showMinimumOrderAmountByPinCode(replacePrice) {
+
+	console.log(replacePrice);
 	if (replacePrice === 0) {
 		replacePrice = prepareCartItemArr.reduce(function (sum, amount) {
 			return sum + (parseFloat(amount.price) * amount.qty);
@@ -907,33 +923,40 @@ function showMinimumOrderAmountByPinCode(replacePrice) {
 	// if minimum order value is greater than current order value
 
 	if (currentPinCodeRow && parseFloat(currentPinCodeRow.minimum_amount) > parseFloat(replacePrice) && prepareCartItemArr.length) {
+		// here we need to show message
+		setCheckoutButton(1)
+
 		$("#ibasket").addClass("custom_class_basket");
 		minimumCartAmountContainer
 		.removeClass('d-none')
 		.addClass('d-flex')
 		.find('.minimum_cart_amount')
-		.html('€' + parseFloat(currentPinCodeRow.minimum_amount).toFixed(2));
+		.html(formatAmount(parseFloat(currentPinCodeRow.minimum_amount).toFixed(2)) +' €');
 		// we need to hide minimum order container
 		valid_cart_minimum_order.addClass('d-none');
 		no_items_in_cart.removeClass('d-none');
 
 		if ($(window).width() > 770) {
-			$('.cartButtonSubmit').removeClass('d-none');
+			// $('.cartButtonSubmit').removeClass('d-none');
 		}
 
 		if (add_more_item_mobile.is(':visible') || $(window).width() < 770) {
-			$('.cartButtonSubmit').addClass('d-none')
+			// $('.cartButtonSubmit').addClass('d-none');
 		}
-
+		$('.checkoutFormSubmit').prop('disabled',true);
 		// we need mark button as disabled
 		const minimumCartPrice = parseFloat(minimumCartAmountContainer.find('.minimum_cart_amount').attr('data-minimum-cart-amount'));
 		if (minimumCartPrice > replacePrice) {
 			const prepareMinPrice = minimumCartPrice - replacePrice;
-			minimumCartAmountContainer.find('.minimum_cart_amount').html('€' + formatAmount(prepareMinPrice.toFixed(2)));
+			minimumCartAmountContainer.find('.minimum_cart_amount').html( formatAmount(prepareMinPrice.toFixed(2))+ ' €' );
 		}
-		// here we need to show message
-		setCheckoutButton(1)
+
 	} else {
+
+		if (prepareCartItemArr.length)
+			setCheckoutButton(2)
+
+
 		$("#ibasket").removeClass("custom_class_basket");
 		valid_cart_minimum_order.removeClass('d-none');
 		minimumCartAmountContainer.addClass('d-none').removeClass('d-flex');
@@ -941,10 +964,11 @@ function showMinimumOrderAmountByPinCode(replacePrice) {
 		// add_more_item_mobile.addClass('d-none').removeClass('d-block d-sm-none');
 
 		if (!add_more_item_mobile.is(':visible')) {
-			$('.cartButtonSubmit').removeClass('d-none')
+			// $('.cartButtonSubmit').removeClass('d-none')
 		}
 		if (prepareCartItemArr.length)
-			setCheckoutButton(2)
+			$('.checkoutFormSubmit').prop('disabled',false);
+
 	}
 
 	if (prepareCartItemArr.length === 0) {

@@ -67,49 +67,7 @@ if($this->input->cookie('delivery_type', true) != "")
 						<div class="payment-head mt-3">
 							<h2>Auf geht's!</h2>
 							<h4><?= @$profile->name ?></h4>
-							<?php if($this->input->cookie('delivery_type', true) !="self") { ?>
-							<p>Wohin soll Deine Bestellung geliefert werden?</p>
 
-							<hr>
-							<div class="row">
-								<div class="col-md-12 col-xl-6">
-									<div class="form-group mendatory">
-										<label>Adresse</label>
-										<input type="text" name="order_user_details[address]" placeholder=""
-											   class="form-control" value="<?=$address?>">
-									</div>
-									<div class="form-group">
-										<label>Etage</label>
-										<input type="text" name="order_user_details[floor]" placeholder=""
-											   class="form-control" value="<?=$floor?>">
-									</div>
-								</div>
-								<div class="col-md-12 col-xl-6">
-									<div class="row">
-										<div class="col-md-12 col-xl-6">
-											<div class="form-group mendatory">
-												<label>Postleitzahl</label>
-												<input type="text" name="order_user_details[pincode]" placeholder=""
-													   class="form-control"
-														 readonly
-													   value="<?=$pincode?>"
-												>
-												<a class="pull-right" href="#" data-toggle="modal"
-												   data-backdrop="static" data-keyboard="false"
-												   data-target="#search-pop-header"> <u><small>Veränderung Postleitzahl</small></u>  </a>
-											</div>
-										</div>
-										<div class="col-md-12 col-xl-6">
-											<div class="form-group mendatory">
-												<label>Stadt</label>
-												<input type="text" name="order_user_details[city]" placeholder=""
-													   class="form-control" value="<?=$city?>">
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-						<?php }?>
 						</div>
 						<div class="mt-3 payment-head">
 							<p>Wie können wir Dich erreichen?</p>
@@ -150,6 +108,68 @@ if($this->input->cookie('delivery_type', true) != "")
 								</div>
 							</div>
 						</div>
+
+						<?php if($this->input->cookie('delivery_type', true) !="self") { ?>
+							<p>Wohin soll Deine Bestellung geliefert werden?</p>
+							<hr>
+							<div class="row">
+							<div class="col-md-12 col-xl-6">
+								<div class="form-group mendatory">
+									<label>Adresse</label>
+									<input type="text" name="order_user_details[address]" placeholder=""
+											 class="form-control" value="<?=$address?>">
+								</div>
+								<div class="form-group">
+									<label>Etage</label>
+									<input type="text" name="order_user_details[floor]" placeholder=""
+											 class="form-control" value="<?=$floor?>">
+								</div>
+							</div>
+							<div class="col-md-12 col-xl-6">
+								<div class="row">
+									<div class="col-md-12 col-xl-6">
+										<div class="form-group mendatory">
+											<label>Postleitzahl</label>
+											<input type="text" name="order_user_details[pincode]" placeholder=""
+													 class="form-control"
+													 readonly
+													 value="<?=$pincode?>"
+											>
+											<a class="pull-right" href="#" data-toggle="modal"
+												 data-backdrop="static" data-keyboard="false"
+												 data-target="#search-pop-header"> <u><small>Veränderung Postleitzahl</small></u>  </a>
+										</div>
+									</div>
+									<div class="col-md-12 col-xl-6">
+										<div class="form-group mendatory">
+											<label>Stadt</label>
+											<input type="text" name="order_user_details[city]" placeholder=""
+													 class="form-control" value="<?=$city?>">
+										</div>
+									</div>
+
+									<div class="col-12">
+										<div class="form-group">
+											<label>Anmerkungen für das Restaurant</label>
+											<textarea class="form-control" name="order[order_note]" rows="4"
+													  cols="100"></textarea>
+											<div class="payment-check">
+												<div class="custom-control custom-checkbox mt-3">
+													<input type="checkbox" name="order[order_note_is_for_next_order]"
+														   class="custom-control-input" id="remember">
+													<label class="custom-control-label" for="remember">
+														<!--Diese Bemerkung für die nächste Be-->
+														Diese Bestellung für die nächste Bestellung speichern
+													</label>
+												</div>
+											</div>
+										</div>
+									</div>
+
+								</div>
+							</div>
+						</div>
+						<?php }?>
 						<div class="mt-3 payment-head">
 							<!-- <p>Wann möchtest Du Deine Bestellung erhalten?</p> -->
 							<!-- <hr> -->
@@ -175,7 +195,7 @@ if($this->input->cookie('delivery_type', true) != "")
 									<input type="hidden" name="order[order_pick_up]" value="<?=$this->input->cookie('delivery_type', true)?>">
 									<input type="hidden" name="order[desired_delivery_time]" value="ASAP">
 
-								<div class="col-md-12 col-xl-6">
+								<!-- <div class="col-md-12 col-xl-6">
 									<div class="form-group">
 										<label>Anmerkungen für das Restaurant</label>
 										<textarea class="form-control" name="order[order_note]" rows="4"
@@ -185,13 +205,13 @@ if($this->input->cookie('delivery_type', true) != "")
 												<input type="checkbox" name="order[order_note_is_for_next_order]"
 													   class="custom-control-input" id="remember">
 												<label class="custom-control-label" for="remember">
-													<!--Diese Bemerkung für die nächste Be-->
+													<!--Diese Bemerkung für die nächste Be--
 													Diese Bestellung für die nächste Bestellung speichern
 												</label>
 											</div>
 										</div>
 									</div>
-								</div>
+								</div> -->
 							</div>
 						</div>
 						<div class="mt-3 payment-head">

@@ -48,7 +48,7 @@ class Store extends MyController
 		if(trim($this->currentSlug) == "") {
 			$this->currentSlug = $this->uri_slug;
 		}
-
+		
 		delete_cookie('pincode');
 		delete_cookie('delivery_type');
 		// print_r($_POST);die;
